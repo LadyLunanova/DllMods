@@ -1,2 +1,0 @@
-add GenerationsMirrorMode.dll
-add mod.ini

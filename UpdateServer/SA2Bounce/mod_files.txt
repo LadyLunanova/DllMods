@@ -1,0 +1,6 @@
+add SA2Bounce.dll
+add SA2Bounce.json
+add SA2Bounce.ini
+add disk/bb3/SonicBounce.ar.00
+add disk/bb3/SonicBounce.arl
+add mod.ini

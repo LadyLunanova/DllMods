@@ -1,0 +1,168 @@
+{
+   "Groups":[
+	{
+      "Name": "Option",
+      "DisplayName": "Bounce Options",
+      "Elements": [
+			{
+			"Name": "NoBounceEnemy",
+			"Description": [
+				"Go through enemies instead of bouncing on them.",
+				"(It still kills them though, DW)"
+			],
+			"DisplayName": "Go through enemies",
+			"Type":"bool",
+			"MinValue":null,
+			"MaxValue":null,
+			"DefaultValue":false
+			},
+			{
+               "Name":"GroundType",
+               "DisplayName":"Ground Action Type",
+               "Description":[
+                  "Choose what happens when you touch the ground when bouncing.",
+               ],
+               "Type":"GroundType",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":"0"
+            },
+			{
+			"Name": "BounceTricking",
+			"Description": [
+				"Bouncing makes sonic trick instead of curling into a ball."
+			],
+			"DisplayName": "Bounce Tricking",
+			"Type":"bool",
+			"MinValue":null,
+			"MaxValue":null,
+			"DefaultValue":false
+			},
+		]
+		},
+      {
+         "Name":"Main",
+         "DisplayName":"Bounce Physics",
+         "Elements":
+         [
+            {
+               "Name":"Bounce01",
+               "DisplayName":"First Bounce Height",
+               "Description":[
+                  "The speed of Sonic's first bounce.",
+				  "(Default: 16)",
+				  "(Measured in meters/s)"
+               ],
+               "Type":"float",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":16
+            },
+            {
+               "Name":"Bounce02",
+               "DisplayName":"Second Bounce Height",
+               "Description":[
+                  "The speed of Sonic's second bounce.",
+				  "(Default: 18)",
+				  "(Measured in meters/s)"
+               ],
+               "Type":"float",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":18
+            },
+			{
+               "Name":"Bounce03",
+               "DisplayName":"Third Bounce Height",
+               "Description":[
+                  "The speed of Sonic's third bounce.",
+				  "(Default: 20)",
+				  "(Measured in meters/s)"
+               ],
+               "Type":"float",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":20
+            },
+			{
+               "Name":"Bounce04",
+               "DisplayName":"Fourth Bounce Height",
+               "Description":[
+                  "The speed of Sonic's fourth bounce.",
+				  "(Default: 22)",
+				  "(Measured in meters/s)"
+               ],
+               "Type":"float",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":22
+            },
+			{
+               "Name":"Bounce05",
+               "DisplayName":"Final Bounce Height",
+               "Description":[
+                  "The speed of Sonic's final bounce.",
+				  "(Default: 24)",
+				  "(Measured in meters/s)"
+               ],
+               "Type":"float",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":24
+            },
+			{
+               "Name":"BounceDrop",
+               "DisplayName":"Bounce Downwards Speed",
+               "Description":[
+                  "The initial downward speed of bouncing.",
+				  "(Default: 22)",
+				  "(Measured in meters/s)"
+               ],
+               "Type":"float",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":22
+            },
+			{
+               "Name":"BounceMulti",
+               "DisplayName":"Bounce Acceleration Multiplier",
+               "Description":[
+                  "Multiplier for the downward acceleration.",
+				  "(Default: 1)",
+				  "(Accelaration adds 1.022 downwards velocity each frame)"
+               ],
+               "Type":"float",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":1
+            },
+         ]
+      }
+   ],
+   "Enums":{
+      "GroundType":[
+         {
+            "DisplayName":"Always Bounce",
+            "Value":"0",
+            "Description":[
+               "Always bounces when touching the ground.",
+            ]
+         },
+         {
+            "DisplayName":"Hold B to Bounce",
+            "Value":"1",
+            "Description":[
+               "Bounces if you touch the ground while holding the B button, otherwise Stomps or Slides.",
+            ]
+         },
+		 {
+            "DisplayName":"Hold B to Stomp/Slide",
+            "Value":"1",
+            "Description":[
+               "Stomps or slides if you touch the ground while holding the B button, otherwise bounces.",
+            ]
+         }
+      ]
+   },
+   "IniFile":"SA2Bounce.ini"
+}

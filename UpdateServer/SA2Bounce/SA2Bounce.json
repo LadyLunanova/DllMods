@@ -157,7 +157,7 @@
          },
 		 {
             "DisplayName":"Hold B to Stomp/Slide",
-            "Value":"1",
+            "Value":"2",
             "Description":[
                "Stomps or slides if you touch the ground while holding the B button, otherwise bounces.",
             ]

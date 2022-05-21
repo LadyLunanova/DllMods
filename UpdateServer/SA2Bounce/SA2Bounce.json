@@ -8,7 +8,8 @@
 			"Name": "NoBounceEnemy",
 			"Description": [
 				"Go through enemies instead of bouncing on them.",
-				"(It still kills them though, DW)"
+				"(It still kills them though, DW)",
+				"(Modern Only)"
 			],
 			"DisplayName": "Go through enemies",
 			"Type":"bool",
@@ -21,6 +22,7 @@
                "DisplayName":"Ground Action Type",
                "Description":[
                   "Choose what happens when you touch the ground when bouncing.",
+				  "(Modern Only)"
                ],
                "Type":"GroundType",
                "MinValue":null,

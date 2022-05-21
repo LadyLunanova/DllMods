@@ -388,17 +388,6 @@ HOOK(void, __fastcall, StompBounce, 0x012548C0, hh::fnd::CStateMachineBase::CSta
 HOOK(void, __fastcall, EnterClassicStompBounce, 0x012555D0, hh::fnd::CStateMachineBase::CStateBase* This)
 {
 	//originalEnterStompBounce(This);
-
-	if (!NoBounceEnemy) //Check config setting
-	{
-		WRITE_MEMORY(0x16D9268, size_t, 0x1114EB0); //Replace stomp's ProcessMessage with jump's (makes sonic bounce off of enemies)
-	}
-	else
-	{
-		WRITE_MEMORY(0x16D6474, size_t, 0x01254870); //Set Stomp's ProcessMessage to the original one (in order to check in real-time)
-		return;
-	}
-
 	auto sonic = (Sonic::Player::CPlayerSpeedContext*)This->m_pContext;
 	auto player = sonic->m_pPlayer;
 	//auto localVelocity = sonic->m_spMatrixNode->m_Transform.m_Rotation.inverse() * sonic->m_Velocity; //Determine local axis velocity
@@ -594,8 +583,8 @@ HOOK(void, __cdecl, InitializeApplicationParams_LUNA, 0x00D65180, Sonic::CParame
 	 
 	//cat_Bounce->CreateParamBool(&StompGround, "Stomps on ground on B hold");
 	//cat_Bounce->CreateParamBool(&BounceGround, "Bounce on ground on B hold");
-	cat_Bounce->CreateParamBool(&NoBounceEnemy, "Bounce goes through enemies");
-	cat_Bounce->CreateParamTypeList((uint32_t*)&GroundType, "Ground Action Type", "The behavior for bouncing on the ground",
+	cat_Bounce->CreateParamBool(&NoBounceEnemy, "Bounce goes through enemies (Modern Only)");
+	cat_Bounce->CreateParamTypeList((uint32_t*)&GroundType, "Ground Action Type", "The behavior for bouncing on the ground (Modern Only)",
 		{
 			{ "Always Bounce", 0},
 			{ "Hold B to Bounce", 1},
@@ -629,6 +618,7 @@ EXPORT void Init()
 	Bounce05 = reader.GetFloat("Main", "Bounce05", Bounce05);
 	BounceDrop = reader.GetFloat("Main", "BounceDrop", BounceDrop);
 	BounceMulti = reader.GetFloat("Main", "BounceMulti", BounceMulti);
+	WRITE_MEMORY(0x16D9268, size_t, 0x1114EB0); //Replace classic stomp's ProcessMessage with jump's (makes sonic bounce off of enemies)
 	INSTALL_HOOK(CPlayerSpeedUpdateParallel);
 	INSTALL_HOOK(EnterStompBounce);
 	INSTALL_HOOK(StompBounce);

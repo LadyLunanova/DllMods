@@ -471,7 +471,7 @@ HOOK(void, __fastcall, HUDControlsStart, 0x0042A810, hh::fnd::CStateMachineBase:
 	//originalHUDControlsStart(This);
 }
 
-HOOK(void, __fastcall, HUDControlsUpdate, 0x0042AAF0, Sonic::CGameObject* This)
+HOOK(void, __fastcall, HUDControlsUpdate, 0x0042AAF0, hh::fnd::CStateMachineBase::CStateBase* This)
 {
 	auto input = Sonic::CInputState::GetInstance()->GetPadState();
 	auto inputState = Sonic::CInputState::GetInstance();
@@ -488,14 +488,11 @@ HOOK(void, __fastcall, HUDControlsUpdate, 0x0042AAF0, Sonic::CGameObject* This)
 	bool PressedDw = input.IsTapped(Sonic::eKeyState_DpadDown) || inputPtr->LeftStickVertical <= -0.5f;
 	static SharedPtrTypeless menuSoundHandle;
 
-	//rcCustomBG->GetNode("txt_box")->SetText(text);
-
 	if (PressedA)
 	{
 		switch (MenuOption)
 		{
 		case 0:
-			
 			rcCustomize->SetMotion("select_Anim_1");
 			rcCustomize->SetMotionFrame(0.0f);
 			rcCustomize->m_MotionDisableFlag = false;
@@ -537,8 +534,22 @@ HOOK(void, __fastcall, HUDControlsUpdate, 0x0042AAF0, Sonic::CGameObject* This)
 			}
 			break;
 		case 2:
+			rcCustomize->SetMotion("select_Anim_3");
+			rcCustomize->SetMotionFrame(0.0f);
+			rcCustomize->m_MotionDisableFlag = false;
+			rcCustomize->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+			rcCustomize->m_MotionSpeed = 1.0f;
+			rcCustomize->Update();
+			Common::PlaySoundStatic(menuSoundHandle, 1000005);
 			break;
 		case 3:
+			rcCustomize->SetMotion("select_Anim_4");
+			rcCustomize->SetMotionFrame(0.0f);
+			rcCustomize->m_MotionDisableFlag = false;
+			rcCustomize->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+			rcCustomize->m_MotionSpeed = 1.0f;
+			rcCustomize->Update();
+			Common::PlaySoundStatic(menuSoundHandle, 1000005);
 			break;
 		}
 	}
@@ -560,7 +571,6 @@ HOOK(void, __fastcall, HUDControlsUpdate, 0x0042AAF0, Sonic::CGameObject* This)
 			rcCustomize->SetMotion("close_Anim_4");
 			break;
 		}
-		//rcCustomize->SetMotion("close_Anim_1");
 		rcCustomize->SetMotionFrame(0.0f);
 		rcCustomize->m_MotionDisableFlag = false;
 		rcCustomize->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
@@ -573,6 +583,7 @@ HOOK(void, __fastcall, HUDControlsUpdate, 0x0042AAF0, Sonic::CGameObject* This)
 		rcCustomBG->m_MotionSpeed = 1.0f;
 		rcCustomBG->Update();
 		Common::PlaySoundStatic(menuSoundHandle, 1000007);
+		//This->m_pStateMachine->ChangeState("OPEN");
 		//FUNCTION_PTR(void, __stdcall, ControlMenuPlayOuttro, 0x010AF250, int hudHowTo);
 		//ControlMenuPlayOuttro(*(uint32_t*)((uint32_t)This + 0x24));
 		//*(uint8_t*)((uint32_t)This + 44) = 1;
@@ -735,6 +746,7 @@ HOOK(void, __fastcall, HUDControlsUpdate, 0x0042AAF0, Sonic::CGameObject* This)
 	printf("Scarf: ");
 	printf("%d", Scarf);
 	printf(" - Controls Menu");
+	//printf(This->m_pStateMachine->GetCurrentState()->GetStateName().c_str());
 	printf("\n");
 	
 	//originalHUDControlsUpdate(This);

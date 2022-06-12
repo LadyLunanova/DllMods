@@ -1,4 +1,5 @@
 #include <Common.h>
+#include "UpdateDirector.h"
 
 //Sonic setup
 enum SelectShoeType
@@ -87,6 +88,7 @@ enum MenuOptionType
 };
 MenuOptionType MenuOption = MenuOptionType::UIPartShoes;
 int ItemOption = 0; 
+bool prevblur = false;
 bool IsInMenu = false;
 bool IsInMenuChange = false;
 bool IsInMenuChangeL = false;
@@ -105,6 +107,7 @@ enum ShSUVariantType
 };
 ShSUVariantType ShSUVariant = ShSUVariantType::SUAirboost;
 bool HRMagicVariant = false;
+bool* const ENABLE_BLUR = (bool*)0x1A43103;
 
 //Handle Fire VFX
 SharedPtrTypeless WildfireVfxHandle;
@@ -283,6 +286,8 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 
 	if (PressedSL && !IsInMenu)
 	{
+		prevblur = *ENABLE_BLUR;
+		*ENABLE_BLUR = false;
 		MenuOption = UIPartShoes;
 		ItemOption = 0;
 		if (!prFittingScreen) //Create UI project if it doesn't exist
@@ -746,6 +751,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 			IsInMenu = false;
 			MenuOption = UIPartShoes;
 			ItemOption = 0;
+			*ENABLE_BLUR = prevblur;
 			Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scChara);
 			Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scIcon);
 			Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scTextArea);
@@ -2142,6 +2148,48 @@ HOOK(void, __fastcall, CHUDPauseUpdate, 0x0042A520, hh::fnd::CStateMachineBase::
 	originalCHUDPauseUpdate(This);
 }
 
+//Handle Pausing
+HOOK(void, __fastcall, CPlayerAddCallback, 0xE799F0, Sonic::Player::CPlayer* This, void* Edx, const Hedgehog::Base::THolder<Sonic::CWorld>& worldHolder, Sonic::CGameDocument* pGameDocument, const boost::shared_ptr<Hedgehog::Database::CDatabase>& spDatabase)
+{
+	pGameDocument->AddUpdateUnit("9", This);
+	originalCPlayerAddCallback(This, Edx, worldHolder, pGameDocument, spDatabase);
+}
+void* updateDirectorCustom(void* context, float elapsedTime)
+{
+	addUpdateCommand(context, elapsedTime, "1");
+	//addUpdateCommand(context, elapsedTime, "2");
+	addUpdateCommand(context, elapsedTime, "3");
+	addUpdateCommand(context, elapsedTime, "b");
+	//addUpdateCommand(context, elapsedTime, "e");
+	addUpdateCommand(context, elapsedTime, "9");
+	
+	callUnknownFunction(context, elapsedTime);
+
+	addRenderCommand(context, elapsedTime, "1");
+	//addRenderCommand(context, elapsedTime, "2");
+	addRenderCommand(context, elapsedTime, "3");
+	addRenderCommand(context, elapsedTime, "b");
+	//addRenderCommand(context, elapsedTime, "e");
+	addRenderCommand(context, elapsedTime, "9");
+
+	finishRenderer(context);
+	return finishUpdater(context);
+}
+HOOK(void*, __fastcall, UpdateDirectorSimple, 0x1105A60, void* This, void* Edx, void* context, float elapsedTime)
+{
+	if (IsInMenu)
+		return updateDirectorCustom(context, elapsedTime);
+
+	return originalUpdateDirectorSimple(This, Edx, context, elapsedTime);
+}
+HOOK(void*, __fastcall, UpdateDirectorNormal, 0x11B60B0, void* This, void* Edx, void* context, float elapsedTime)
+{
+	if (IsInMenu)
+		return updateDirectorCustom(context, elapsedTime);
+
+	return originalUpdateDirectorNormal(This, Edx, context, elapsedTime);
+}
+
 //Parameter Editor Options
 HOOK(void, __cdecl, InitializeApplicationParams, 0x00D65180, Sonic::CParameterFile* This)
 {
@@ -2314,6 +2362,9 @@ EXPORT void Init()
 	INSTALL_HOOK(LoadArchive);
 	INSTALL_HOOK(LoadArchiveList);
 	INSTALL_HOOK(MsgRestartStage);
+	INSTALL_HOOK(UpdateDirectorSimple);
+	INSTALL_HOOK(UpdateDirectorNormal);
+	INSTALL_HOOK(CPlayerAddCallback);
 	WRITE_MEMORY(0x16D4B4C, void*, CSonicRemoveCallback);
 	//WRITE_NOP(0x0042AB50, 5); //idk i forgor
 	//WRITE_JUMP(0x42A82C, (void*)0x42A9E5); //Jumps over entire state if

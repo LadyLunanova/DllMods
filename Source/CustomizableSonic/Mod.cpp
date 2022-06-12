@@ -108,6 +108,15 @@ enum ShSUVariantType
 ShSUVariantType ShSUVariant = ShSUVariantType::SUAirboost;
 bool HRMagicVariant = false;
 bool* const ENABLE_BLUR = (bool*)0x1A43103;
+void PlayCursorAnim()
+{
+	scIcon->SetMotion("ON_Anim");
+	scIcon->SetMotionFrame(0.0f);
+	scIcon->m_MotionDisableFlag = false;
+	scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+	scIcon->m_MotionSpeed = 1.0f;
+	scIcon->Update();
+}
 
 //Handle Fire VFX
 SharedPtrTypeless WildfireVfxHandle;
@@ -135,20 +144,6 @@ HOOK(void, __fastcall, MsgRestartStage, 0xE76810, Sonic::Player::CPlayer* This, 
 }
 void __fastcall CSonicRemoveCallback(Sonic::Player::CPlayer* This, void* Edx, void* A1)
 {
-	IsInMenuExit = false;
-	IsInMenu = false;
-	MenuOption = UIPartShoes;
-	ItemOption = 0;
-	if (scChara)
-		Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scChara);
-	if (scIcon)
-		Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scIcon);
-	if (scTextArea)
-		Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scTextArea);
-	if (scLRMove)
-		Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scLRMove);
-	if (scDeco)
-		Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scDeco);
 	KillFireParticle(This);
 }
 
@@ -281,6 +276,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 	auto rowY1 = 0.3990;
 	auto rowY2 = 0.5515;
 	auto rowY3 = 0.7046;
+	auto scenecheck = scIcon && scChara && scTextArea && scLRMove;
 	FUNCTION_PTR(void, __thiscall, changeState, 0x773250, void* This, boost::shared_ptr<void>&spState, const Hedgehog::Base::CSharedString name);
 	boost::shared_ptr<void> spState;
 
@@ -290,7 +286,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 		*ENABLE_BLUR = false;
 		MenuOption = UIPartShoes;
 		ItemOption = 0;
-		if (!prFittingScreen) //Create UI project if it doesn't exist
+		if (!obCustomUI) //Create UI project if it doesn't exist
 		{
 			CreateFittingUI(This, Edx, in_rUpdateInfo);
 		}
@@ -352,6 +348,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 		//Misc
 		IsInMenu = true;
 		Common::PlaySoundStatic(menuSoundHandle, 1000002);
+		return;
 	}
 
 	if (IsInMenu && scIcon && scChara)
@@ -388,613 +385,8 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 			break;
 		}
 
-		if (scIcon && scChara && scTextArea && scLRMove && PressedA && !IsInMenuExit && !IsInMenuChange)
-		{
-			switch (MenuOption)
-			{
-			case UIPartShoes:
-				switch (ItemOption)
-				{
-				case 0:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					SelectShoes = ShDefault;
-					break;
-				case 1:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					SelectShoes = ShSA1LightSpd;
-					break;
-				case 2:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					if (!ShSoapVariant)
-						SelectShoes = ShSoaps;
-					else
-						SelectShoes = ShSoapsLightSpd;
-					break;
-				case 3:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 4:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					SelectShoes = Sh06Gem;
-					break;
-				case 5:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 6:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 7:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 8:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					SelectShoes = ShPumas;
-					break;
-				}
-				break;
-			case UIPartBody:
-				switch (ItemOption)
-				{
-				case 0:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					SelectBody = BdDefault;
-					break;
-				case 1:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 2:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					SelectBody = BdWildFire;
-					break;
-				case 3:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 4:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					SelectBody = BdScarf;
-					break;
-				case 5:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 6:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 7:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 8:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				}
-				break;
-			case UIPartHead:
-				switch (ItemOption)
-				{
-				case 0:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					SelectHead = HeDefault;
-					break;
-				case 1:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					SelectHead = HeSA1Sunglass;
-					break;
-				case 2:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					SelectHead = HeRiders;
-					break;
-				case 3:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 4:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 5:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 6:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 7:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 8:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				}
-				break;
-			case UIPartHandL:
-				switch (ItemOption)
-				{
-				case 0:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					SelectHandL = HLDefault;
-					break;
-				case 1:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					SelectHandL = HLCrystalRing;
-					break;
-				case 2:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 3:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 4:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 5:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 6:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 7:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 8:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				}
-				break;
-			case UIPartHandR:
-				switch (ItemOption)
-				{
-				case 0:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					SelectHandR = HRDefault;
-					break;
-				case 1:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 2:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 3:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 4:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 5:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 6:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 7:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 8:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				}
-				break;
-			}
-		}
-
-		if (scIcon && scChara && scTextArea && scLRMove && PressedB && !IsInMenuExit && !IsInMenuChange)
-		{
-			Common::PlaySoundStatic(menuSoundHandle, 1000003);
-			IsInMenuExit = true;
-			//IsInMenu = false;
-			//MenuOption = 0;
-			//ItemOption = 0;
-			//Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scChara);
-			//Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scIcon);
-			scChara->SetMotion("Intro_Anim");
-			scChara->SetMotionFrame(22.0f);
-			scChara->m_MotionDisableFlag = false;
-			scChara->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scChara->m_MotionSpeed = -1.0f;
-			scChara->Update();
-			scIcon->SetMotion("OFF_Anim");
-			scIcon->SetMotionFrame(0.0f);
-			scIcon->m_MotionDisableFlag = false;
-			scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scIcon->m_MotionSpeed = 1.0f;
-			scIcon->Update();
-			scTextArea->SetMotion("Intro_Anim");
-			scTextArea->SetMotionFrame(17.0f);
-			scTextArea->m_MotionDisableFlag = false;
-			scTextArea->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scTextArea->m_MotionSpeed = -0.5f;
-			scTextArea->Update();
-			if (scDeco)
-			{
-				scDeco->SetMotion("Intro_Anim");
-				scDeco->SetMotionFrame(23.0f);
-				scDeco->m_MotionDisableFlag = false;
-				scDeco->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-				scDeco->m_MotionSpeed = -1.0f;
-				scDeco->Update();
-			}
-		}
-
-		if (scIcon && scChara && scTextArea && scLRMove && PressedY && !IsInMenuExit && !IsInMenuChange)
-		{
-			if (MenuOption == UIPartShoes)
-			{
-				switch (ItemOption)
-				{
-				case 2:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					scIcon->SetMotion("ON_Anim");
-					scIcon->SetMotionFrame(0.0f);
-					scIcon->m_MotionDisableFlag = false;
-					scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-					scIcon->m_MotionSpeed = 1.0f;
-					scIcon->Update();
-					if (!ShSoapVariant)
-					{
-						ShSoapVariant = true;
-						if (SelectShoes == ShSoaps)
-							SelectShoes = ShSoapsLightSpd;
-					}
-					else
-					{
-						ShSoapVariant = false;
-						if (SelectShoes == ShSoapsLightSpd)
-							SelectShoes = ShSoaps;
-					}
-					break;
-				case 5:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					scIcon->SetMotion("ON_Anim");
-					scIcon->SetMotionFrame(0.0f);
-					scIcon->m_MotionDisableFlag = false;
-					scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-					scIcon->m_MotionSpeed = 1.0f;
-					scIcon->Update();
-					switch (ShSUVariant)
-					{
-					case SUAirboost:
-						ShSUVariant = SULightSpd;
-						break;
-					case SULightSpd:
-						ShSUVariant = SUStomp;
-						break;
-					case SUStomp:
-						ShSUVariant = SUWallJmp;
-						break;
-					case SUWallJmp:
-						ShSUVariant = SUWerehog;
-						break;
-					case SUWerehog:
-						ShSUVariant = SUZoney;
-						break;
-					case SUZoney:
-						ShSUVariant = SUAirboost;
-						break;
-					}
-					break;
-				}
-			}
-			if (MenuOption == UIPartHandR)
-			{
-				switch (ItemOption)
-				{
-				case 1:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					scIcon->SetMotion("ON_Anim");
-					scIcon->SetMotionFrame(0.0f);
-					scIcon->m_MotionDisableFlag = false;
-					scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-					scIcon->m_MotionSpeed = 1.0f;
-					scIcon->Update();
-					if (!HRMagicVariant)
-					{
-						HRMagicVariant = true;
-						if (SelectHandR == HRBounceBracelet)
-							SelectHandR = HRMagicHands;
-					}
-					else
-					{
-						HRMagicVariant = false;
-						if (SelectHandR == HRMagicHands)
-							SelectHandR = HRBounceBracelet;
-					}
-					break;
-				}
-			}
-		}
-
-		if (scIcon && scChara && scTextArea && scLRMove && (PressedRB || PressedLB) && !IsInMenuExit)
-		{
-			Common::PlaySoundStatic(menuSoundHandle, 1000006);
-			IsInMenuChange = true;
-			if (PressedRB)
-			{
-				IsInMenuChangeR = true;
-				scLRMove->SetMotion("Right_ON_Anim");
-				scLRMove->SetMotionFrame(0.0f);
-				scLRMove->m_MotionDisableFlag = false;
-				scLRMove->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-				scLRMove->m_MotionSpeed = 1.0f;
-				scLRMove->Update();
-			}
-			if (PressedLB)
-			{
-				IsInMenuChangeL = true;
-				scLRMove->SetMotion("Left_ON_Anim");
-				scLRMove->SetMotionFrame(0.0f);
-				scLRMove->m_MotionDisableFlag = false;
-				scLRMove->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-				scLRMove->m_MotionSpeed = 1.0f;
-				scLRMove->Update();
-			}
-			IsInMenuExit = false;
-			//MenuOption = 0;
-			//ItemOption = 0;
-			scChara->SetMotion("Intro_Anim");
-			scChara->SetMotionFrame(22.0f);
-			scChara->m_MotionDisableFlag = false;
-			scChara->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scChara->m_MotionSpeed = -2.0f;
-			scChara->Update();
-			scIcon->SetMotion("OFF_Anim");
-			scIcon->SetMotionFrame(0.0f);
-			scIcon->m_MotionDisableFlag = false;
-			scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scIcon->m_MotionSpeed = 1.0f;
-			scIcon->Update();
-			scTextArea->SetMotion("Intro_Anim");
-			scTextArea->SetMotionFrame(17.0f);
-			scTextArea->m_MotionDisableFlag = false;
-			scTextArea->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scTextArea->m_MotionSpeed = -1.8f;
-			scTextArea->Update();
-		}
-
-		if (scIcon && scChara && scTextArea && scLRMove && IsInMenuExit && scChara->m_MotionFrame <= 0 && !IsInMenuChange)
-		{
-			IsInMenuExit = false;
-			IsInMenu = false;
-			MenuOption = UIPartShoes;
-			ItemOption = 0;
-			*ENABLE_BLUR = prevblur;
-			Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scChara);
-			Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scIcon);
-			Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scTextArea);
-			Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scLRMove);
-			if (scDeco)
-				Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scDeco);
-		}
-
-		if (scIcon && scChara && scTextArea && scLRMove && IsInMenuChange && scChara->m_MotionFrame <= 0 && !IsInMenuExit)
-		{
-			IsInMenuChange = false;
-			//MenuOption = UIPartShoes;
-			if (IsInMenuChangeR)
-			{
-				switch (MenuOption)
-				{
-				case UIPartShoes:
-					MenuOption = UIPartBody;
-					break;
-				case UIPartBody:
-					MenuOption = UIPartHead;
-					break;
-				case UIPartHead:
-					MenuOption = UIPartHandL;
-					break;
-				case UIPartHandL:
-					MenuOption = UIPartHandR;
-					break;
-				case UIPartHandR:
-					MenuOption = UIPartShoes;
-					break;
-				}
-			}
-			if (IsInMenuChangeL)
-			{
-				switch (MenuOption)
-				{
-				case UIPartShoes:
-					MenuOption = UIPartHandR;
-					break;
-				case UIPartBody:
-					MenuOption = UIPartShoes;
-					break;
-				case UIPartHead:
-					MenuOption = UIPartBody;
-					break;
-				case UIPartHandL:
-					MenuOption = UIPartHead;
-					break;
-				case UIPartHandR:
-					MenuOption = UIPartHandL;
-					break;
-				}
-			}
-			//ItemOption = 0;
-			IsInMenuChangeR = false;
-			IsInMenuChangeL = false;
-			scChara->SetMotion("Intro_Anim");
-			scChara->SetMotionFrame(0.0f);
-			scChara->m_MotionDisableFlag = false;
-			scChara->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scChara->m_MotionSpeed = 2.0f;
-			scChara->Update();
-			scIcon->SetMotion("ON_Anim");
-			scIcon->SetMotionFrame(0.0f);
-			scIcon->m_MotionDisableFlag = false;
-			scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scIcon->m_MotionSpeed = 1.0f;
-			scIcon->Update();
-			scTextArea->SetMotion("Intro_Anim");
-			scTextArea->SetMotionFrame(0.0f);
-			scTextArea->m_MotionDisableFlag = false;
-			scTextArea->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scTextArea->m_MotionSpeed = 1.0f;
-			scTextArea->Update();
-		}
-
-		if (scIcon && scChara && scTextArea && scLRMove && (PressedUp || (PushedUp && scIcon->m_MotionFrame >= 10)) && !IsInMenuExit && !IsInMenuChange)
-		{
-			Common::PlaySoundStatic(menuSoundHandle, 1000004);
-			switch (ItemOption)
-			{
-			case 0:
-				ItemOption = 6;
-				break;
-			case 1:
-				ItemOption = 7;
-				break;
-			case 2:
-				ItemOption = 8;
-				break;
-			case 3:
-				ItemOption = 0;
-				break;
-			case 4:
-				ItemOption = 1;
-				break;
-			case 5:
-				ItemOption = 2;
-				break;
-			case 6:
-				ItemOption = 3;
-				break;
-			case 7:
-				ItemOption = 4;
-				break;
-			case 8:
-				ItemOption = 5;
-				break;
-			}
-			scIcon->SetMotion("ON_Anim");
-			scIcon->SetMotionFrame(0.0f);
-			scIcon->m_MotionDisableFlag = false;
-			scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scIcon->m_MotionSpeed = 1.0f;
-			scIcon->Update();
-		}
-
-		if (scIcon && scChara && scTextArea && scLRMove && (PressedDown || (PushedDown && scIcon->m_MotionFrame >= 10)) && !IsInMenuExit && !IsInMenuChange)
-		{
-			Common::PlaySoundStatic(menuSoundHandle, 1000004);
-			switch (ItemOption)
-			{
-			case 0:
-				ItemOption = 3;
-				break;
-			case 1:
-				ItemOption = 4;
-				break;
-			case 2:
-				ItemOption = 5;
-				break;
-			case 3:
-				ItemOption = 6;
-				break;
-			case 4:
-				ItemOption = 7;
-				break;
-			case 5:
-				ItemOption = 8;
-				break;
-			case 6:
-				ItemOption = 0;
-				break;
-			case 7:
-				ItemOption = 1;
-				break;
-			case 8:
-				ItemOption = 2;
-				break;
-			}
-			scIcon->SetMotion("ON_Anim");
-			scIcon->SetMotionFrame(0.0f);
-			scIcon->m_MotionDisableFlag = false;
-			scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scIcon->m_MotionSpeed = 1.0f;
-			scIcon->Update();
-		}
-
-		if (scIcon && scChara && scTextArea && scLRMove && (PressedLeft || (PushedLeft && scIcon->m_MotionFrame >= 10)) && !IsInMenuExit && !IsInMenuChange)
-		{
-			Common::PlaySoundStatic(menuSoundHandle, 1000004);
-			switch (ItemOption)
-			{
-			case 0:
-				ItemOption = 2;
-				break;
-			case 1:
-				ItemOption = 0;
-				break;
-			case 2:
-				ItemOption = 1;
-				break;
-			case 3:
-				ItemOption = 5;
-				break;
-			case 4:
-				ItemOption = 3;
-				break;
-			case 5:
-				ItemOption = 4;
-				break;
-			case 6:
-				ItemOption = 8;
-				break;
-			case 7:
-				ItemOption = 6;
-				break;
-			case 8:
-				ItemOption = 7;
-				break;
-			}
-			scIcon->SetMotion("ON_Anim");
-			scIcon->SetMotionFrame(0.0f);
-			scIcon->m_MotionDisableFlag = false;
-			scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scIcon->m_MotionSpeed = 1.0f;
-			scIcon->Update();
-		}
-
-		if (scIcon && scChara && scTextArea && scLRMove && (PressedRight || (PushedRight && scIcon->m_MotionFrame >= 10)) && !IsInMenuExit && !IsInMenuChange)
-		{
-			Common::PlaySoundStatic(menuSoundHandle, 1000004);
-			switch (ItemOption)
-			{
-			case 0:
-				ItemOption = 1;
-				break;
-			case 1:
-				ItemOption = 2;
-				break;
-			case 2:
-				ItemOption = 0;
-				break;
-			case 3:
-				ItemOption = 4;
-				break;
-			case 4:
-				ItemOption = 5;
-				break;
-			case 5:
-				ItemOption = 3;
-				break;
-			case 6:
-				ItemOption = 7;
-				break;
-			case 7:
-				ItemOption = 8;
-				break;
-			case 8:
-				ItemOption = 6;
-				break;
-			}
-			scIcon->SetMotion("ON_Anim");
-			scIcon->SetMotionFrame(0.0f);
-			scIcon->m_MotionDisableFlag = false;
-			scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scIcon->m_MotionSpeed = 1.0f;
-			scIcon->Update();
-		}
-
 		////Icon Handlers////
-		if (scIcon && scChara)
+		if (scenecheck)
 		{
 			switch (MenuOption)
 			{
@@ -1010,19 +402,19 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 				else
 					scChara->GetNode("img_ch_1")->SetPatternIndex(1);
 				//Soap Shoes
-				if (!ShSoapVariant)
-				{
-					if (SelectShoes == ShSoaps)
-						scChara->GetNode("img_ch_2")->SetPatternIndex(2);
-					else
-						scChara->GetNode("img_ch_2")->SetPatternIndex(1);
-				}
-				else
+				if (ShSoapVariant)
 				{
 					if (SelectShoes == ShSoapsLightSpd)
 						scChara->GetNode("img_ch_2")->SetPatternIndex(12);
 					else
 						scChara->GetNode("img_ch_2")->SetPatternIndex(11);
+				}
+				else
+				{
+					if (SelectShoes == ShSoaps)
+						scChara->GetNode("img_ch_2")->SetPatternIndex(2);
+					else
+						scChara->GetNode("img_ch_2")->SetPatternIndex(1);
 				}
 				//Riders Shoes
 				if (SelectShoes == Sh06Gem)
@@ -1180,11 +572,669 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 				scTextArea->GetNode("textarea_textbox")->SetPatternIndex(4);
 				break;
 			}
+
 		}
 
-		//printf("%f", scChara->m_MotionFrame);
+		if (scenecheck && (PressedA && scIcon->m_MotionFrame >= 3) && !IsInMenuExit && !IsInMenuChange)
+		{
+			switch (MenuOption)
+			{
+			case UIPartShoes:
+				switch (ItemOption)
+				{
+				case 0:
+					Common::PlaySoundStatic(menuSoundHandle, 1000005);
+					PlayCursorAnim();
+					SelectShoes = ShDefault;
+					break;
+				case 1:
+					Common::PlaySoundStatic(menuSoundHandle, 1000005);
+					PlayCursorAnim();
+					SelectShoes = ShSA1LightSpd;
+					break;
+				case 2:
+					Common::PlaySoundStatic(menuSoundHandle, 1000005);
+					PlayCursorAnim();
+					if (!ShSoapVariant)
+						SelectShoes = ShSoaps;
+					else
+						SelectShoes = ShSoapsLightSpd;
+					break;
+				case 3:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				case 4:
+					Common::PlaySoundStatic(menuSoundHandle, 1000005);
+					PlayCursorAnim();
+					SelectShoes = Sh06Gem;
+					break;
+				case 5:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				case 6:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				case 7:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				case 8:
+					Common::PlaySoundStatic(menuSoundHandle, 1000005);
+					PlayCursorAnim();
+					SelectShoes = ShPumas;
+					break;
+				}
+				return;
+				break;
+			case UIPartBody:
+				switch (ItemOption)
+				{
+				case 0:
+					Common::PlaySoundStatic(menuSoundHandle, 1000005);
+					PlayCursorAnim();
+					SelectBody = BdDefault;
+					break;
+				case 1:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				case 2:
+					Common::PlaySoundStatic(menuSoundHandle, 1000005);
+					PlayCursorAnim();
+					SelectBody = BdWildFire;
+					break;
+				case 3:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				case 4:
+					Common::PlaySoundStatic(menuSoundHandle, 1000005);
+					PlayCursorAnim();
+					SelectBody = BdScarf;
+					break;
+				case 5:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				case 6:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				case 7:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				case 8:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				}
+				return;
+				break;
+			case UIPartHead:
+				switch (ItemOption)
+				{
+				case 0:
+					Common::PlaySoundStatic(menuSoundHandle, 1000005);
+					PlayCursorAnim();
+					SelectHead = HeDefault;
+					break;
+				case 1:
+					Common::PlaySoundStatic(menuSoundHandle, 1000005);
+					PlayCursorAnim();
+					SelectHead = HeSA1Sunglass;
+					break;
+				case 2:
+					Common::PlaySoundStatic(menuSoundHandle, 1000005);
+					PlayCursorAnim();
+					SelectHead = HeRiders;
+					break;
+				case 3:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				case 4:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				case 5:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				case 6:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				case 7:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				case 8:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				}
+				return;
+				break;
+			case UIPartHandL:
+				switch (ItemOption)
+				{
+				case 0:
+					Common::PlaySoundStatic(menuSoundHandle, 1000005);
+					PlayCursorAnim();
+					SelectHandL = HLDefault;
+					break;
+				case 1:
+					Common::PlaySoundStatic(menuSoundHandle, 1000005);
+					PlayCursorAnim();
+					SelectHandL = HLCrystalRing;
+					break;
+				case 2:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				case 3:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				case 4:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				case 5:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				case 6:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				case 7:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				case 8:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				}
+				return;
+				break;
+			case UIPartHandR:
+				switch (ItemOption)
+				{
+				case 0:
+					Common::PlaySoundStatic(menuSoundHandle, 1000005);
+					PlayCursorAnim();
+					SelectHandR = HRDefault;
+					break;
+				case 1:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				case 2:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				case 3:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				case 4:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				case 5:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				case 6:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				case 7:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				case 8:
+					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					break;
+				}
+				return;
+				break;
+			}
+		}
+
+		if (scenecheck && PressedB && !IsInMenuExit && !IsInMenuChange)
+		{
+			Common::PlaySoundStatic(menuSoundHandle, 1000003);
+			IsInMenuExit = true;
+			//IsInMenu = false;
+			//MenuOption = 0;
+			//ItemOption = 0;
+			//Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scChara);
+			//Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scIcon);
+			scChara->SetMotion("Intro_Anim");
+			scChara->SetMotionFrame(22.0f);
+			scChara->m_MotionDisableFlag = false;
+			scChara->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+			scChara->m_MotionSpeed = -1.0f;
+			scChara->Update();
+			scIcon->SetMotion("OFF_Anim");
+			scIcon->SetMotionFrame(0.0f);
+			scIcon->m_MotionDisableFlag = false;
+			scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+			scIcon->m_MotionSpeed = 1.0f;
+			scIcon->Update();
+			scTextArea->SetMotion("Intro_Anim");
+			scTextArea->SetMotionFrame(17.0f);
+			scTextArea->m_MotionDisableFlag = false;
+			scTextArea->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+			scTextArea->m_MotionSpeed = -0.5f;
+			scTextArea->Update();
+			if (scDeco)
+			{
+				scDeco->SetMotion("Intro_Anim");
+				scDeco->SetMotionFrame(23.0f);
+				scDeco->m_MotionDisableFlag = false;
+				scDeco->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+				scDeco->m_MotionSpeed = -1.0f;
+				scDeco->Update();
+			}
+			return;
+		}
+
+		if (scenecheck && (PressedY && scIcon->m_MotionFrame >= 3) && !IsInMenuExit && !IsInMenuChange)
+		{
+			if (MenuOption == UIPartShoes)
+			{
+				switch (ItemOption)
+				{
+				case 2:					
+					if (ShSoapVariant)
+					{
+						ShSoapVariant = false;
+						if (SelectShoes == ShSoapsLightSpd)
+							SelectShoes = ShSoaps;
+					}
+					else
+					{
+						ShSoapVariant = true;
+						if (SelectShoes == ShSoaps)
+							SelectShoes = ShSoapsLightSpd;
+					}
+					Common::PlaySoundStatic(menuSoundHandle, 1000005);
+					PlayCursorAnim();
+					//scIcon->SetMotion("ON_Anim");
+					//scIcon->SetMotionFrame(0.0f);
+					//scIcon->m_MotionDisableFlag = false;
+					//scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+					//scIcon->m_MotionSpeed = 1.0f;
+					//scIcon->Update();
+					break;
+				case 5:
+					Common::PlaySoundStatic(menuSoundHandle, 1000005);
+					PlayCursorAnim();
+					//scIcon->SetMotion("ON_Anim");
+					//scIcon->SetMotionFrame(0.0f);
+					//scIcon->m_MotionDisableFlag = false;
+					//scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+					//scIcon->m_MotionSpeed = 1.0f;
+					//scIcon->Update();
+					switch (ShSUVariant)
+					{
+					case SUAirboost:
+						ShSUVariant = SULightSpd;
+						break;
+					case SULightSpd:
+						ShSUVariant = SUStomp;
+						break;
+					case SUStomp:
+						ShSUVariant = SUWallJmp;
+						break;
+					case SUWallJmp:
+						ShSUVariant = SUWerehog;
+						break;
+					case SUWerehog:
+						ShSUVariant = SUZoney;
+						break;
+					case SUZoney:
+						ShSUVariant = SUAirboost;
+						break;
+					}
+					break;
+				}
+				return;
+			}
+			if (MenuOption == UIPartHandR)
+			{
+				switch (ItemOption)
+				{
+				case 1:
+					Common::PlaySoundStatic(menuSoundHandle, 1000005);
+					PlayCursorAnim();
+					//scIcon->SetMotion("ON_Anim");
+					//scIcon->SetMotionFrame(0.0f);
+					//scIcon->m_MotionDisableFlag = false;
+					//scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+					//scIcon->m_MotionSpeed = 1.0f;
+					//scIcon->Update();
+					if (HRMagicVariant)
+					{
+						HRMagicVariant = false;
+						if (SelectHandR == HRMagicHands)
+							SelectHandR = HRBounceBracelet;
+					}
+					else
+					{
+						HRMagicVariant = true;
+						if (SelectHandR == HRBounceBracelet)
+							SelectHandR = HRMagicHands;
+					}
+					break;
+				}
+				return;
+			}
+		}
+
+		if (scenecheck && (PressedRB || PressedLB) && !IsInMenuExit)
+		{
+			Common::PlaySoundStatic(menuSoundHandle, 1000006);
+			IsInMenuChange = true;
+			if (PressedRB)
+			{
+				IsInMenuChangeR = true;
+				scLRMove->SetMotion("Right_ON_Anim");
+				scLRMove->SetMotionFrame(0.0f);
+				scLRMove->m_MotionDisableFlag = false;
+				scLRMove->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+				scLRMove->m_MotionSpeed = 1.0f;
+				scLRMove->Update();
+			}
+			if (PressedLB)
+			{
+				IsInMenuChangeL = true;
+				scLRMove->SetMotion("Left_ON_Anim");
+				scLRMove->SetMotionFrame(0.0f);
+				scLRMove->m_MotionDisableFlag = false;
+				scLRMove->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+				scLRMove->m_MotionSpeed = 1.0f;
+				scLRMove->Update();
+			}
+			IsInMenuExit = false;
+			//MenuOption = 0;
+			//ItemOption = 0;
+			scChara->SetMotion("Intro_Anim");
+			scChara->SetMotionFrame(22.0f);
+			scChara->m_MotionDisableFlag = false;
+			scChara->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+			scChara->m_MotionSpeed = -2.0f;
+			scChara->Update();
+			scIcon->SetMotion("OFF_Anim");
+			scIcon->SetMotionFrame(0.0f);
+			scIcon->m_MotionDisableFlag = false;
+			scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+			scIcon->m_MotionSpeed = 1.0f;
+			scIcon->Update();
+			scTextArea->SetMotion("Intro_Anim");
+			scTextArea->SetMotionFrame(17.0f);
+			scTextArea->m_MotionDisableFlag = false;
+			scTextArea->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+			scTextArea->m_MotionSpeed = -1.8f;
+			scTextArea->Update();
+			return;
+		}
+
+		if (scenecheck && IsInMenuExit && scChara->m_MotionFrame <= 0 && !IsInMenuChange)
+		{
+			IsInMenuExit = false;
+			IsInMenu = false;
+			MenuOption = UIPartShoes;
+			ItemOption = 0;
+			*ENABLE_BLUR = prevblur;
+			Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scChara);
+			Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scIcon);
+			Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scTextArea);
+			Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scLRMove);
+			if (scDeco)
+				Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scDeco);
+			return;
+		}
+
+		if (scenecheck && IsInMenuChange && scChara->m_MotionFrame <= 0 && !IsInMenuExit)
+		{
+			IsInMenuChange = false;
+			//MenuOption = UIPartShoes;
+			if (IsInMenuChangeR)
+			{
+				switch (MenuOption)
+				{
+				case UIPartShoes:
+					MenuOption = UIPartBody;
+					break;
+				case UIPartBody:
+					MenuOption = UIPartHead;
+					break;
+				case UIPartHead:
+					MenuOption = UIPartHandL;
+					break;
+				case UIPartHandL:
+					MenuOption = UIPartHandR;
+					break;
+				case UIPartHandR:
+					MenuOption = UIPartShoes;
+					break;
+				}
+			}
+			if (IsInMenuChangeL)
+			{
+				switch (MenuOption)
+				{
+				case UIPartShoes:
+					MenuOption = UIPartHandR;
+					break;
+				case UIPartBody:
+					MenuOption = UIPartShoes;
+					break;
+				case UIPartHead:
+					MenuOption = UIPartBody;
+					break;
+				case UIPartHandL:
+					MenuOption = UIPartHead;
+					break;
+				case UIPartHandR:
+					MenuOption = UIPartHandL;
+					break;
+				}
+			}
+			//ItemOption = 0;
+			IsInMenuChangeR = false;
+			IsInMenuChangeL = false;
+			scChara->SetMotion("Intro_Anim");
+			scChara->SetMotionFrame(0.0f);
+			scChara->m_MotionDisableFlag = false;
+			scChara->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+			scChara->m_MotionSpeed = 2.0f;
+			scChara->Update();
+			PlayCursorAnim();
+			//scIcon->SetMotion("ON_Anim");
+			//scIcon->SetMotionFrame(0.0f);
+			//scIcon->m_MotionDisableFlag = false;
+			//scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+			//scIcon->m_MotionSpeed = 1.0f;
+			//scIcon->Update();
+			scTextArea->SetMotion("Intro_Anim");
+			scTextArea->SetMotionFrame(0.0f);
+			scTextArea->m_MotionDisableFlag = false;
+			scTextArea->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+			scTextArea->m_MotionSpeed = 1.0f;
+			scTextArea->Update();
+			return;
+		}
+
+		if (scenecheck && ((PressedUp && scIcon->m_MotionFrame >= 3) || (PushedUp && scIcon->m_MotionFrame >= 7)) && !IsInMenuExit && !IsInMenuChange)
+		{
+			Common::PlaySoundStatic(menuSoundHandle, 1000004);
+			switch (ItemOption)
+			{
+			case 0:
+				ItemOption = 6;
+				break;
+			case 1:
+				ItemOption = 7;
+				break;
+			case 2:
+				ItemOption = 8;
+				break;
+			case 3:
+				ItemOption = 0;
+				break;
+			case 4:
+				ItemOption = 1;
+				break;
+			case 5:
+				ItemOption = 2;
+				break;
+			case 6:
+				ItemOption = 3;
+				break;
+			case 7:
+				ItemOption = 4;
+				break;
+			case 8:
+				ItemOption = 5;
+				break;
+			}
+			PlayCursorAnim();
+			//scIcon->SetMotion("ON_Anim");
+			//scIcon->SetMotionFrame(0.0f);
+			//scIcon->m_MotionDisableFlag = false;
+			//scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+			//scIcon->m_MotionSpeed = 1.0f;
+			//scIcon->Update();
+			return;
+		}
+
+		if (scenecheck && ((PressedDown && scIcon->m_MotionFrame >= 3) || (PushedDown && scIcon->m_MotionFrame >= 7)) && !IsInMenuExit && !IsInMenuChange)
+		{
+			Common::PlaySoundStatic(menuSoundHandle, 1000004);
+			switch (ItemOption)
+			{
+			case 0:
+				ItemOption = 3;
+				break;
+			case 1:
+				ItemOption = 4;
+				break;
+			case 2:
+				ItemOption = 5;
+				break;
+			case 3:
+				ItemOption = 6;
+				break;
+			case 4:
+				ItemOption = 7;
+				break;
+			case 5:
+				ItemOption = 8;
+				break;
+			case 6:
+				ItemOption = 0;
+				break;
+			case 7:
+				ItemOption = 1;
+				break;
+			case 8:
+				ItemOption = 2;
+				break;
+			}
+			PlayCursorAnim();
+			//scIcon->SetMotion("ON_Anim");
+			//scIcon->SetMotionFrame(0.0f);
+			//scIcon->m_MotionDisableFlag = false;
+			//scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+			//scIcon->m_MotionSpeed = 1.0f;
+			//scIcon->Update();
+			return;
+		}
+
+		if (scenecheck && ((PressedLeft && scIcon->m_MotionFrame >= 3) || (PushedLeft && scIcon->m_MotionFrame >= 7)) && !IsInMenuExit && !IsInMenuChange)
+		{
+			Common::PlaySoundStatic(menuSoundHandle, 1000004);
+			switch (ItemOption)
+			{
+			case 0:
+				ItemOption = 2;
+				break;
+			case 1:
+				ItemOption = 0;
+				break;
+			case 2:
+				ItemOption = 1;
+				break;
+			case 3:
+				ItemOption = 5;
+				break;
+			case 4:
+				ItemOption = 3;
+				break;
+			case 5:
+				ItemOption = 4;
+				break;
+			case 6:
+				ItemOption = 8;
+				break;
+			case 7:
+				ItemOption = 6;
+				break;
+			case 8:
+				ItemOption = 7;
+				break;
+			}
+			PlayCursorAnim();
+			//scIcon->SetMotion("ON_Anim");
+			//scIcon->SetMotionFrame(0.0f);
+			//scIcon->m_MotionDisableFlag = false;
+			//scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+			//scIcon->m_MotionSpeed = 1.0f;
+			//scIcon->Update();
+			return;
+		}
+
+		if (scenecheck && ((PressedRight && scIcon->m_MotionFrame >= 3) || (PushedRight && scIcon->m_MotionFrame >= 7)) && !IsInMenuExit && !IsInMenuChange)
+		{
+			Common::PlaySoundStatic(menuSoundHandle, 1000004);
+			switch (ItemOption)
+			{
+			case 0:
+				ItemOption = 1;
+				break;
+			case 1:
+				ItemOption = 2;
+				break;
+			case 2:
+				ItemOption = 0;
+				break;
+			case 3:
+				ItemOption = 4;
+				break;
+			case 4:
+				ItemOption = 5;
+				break;
+			case 5:
+				ItemOption = 3;
+				break;
+			case 6:
+				ItemOption = 7;
+				break;
+			case 7:
+				ItemOption = 8;
+				break;
+			case 8:
+				ItemOption = 6;
+				break;
+			}
+			PlayCursorAnim();
+			//scIcon->SetMotion("ON_Anim");
+			//scIcon->SetMotionFrame(0.0f);
+			//scIcon->m_MotionDisableFlag = false;
+			//scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+			//scIcon->m_MotionSpeed = 1.0f;
+			//scIcon->Update();
+			return;
+		}
+
+		printf("%d", ShSoapVariant);
+		printf(" - ");
+		printf("%d", HRMagicVariant);
+		printf(" - ");
+		printf("%d", ShSUVariant);
+		printf(" - ");
+		printf("%f", scIcon->m_MotionFrame);
+		printf("\n");
 	}
 
+}
+void KillScreen()
+{
+	if (obCustomUI)
+	{
+		obCustomUI->SendMessage(obCustomUI->m_ActorID, boost::make_shared<Sonic::Message::MsgKill>());
+		obCustomUI = nullptr;
+	}
 }
 HOOK(void, __fastcall, CHudSonicStageUpdate, 0x1098A50, Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo& in_rUpdateInfo)
 {
@@ -2131,6 +2181,7 @@ HOOK(void, __fastcall, CHudPlayableMenuUpdate, 0x0108D510, Sonic::CGameObject* T
 }
 HOOK(void, __fastcall, CHUDPauseUpdate, 0x0042A520, hh::fnd::CStateMachineBase::CStateBase* This)
 {
+	KillScreen();
 	IsInMenuExit = false;
 	IsInMenu = false;
 	MenuOption = UIPartShoes;
@@ -2146,6 +2197,41 @@ HOOK(void, __fastcall, CHUDPauseUpdate, 0x0042A520, hh::fnd::CStateMachineBase::
 	if (scDeco)
 		Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scDeco);
 	originalCHUDPauseUpdate(This);
+}
+
+//Handle Stage change/exit
+void __fastcall CHudSonicStageRemoveCallback(Sonic::CGameObject* This, void*, Sonic::CGameDocument* pGameDocument)
+{
+	KillScreen();
+	IsInMenuExit = false;
+	IsInMenu = false;
+	MenuOption = UIPartShoes;
+	ItemOption = 0;
+	if (scChara)
+	{
+		Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scChara);
+		scChara = nullptr;
+	}
+	if (scIcon)
+	{
+		Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scIcon);
+		scIcon = nullptr;
+	}
+	if (scTextArea)
+	{
+		Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scTextArea);
+		scTextArea = nullptr;
+	}
+	if (scLRMove)
+	{
+		Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scLRMove);
+		scLRMove = nullptr;
+	}
+	if (scDeco)
+	{
+		Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scDeco);
+		scDeco = nullptr;
+	}
 }
 
 //Handle Pausing
@@ -2366,6 +2452,8 @@ EXPORT void Init()
 	INSTALL_HOOK(UpdateDirectorNormal);
 	INSTALL_HOOK(CPlayerAddCallback);
 	WRITE_MEMORY(0x16D4B4C, void*, CSonicRemoveCallback);
+	WRITE_MEMORY(0x16A467C, void*, CHudSonicStageRemoveCallback);
+	WRITE_MEMORY(0x16A5598, void*, CHudSonicStageRemoveCallback);
 	//WRITE_NOP(0x0042AB50, 5); //idk i forgor
 	//WRITE_JUMP(0x42A82C, (void*)0x42A9E5); //Jumps over entire state if
 	//WRITE_JUMP(0x42A83D, (void*)0x42A843); //Jumps over stage switch

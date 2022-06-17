@@ -176,14 +176,14 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 			//printf("Playable Menu");
 			if (!IsPAMStageMod)
 			{
-				if (sonicpos.m_Position.x() < 57.379)
+				if (sonicpos.m_Position.x() < -57.379)
 				{
-					//printf("Collection Room");
+					printf("Collection Room");
 					sonic->PlaySound(3002036, false); //Play voiceline
 				}
 				else
 				{
-					//printf("Playable Menu");
+					printf("Playable Menu");
 					sonic->PlaySound(3002024, false); //Play voiceline
 				}
 			}
@@ -398,7 +398,7 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	//printf(" - ");
 	//printf("%f", GetAnimInfo->m_Frame);
 	//printf(" - ");
-	//printf("%d", sonic->m_Field164);
+	/*
 	switch (GetCurrentStageID())
 	{
 	case ghz100:
@@ -504,7 +504,8 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 		printf("Default");
 		break;
 	}
-	
+	*/
+	printf("%f", sonicpos.m_Position.x());
 	printf("\n");
 
 	originalCPlayerSpeedUpdate(This, _, updateInfo);

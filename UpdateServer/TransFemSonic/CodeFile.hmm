@@ -1,0 +1,2 @@
+Patch "Disable Title Loading Video" by "Hyper"
+WriteProtected<byte>(0xD6966E, 0xE9, 0x14, 0x01, 0x00, 0x00);

@@ -1,0 +1,22 @@
+{
+	"Groups": [
+		{
+			"Name": "Option",
+			"DisplayName": "Options",
+			"Elements": [
+				{
+					"Name": "IsTransRankVO",
+					"Description": [
+						"Always use the 'Trans rights!' voiceline for S-Ranks."
+					],
+					"DisplayName": "Trans rights on S-Rank",
+					"Type": "bool",
+					"MinValue": null,
+					"MaxValue": null,
+					"DefaultValue": false
+				}
+			]
+		}
+	],
+   "IniFile":"TransFemSonic.ini"
+}

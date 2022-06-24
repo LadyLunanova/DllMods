@@ -40,6 +40,7 @@ inline uint32_t GetCurrentStageID()
 	return *(uint32_t*)stageIDAddress;
 }
 
+int DoubleVOFix = 0;
 bool IsUnleashedProject = false;
 bool IsShiveryMountain = false;
 bool IsWaterPalace = false;
@@ -52,7 +53,9 @@ bool IsPLAStageMod = false;
 bool IsPAMStageMod = false;
 bool IsTransTails = false;
 bool IsTransRankVO = false;
+static SharedPtrTypeless bossVoiceHandle;
 
+//Gameplay Voicelines
 HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed* This, void* _, const hh::fnd::SUpdateInfo& updateInfo)
 {
 	auto sonic = This->GetContext();
@@ -100,7 +103,7 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	}
 
 	//Idle Chatter
-	if (IsIdleAnim && (GetAnimInfo->m_Frame >= 1 && GetAnimInfo->m_Frame < 2) && !IsUnleashedProject && !IsShiveryMountain && !IsWaterPalace && !Is06Project)
+	if (IsIdleAnim && (GetAnimInfo->m_Frame >= 1 && GetAnimInfo->m_Frame < 2) && !IsUnleashedProject && !IsShiveryMountain && !IsWaterPalace && !Is06Project && (DoubleVOFix <= 0))
 	{
 		switch (GetCurrentStageID())
 		{
@@ -178,12 +181,12 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 			{
 				if (sonicpos.m_Position.x() < -57.379)
 				{
-					printf("Collection Room");
+					//printf("Collection Room");
 					sonic->PlaySound(3002036, false); //Play voiceline
 				}
 				else
 				{
-					printf("Playable Menu");
+					//printf("Playable Menu");
 					sonic->PlaySound(3002024, false); //Play voiceline
 				}
 			}
@@ -193,10 +196,11 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 			//printf("Figure Room");
 			break;
 		}
+		DoubleVOFix = 5;
 	}
 
 	//Unleashed Project Idle Chatter
-	if (IsIdleAnim && (GetAnimInfo->m_Frame >= 1 && GetAnimInfo->m_Frame < 2) && IsUnleashedProject && !IsWaterPalace && !IsShiveryMountain && !Is06Project)
+	if (IsIdleAnim && (GetAnimInfo->m_Frame >= 1 && GetAnimInfo->m_Frame < 2) && IsUnleashedProject && !IsWaterPalace && !IsShiveryMountain && !Is06Project && (DoubleVOFix <= 0))
 	{
 		switch (GetCurrentStageID())
 		{
@@ -237,10 +241,11 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 			//printf("Windmill Isle Act 1");
 			break;
 		}
+		DoubleVOFix = 5;
 	}
 
 	//Shivery Mountainsides Idle Chatter
-	if (IsIdleAnim && (GetAnimInfo->m_Frame >= 1 && GetAnimInfo->m_Frame < 2) && !IsUnleashedProject && !IsWaterPalace && IsShiveryMountain && !Is06Project)
+	if (IsIdleAnim && (GetAnimInfo->m_Frame >= 1 && GetAnimInfo->m_Frame < 2) && !IsUnleashedProject && !IsWaterPalace && IsShiveryMountain && !Is06Project && (DoubleVOFix <= 0))
 	{
 		switch (GetCurrentStageID())
 		{
@@ -253,10 +258,11 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 			sonic->PlaySound(3002036, false); //Play voiceline
 			break;
 		}
+		DoubleVOFix = 5;
 	}
 
 	//Water Palace Idle Chatter
-	if (IsIdleAnim && (GetAnimInfo->m_Frame >= 1 && GetAnimInfo->m_Frame < 2) && !IsUnleashedProject && IsWaterPalace && !IsShiveryMountain && !Is06Project)
+	if (IsIdleAnim && (GetAnimInfo->m_Frame >= 1 && GetAnimInfo->m_Frame < 2) && !IsUnleashedProject && IsWaterPalace && !IsShiveryMountain && !Is06Project && (DoubleVOFix <= 0))
 	{
 		switch (GetCurrentStageID())
 		{
@@ -269,10 +275,11 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 			sonic->PlaySound(3002047, false); //Play voiceline
 			break;
 		}
+		DoubleVOFix = 5;
 	}
 
 	//06 Project Idle Chatter
-	if (IsIdleAnim && (GetAnimInfo->m_Frame >= 1 && GetAnimInfo->m_Frame < 2) && !IsUnleashedProject && !IsWaterPalace && !IsShiveryMountain && Is06Project)
+	if (IsIdleAnim && (GetAnimInfo->m_Frame >= 1 && GetAnimInfo->m_Frame < 2) && !IsUnleashedProject && !IsWaterPalace && !IsShiveryMountain && Is06Project && (DoubleVOFix <= 0))
 	{
 		switch (GetCurrentStageID())
 		{
@@ -313,53 +320,33 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 			//printf("Aquatic Base");
 			break;
 		}
-	}
-
-	//Boss result voice line 
-	if (IsRankAnim && (GetAnimInfo->m_Frame >= 2 && GetAnimInfo->m_Frame < 3))
-	{
-		static SharedPtrTypeless bossVoiceHandle;
-		switch (GetCurrentStageID())
-		{
-		case bsd:
-			Common::PlaySoundStatic(bossVoiceHandle, 3002022);
-			break;
-		case bsl:
-			Common::PlaySoundStatic(bossVoiceHandle, 3002023);
-			break;
-		case bpc:
-			Common::PlaySoundStatic(bossVoiceHandle, 3002019);
-			break;
-		case bne:
-			Common::PlaySoundStatic(bossVoiceHandle, 3002020);
-			break;
-		case blb:
-			Common::PlaySoundStatic(bossVoiceHandle, 3002021);
-			break;
-		}
+		DoubleVOFix = 5;
 	}
 
 	//Trick Finisher voice line
-	if (IsFinishAnim && (GetAnimInfo->m_Frame > 10 && GetAnimInfo->m_Frame < 11))
+	if (IsFinishAnim && (GetAnimInfo->m_Frame > 10 && GetAnimInfo->m_Frame < 11) && (DoubleVOFix <= 0))
 	{
 		sonic->PlaySound(3002013, false); //Play voiceline
+		DoubleVOFix = 5;
 	}
 
 	//Yawn voice line
-	if (IsYawnAnim && (GetAnimInfo->m_Frame > 260 && GetAnimInfo->m_Frame < 261))
+	if (IsYawnAnim && (GetAnimInfo->m_Frame > 260 && GetAnimInfo->m_Frame < 261) && (DoubleVOFix <= 0))
 	{
 		sonic->PlaySound(3002012, false); //Play voiceline
+		DoubleVOFix = 5;
 	}
 
 	//Super Sonic Transform Yell
-	if (IsTransformAnim && (GetAnimInfo->m_Frame >= 2 && GetAnimInfo->m_Frame < 3))
+	if (IsTransformAnim && (GetAnimInfo->m_Frame >= 2 && GetAnimInfo->m_Frame < 3) && (DoubleVOFix <= 0))
 	{
 		sonic->PlaySound(3002037, false); //Play voiceline
 		sonic->PlaySound(3002038, false); //Play voiceline
+		DoubleVOFix = 5;
 	}
 
 	//Foot Tap sfx
-	if (IsTapAnim && ((GetAnimInfo->m_Frame > 38 && GetAnimInfo->m_Frame < 39) || (GetAnimInfo->m_Frame > 50 && GetAnimInfo->m_Frame < 51) || (GetAnimInfo->m_Frame > 66 && GetAnimInfo->m_Frame < 67) || (GetAnimInfo->m_Frame > 94 && GetAnimInfo->m_Frame < 95)))
+	if (IsTapAnim && ((GetAnimInfo->m_Frame > 38 && GetAnimInfo->m_Frame < 39) || (GetAnimInfo->m_Frame > 50 && GetAnimInfo->m_Frame < 51) || (GetAnimInfo->m_Frame > 66 && GetAnimInfo->m_Frame < 67) || (GetAnimInfo->m_Frame > 94 && GetAnimInfo->m_Frame < 95)) && (DoubleVOFix <= 0))
 	{
 		switch (sonic->m_Field164)
 		{
@@ -392,7 +379,11 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 		default:
 			break;
 		}
+		DoubleVOFix = 5;
 	}
+
+	if (DoubleVOFix > 0)
+		DoubleVOFix--;
 
 	//printf(sonic->GetCurrentAnimationName().c_str());
 	//printf(" - ");
@@ -505,12 +496,11 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 		break;
 	}
 	*/
-	printf("%f", sonicpos.m_Position.x());
-	printf("\n");
+	//printf("%f", sonicpos.m_Position.x());
+	//printf("\n");
 
 	originalCPlayerSpeedUpdate(This, _, updateInfo);
 }
-
 HOOK(void, __fastcall, EnterRunQuickStep, 0x01231360, hh::fnd::CStateMachineBase::CStateBase* This)
 {
 	auto sonic = (Sonic::Player::CPlayerSpeedContext*)This->m_pContext;
@@ -518,6 +508,32 @@ HOOK(void, __fastcall, EnterRunQuickStep, 0x01231360, hh::fnd::CStateMachineBase
 	originalEnterRunQuickStep(This);
 }
 
+//Boss Taunt Voicelines
+HOOK(void, __fastcall, CHudResultStart, 0x010B6840, hh::fnd::CStateMachineBase::CStateBase* This)
+{
+	//Common::PlaySoundStatic(bossVOHandle, 3002021);
+	switch (GetCurrentStageID())
+	{
+	case bsd:
+		Common::PlaySoundStatic(bossVoiceHandle, 3002022);
+		break;
+	case bsl:
+		Common::PlaySoundStatic(bossVoiceHandle, 3002023);
+		break;
+	case bpc:
+		Common::PlaySoundStatic(bossVoiceHandle, 3002019);
+		break;
+	case bne:
+		Common::PlaySoundStatic(bossVoiceHandle, 3002020);
+		break;
+	case blb:
+		Common::PlaySoundStatic(bossVoiceHandle, 3002021);
+		break;
+	}
+	originalCHudResultStart(This);
+}
+
+//Rank Voicelines
 ResultData m_resultData;
 HOOK(int, __fastcall, RankQuote_CStateGoalFadeBeforeBegin, 0xCFE080, uint32_t* This)
 {
@@ -527,7 +543,6 @@ HOOK(int, __fastcall, RankQuote_CStateGoalFadeBeforeBegin, 0xCFE080, uint32_t* T
 	}
 	return result;
 }
-
 void PlayRankQuote()
 {
 	uint32_t voiceCueID = -1;
@@ -555,7 +570,6 @@ void PlayRankQuote()
 	static SharedPtrTypeless rankSoundHandle;
 	Common::PlaySoundStatic(rankSoundHandle, slamCueID);
 }
-
 HOOK(void, __fastcall, RankQuote_ChangeRank, 0x10B76D0, uint32_t* This)
 {
 	WRITE_MEMORY(0x11D237A, int, -1);
@@ -564,7 +578,6 @@ HOOK(void, __fastcall, RankQuote_ChangeRank, 0x10B76D0, uint32_t* This)
 	originalRankQuote_ChangeRank(This);
 	WRITE_MEMORY(0x11D237A, uint32_t, 1010002);
 }
-
 HOOK(void, __fastcall, RankQuote_ShowRank, 0x10B7800, uint32_t* This)
 {
 	FUNCTION_PTR(bool, __cdecl, IsPerfectBonus, 0x10B8A90);
@@ -578,6 +591,18 @@ HOOK(void, __fastcall, RankQuote_ShowRank, 0x10B7800, uint32_t* This)
 	WRITE_MEMORY(0x11D237A, uint32_t, 1010002);
 }
 
+//Tornado Voiceline
+void CscGenericTornadoNull()
+{
+	if (DoubleVOFix <= 0)
+	{
+		Common::PlaySoundStatic(bossVoiceHandle, 3002048);
+		DoubleVOFix = 60;
+	}
+	//printf("TORNADO SPAWNED"); printf("\n");
+}
+
+//Handle Archives
 HOOK(bool, __stdcall, ParseArchiveTree, 0xD4C8E0, void* A1, char* data, const size_t size, void* database)
 {
 	std::string str;
@@ -619,13 +644,15 @@ HOOK(bool, __stdcall, ParseArchiveTree, 0xD4C8E0, void* A1, char* data, const si
 		stream << "    <Archive>FEMpam</Archive>\n";
 		stream << "  </DefAppend>\n";
 
-		//if (IsTransTails)
-		//{
-		//	stream << "  <DefAppend>\n";
-		//	stream << "    <Name>pam_cmn</Name>\n";
-		//	stream << "    <Archive>FEMpamTransTails</Archive>\n";
-		//	stream << "  </DefAppend>\n";
-		//}
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>blb</Name>\n";
+		stream << "    <Archive>SonicVoice</Archive>\n";
+		stream << "  </DefAppend>\n";
+
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>blb001</Name>\n";
+		stream << "    <Archive>SonicVoice</Archive>\n";
+		stream << "  </DefAppend>\n";
 
 		str = stream.str();
 	}
@@ -646,7 +673,6 @@ HOOK(bool, __stdcall, ParseArchiveTree, 0xD4C8E0, void* A1, char* data, const si
 
 	return result;
 }
-
 HOOK(void, __fastcall, LoadArchive, 0x69AB10, void* This, void* Edx, void* A3, void* A4, const hh::base::CSharedString& name, void* archiveInfo, void* A7, void* A8)
 {
 	if (strstr(name.c_str(), "evSonic") != nullptr)
@@ -656,7 +682,6 @@ HOOK(void, __fastcall, LoadArchive, 0x69AB10, void* This, void* Edx, void* A3, v
 
 	return originalLoadArchive(This, Edx, A3, A4, name, archiveInfo, A7, A8);
 }
-
 HOOK(void, __fastcall, LoadArchiveList, 0x69C270, void* This, void* Edx, void* A3, void* A4, const hh::base::CSharedString& name, void* archiveInfo)
 {
 	if (strstr(name.c_str(), "evSonic") != nullptr)
@@ -671,9 +696,11 @@ EXPORT void Init()
 {
 	INSTALL_HOOK(CPlayerSpeedUpdate);
 	INSTALL_HOOK(EnterRunQuickStep);
+	INSTALL_HOOK(CHudResultStart);
 	INSTALL_HOOK(RankQuote_CStateGoalFadeBeforeBegin);
 	INSTALL_HOOK(RankQuote_ChangeRank);
 	INSTALL_HOOK(RankQuote_ShowRank);
+	WRITE_MEMORY(0x016C73D8, void*, CscGenericTornadoNull);
 	INSTALL_HOOK(ParseArchiveTree);
 	INSTALL_HOOK(LoadArchive);
 	INSTALL_HOOK(LoadArchiveList);
@@ -719,21 +746,21 @@ EXPORT void Init()
 	if (GetModuleHandle(L"STH2006Project.dll"))
 		Is06Project = true;
 
-	if (Common::IsModEnabled("Trans Fem Tails"))
-	{
-		WRITE_MEMORY(0x00588D6E, char*, "CollectionRoomTFTails_Cnv")
-		WRITE_MEMORY(0x00589AD0, char*, "CollectionRoomTFTails_Cnv")
-		WRITE_MEMORY(0x0058A5D0, char*, "CollectionRoomTFTails_Cnv")
-		WRITE_MEMORY(0x00CF64E9, char*, "CollectionRoomTFTails_Cnv")
-		WRITE_MEMORY(0x010608E4, char*, "CollectionRoomTFTails_Cnv")
-		WRITE_MEMORY(0x010856F6, char*, "CollectionRoomTFTails_Cnv")
-		WRITE_MEMORY(0x011717D3, char*, "CollectionRoomTFTails_Cnv")
-		WRITE_MEMORY(0x01172904, char*, "CollectionRoomTFTails_Cnv")
-		WRITE_MEMORY(0x01172C46, char*, "CollectionRoomTFTails_Cnv")
-		WRITE_MEMORY(0x0117450D, char*, "CollectionRoomTFTails_Cnv")
-		WRITE_MEMORY(0x01175F9D, char*, "CollectionRoomTFTails_Cnv")
-		WRITE_MEMORY(0x01177835, char*, "CollectionRoomTFTails_Cnv")
-		WRITE_MEMORY(0x0117890D, char*, "CollectionRoomTFTails_Cnv")
-		WRITE_MEMORY(0x0117890D, char*, "CollectionRoomTFTails_Cnv")
-	}
+	//if (Common::IsModEnabled("Trans Fem Tails"))
+	//{
+	//	WRITE_MEMORY(0x00588D6E, char*, "CollectionRoomTFTails_Cnv")
+	//	WRITE_MEMORY(0x00589AD0, char*, "CollectionRoomTFTails_Cnv")
+	//	WRITE_MEMORY(0x0058A5D0, char*, "CollectionRoomTFTails_Cnv")
+	//	WRITE_MEMORY(0x00CF64E9, char*, "CollectionRoomTFTails_Cnv")
+	//	WRITE_MEMORY(0x010608E4, char*, "CollectionRoomTFTails_Cnv")
+	//	WRITE_MEMORY(0x010856F6, char*, "CollectionRoomTFTails_Cnv")
+	//	WRITE_MEMORY(0x011717D3, char*, "CollectionRoomTFTails_Cnv")
+	//	WRITE_MEMORY(0x01172904, char*, "CollectionRoomTFTails_Cnv")
+	//	WRITE_MEMORY(0x01172C46, char*, "CollectionRoomTFTails_Cnv")
+	//	WRITE_MEMORY(0x0117450D, char*, "CollectionRoomTFTails_Cnv")
+	//	WRITE_MEMORY(0x01175F9D, char*, "CollectionRoomTFTails_Cnv")
+	//	WRITE_MEMORY(0x01177835, char*, "CollectionRoomTFTails_Cnv")
+	//	WRITE_MEMORY(0x0117890D, char*, "CollectionRoomTFTails_Cnv")
+	//	WRITE_MEMORY(0x0117890D, char*, "CollectionRoomTFTails_Cnv")
+	//}
 }

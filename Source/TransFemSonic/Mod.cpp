@@ -41,6 +41,8 @@ inline uint32_t GetCurrentStageID()
 }
 
 int DoubleVOFix = 0;
+int DoubleTornadoVOFix = 0;
+//Mod Compatibility Checks
 bool IsUnleashedProject = false;
 bool IsShiveryMountain = false;
 bool IsWaterPalace = false;
@@ -52,7 +54,18 @@ bool IsEUCStageMod = false;
 bool IsPLAStageMod = false;
 bool IsPAMStageMod = false;
 bool IsTransTails = false;
+//Config Option
+bool IsSWAMDL = false;
+bool IsIdleChatVO = true;
+bool IsRankChatVO = true;
+bool IsBossTauntVO = true;
 bool IsTransRankVO = false;
+bool IsSuperYellVO = true;
+bool IsQuickstepVO = true;
+bool IsTrickFinishVO = true;
+bool IsCheckpointVO = true;
+bool IsTornadoVO = true;
+bool IsFootTapSFX = true;
 static SharedPtrTypeless bossVoiceHandle;
 
 //Gameplay Voicelines
@@ -103,7 +116,7 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	}
 
 	//Idle Chatter
-	if (IsIdleAnim && (GetAnimInfo->m_Frame >= 1 && GetAnimInfo->m_Frame < 2) && !IsUnleashedProject && !IsShiveryMountain && !IsWaterPalace && !Is06Project && (DoubleVOFix <= 0))
+	if (IsIdleAnim && (GetAnimInfo->m_Frame >= 1 && GetAnimInfo->m_Frame < 2) && !IsUnleashedProject && !IsShiveryMountain && !IsWaterPalace && !Is06Project && (DoubleVOFix <= 0) && IsIdleChatVO)
 	{
 		switch (GetCurrentStageID())
 		{
@@ -200,7 +213,7 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	}
 
 	//Unleashed Project Idle Chatter
-	if (IsIdleAnim && (GetAnimInfo->m_Frame >= 1 && GetAnimInfo->m_Frame < 2) && IsUnleashedProject && !IsWaterPalace && !IsShiveryMountain && !Is06Project && (DoubleVOFix <= 0))
+	if (IsIdleAnim && (GetAnimInfo->m_Frame >= 1 && GetAnimInfo->m_Frame < 2) && IsUnleashedProject && !IsWaterPalace && !IsShiveryMountain && !Is06Project && (DoubleVOFix <= 0) && IsIdleChatVO)
 	{
 		switch (GetCurrentStageID())
 		{
@@ -245,7 +258,7 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	}
 
 	//Shivery Mountainsides Idle Chatter
-	if (IsIdleAnim && (GetAnimInfo->m_Frame >= 1 && GetAnimInfo->m_Frame < 2) && !IsUnleashedProject && !IsWaterPalace && IsShiveryMountain && !Is06Project && (DoubleVOFix <= 0))
+	if (IsIdleAnim && (GetAnimInfo->m_Frame >= 1 && GetAnimInfo->m_Frame < 2) && !IsUnleashedProject && !IsWaterPalace && IsShiveryMountain && !Is06Project && (DoubleVOFix <= 0) && IsIdleChatVO)
 	{
 		switch (GetCurrentStageID())
 		{
@@ -262,7 +275,7 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	}
 
 	//Water Palace Idle Chatter
-	if (IsIdleAnim && (GetAnimInfo->m_Frame >= 1 && GetAnimInfo->m_Frame < 2) && !IsUnleashedProject && IsWaterPalace && !IsShiveryMountain && !Is06Project && (DoubleVOFix <= 0))
+	if (IsIdleAnim && (GetAnimInfo->m_Frame >= 1 && GetAnimInfo->m_Frame < 2) && !IsUnleashedProject && IsWaterPalace && !IsShiveryMountain && !Is06Project && (DoubleVOFix <= 0) && IsIdleChatVO)
 	{
 		switch (GetCurrentStageID())
 		{
@@ -279,7 +292,7 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	}
 
 	//06 Project Idle Chatter
-	if (IsIdleAnim && (GetAnimInfo->m_Frame >= 1 && GetAnimInfo->m_Frame < 2) && !IsUnleashedProject && !IsWaterPalace && !IsShiveryMountain && Is06Project && (DoubleVOFix <= 0))
+	if (IsIdleAnim && (GetAnimInfo->m_Frame >= 1 && GetAnimInfo->m_Frame < 2) && !IsUnleashedProject && !IsWaterPalace && !IsShiveryMountain && Is06Project && (DoubleVOFix <= 0) && IsIdleChatVO)
 	{
 		switch (GetCurrentStageID())
 		{
@@ -324,21 +337,21 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	}
 
 	//Trick Finisher voice line
-	if (IsFinishAnim && (GetAnimInfo->m_Frame > 10 && GetAnimInfo->m_Frame < 11) && (DoubleVOFix <= 0))
+	if (IsFinishAnim && (GetAnimInfo->m_Frame > 10 && GetAnimInfo->m_Frame < 11) && (DoubleVOFix <= 0) && IsTrickFinishVO)
 	{
 		sonic->PlaySound(3002013, false); //Play voiceline
 		DoubleVOFix = 5;
 	}
 
 	//Yawn voice line
-	if (IsYawnAnim && (GetAnimInfo->m_Frame > 260 && GetAnimInfo->m_Frame < 261) && (DoubleVOFix <= 0))
+	if (IsYawnAnim && (GetAnimInfo->m_Frame > 260 && GetAnimInfo->m_Frame < 261) && (DoubleVOFix <= 0) && !IsSWAMDL)
 	{
 		sonic->PlaySound(3002012, false); //Play voiceline
 		DoubleVOFix = 5;
 	}
 
 	//Super Sonic Transform Yell
-	if (IsTransformAnim && (GetAnimInfo->m_Frame >= 2 && GetAnimInfo->m_Frame < 3) && (DoubleVOFix <= 0))
+	if (IsTransformAnim && (GetAnimInfo->m_Frame >= 2 && GetAnimInfo->m_Frame < 3) && (DoubleVOFix <= 0) && IsSuperYellVO)
 	{
 		sonic->PlaySound(3002037, false); //Play voiceline
 		sonic->PlaySound(3002038, false); //Play voiceline
@@ -346,7 +359,7 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	}
 
 	//Foot Tap sfx
-	if (IsTapAnim && ((GetAnimInfo->m_Frame > 38 && GetAnimInfo->m_Frame < 39) || (GetAnimInfo->m_Frame > 50 && GetAnimInfo->m_Frame < 51) || (GetAnimInfo->m_Frame > 66 && GetAnimInfo->m_Frame < 67) || (GetAnimInfo->m_Frame > 94 && GetAnimInfo->m_Frame < 95)) && (DoubleVOFix <= 0))
+	if (IsTapAnim && ((GetAnimInfo->m_Frame > 38 && GetAnimInfo->m_Frame < 39) || (GetAnimInfo->m_Frame > 50 && GetAnimInfo->m_Frame < 51) || (GetAnimInfo->m_Frame > 66 && GetAnimInfo->m_Frame < 67) || (GetAnimInfo->m_Frame > 94 && GetAnimInfo->m_Frame < 95)) && (DoubleVOFix <= 0) && !IsSWAMDL && IsFootTapSFX)
 	{
 		switch (sonic->m_Field164)
 		{
@@ -384,6 +397,9 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 
 	if (DoubleVOFix > 0)
 		DoubleVOFix--;
+
+	if (DoubleTornadoVOFix > 0)
+		DoubleTornadoVOFix--;
 
 	//printf(sonic->GetCurrentAnimationName().c_str());
 	//printf(" - ");
@@ -504,31 +520,49 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 HOOK(void, __fastcall, EnterRunQuickStep, 0x01231360, hh::fnd::CStateMachineBase::CStateBase* This)
 {
 	auto sonic = (Sonic::Player::CPlayerSpeedContext*)This->m_pContext;
-	sonic->PlaySound(3002016, false); //Play voiceline
+	if (IsQuickstepVO)
+		sonic->PlaySound(3002016, false); //Play voiceline
 	originalEnterRunQuickStep(This);
+}
+HOOK(void, __fastcall, ProcMsgNotifyLapTimeHud, 0x1097640, Sonic::CGameObject* This, void* Edx, hh::fnd::Message& in_rMsg)
+{
+	auto sonic = Sonic::Player::CPlayerSpeedContext::GetInstance();
+	if (sonic->m_HorizontalVelocity.norm() >= 15.0f && IsCheckpointVO)
+		sonic->PlaySound(3002001, false); //Play voiceline
+
+	//printf("CHECKPOINT???"); printf("\n");
+	//printf("CHECKPOINT???"); printf("\n");
+	//printf("CHECKPOINT???"); printf("\n");
+	//printf("CHECKPOINT???"); printf("\n");
+	//printf("CHECKPOINT???"); printf("\n");
+	//printf("CHECKPOINT???"); printf("\n");
+	//printf("CHECKPOINT???"); printf("\n");
+	originalProcMsgNotifyLapTimeHud(This, Edx, in_rMsg);
 }
 
 //Boss Taunt Voicelines
 HOOK(void, __fastcall, CHudResultStart, 0x010B6840, hh::fnd::CStateMachineBase::CStateBase* This)
 {
-	//Common::PlaySoundStatic(bossVOHandle, 3002021);
-	switch (GetCurrentStageID())
+	if (IsBossTauntVO)
 	{
-	case bsd:
-		Common::PlaySoundStatic(bossVoiceHandle, 3002022);
-		break;
-	case bsl:
-		Common::PlaySoundStatic(bossVoiceHandle, 3002023);
-		break;
-	case bpc:
-		Common::PlaySoundStatic(bossVoiceHandle, 3002019);
-		break;
-	case bne:
-		Common::PlaySoundStatic(bossVoiceHandle, 3002020);
-		break;
-	case blb:
-		Common::PlaySoundStatic(bossVoiceHandle, 3002021);
-		break;
+		switch (GetCurrentStageID())
+		{
+		case bsd:
+			Common::PlaySoundStatic(bossVoiceHandle, 3002022);
+			break;
+		case bsl:
+			Common::PlaySoundStatic(bossVoiceHandle, 3002023);
+			break;
+		case bpc:
+			Common::PlaySoundStatic(bossVoiceHandle, 3002019);
+			break;
+		case bne:
+			Common::PlaySoundStatic(bossVoiceHandle, 3002020);
+			break;
+		case blb:
+			Common::PlaySoundStatic(bossVoiceHandle, 3002021);
+			break;
+		}
 	}
 	originalCHudResultStart(This);
 }
@@ -547,21 +581,36 @@ void PlayRankQuote()
 {
 	uint32_t voiceCueID = -1;
 	uint32_t slamCueID = -1;
-	switch (m_resultData.m_perfectRank)
+	if (IsRankChatVO)
 	{
-	case ResultRankType::S:
-		if (IsTransRankVO || IsShiveryMountain || IsWaterPalace)
-			voiceCueID = 40006;
-		else
-			voiceCueID = 40000;
-		slamCueID = 1000041;
-		printf("[Rank Quote] Rank = S");
-		break;
-	case ResultRankType::A: voiceCueID = 40001; slamCueID = 1000042; printf("[Rank Quote] Rank = A"); break;
-	case ResultRankType::B: voiceCueID = 40002; slamCueID = 1000043; printf("[Rank Quote] Rank = B"); break;
-	case ResultRankType::C: voiceCueID = 40003; slamCueID = 1000044; printf("[Rank Quote] Rank = C"); break;
-	case ResultRankType::D: voiceCueID = 40004; slamCueID = 1000045; printf("[Rank Quote] Rank = D"); break;
-	default: voiceCueID = 40005; slamCueID = 1000046; printf("[Rank Quote] Rank = E"); break;
+		switch (m_resultData.m_perfectRank)
+		{
+		case ResultRankType::S:
+			if (IsTransRankVO || IsShiveryMountain || IsWaterPalace)
+				voiceCueID = 40006;
+			else
+				voiceCueID = 40000;
+			slamCueID = 1000041;
+			printf("[Rank Quote] Rank = S");
+			break;
+		case ResultRankType::A: voiceCueID = 40001; slamCueID = 1000042; printf("[Rank Quote] Rank = A"); break;
+		case ResultRankType::B: voiceCueID = 40002; slamCueID = 1000043; printf("[Rank Quote] Rank = B"); break;
+		case ResultRankType::C: voiceCueID = 40003; slamCueID = 1000044; printf("[Rank Quote] Rank = C"); break;
+		case ResultRankType::D: voiceCueID = 40004; slamCueID = 1000045; printf("[Rank Quote] Rank = D"); break;
+		default: voiceCueID = 40005; slamCueID = 1000046; printf("[Rank Quote] Rank = E"); break;
+		}
+	}
+	else
+	{
+		switch (m_resultData.m_perfectRank)
+		{
+		case ResultRankType::S: slamCueID = 1000041; printf("[Rank Quote] Rank = S"); break;
+		case ResultRankType::A: slamCueID = 1000042; printf("[Rank Quote] Rank = A"); break;
+		case ResultRankType::B: slamCueID = 1000043; printf("[Rank Quote] Rank = B"); break;
+		case ResultRankType::C: slamCueID = 1000044; printf("[Rank Quote] Rank = C"); break;
+		case ResultRankType::D: slamCueID = 1000045; printf("[Rank Quote] Rank = D"); break;
+		default: slamCueID = 1000046; printf("[Rank Quote] Rank = E"); break;
+		}
 	}
 
 	static SharedPtrTypeless rankVoiceHandle;
@@ -594,10 +643,10 @@ HOOK(void, __fastcall, RankQuote_ShowRank, 0x10B7800, uint32_t* This)
 //Tornado Voiceline
 void CscGenericTornadoNull()
 {
-	if (DoubleVOFix <= 0)
+	if (DoubleTornadoVOFix <= 0 && IsTornadoVO)
 	{
 		Common::PlaySoundStatic(bossVoiceHandle, 3002048);
-		DoubleVOFix = 60;
+		DoubleTornadoVOFix = 420;
 	}
 	//printf("TORNADO SPAWNED"); printf("\n");
 }
@@ -692,10 +741,67 @@ HOOK(void, __fastcall, LoadArchiveList, 0x69C270, void* This, void* Edx, void* A
 	return originalLoadArchiveList(This, Edx, A3, A4, name, archiveInfo);
 }
 
+//Parameter Editor Options
+HOOK(void, __cdecl, InitializeApplicationParams, 0x00D65180, Sonic::CParameterFile* This)
+{
+	boost::shared_ptr<Sonic::CParameterGroup> parameterGroup;
+	This->CreateParameterGroup(parameterGroup, "Luna's Mods", "Parameters for Lady Luna's code mods");
+	Sonic::CParameterCategory* cat_Bounce = parameterGroup->CreateParameterCategory("Trans Fem Sonic", "Parameters for Trans Fem Sonic");
+
+	//cat_Bounce->CreateParamInt(&someInt, "Integer");
+	//cat_Bounce->CreateParamBool(&someBool, "Bool");
+	//cat_Bounce->CreateParamFloat(&someFloat, "Float");
+
+	cat_Bounce->CreateParamBool(&IsIdleChatVO, "Idle Chatter");
+	cat_Bounce->CreateParamBool(&IsRankChatVO, "Rank Quotes");
+	cat_Bounce->CreateParamBool(&IsBossTauntVO, "Boss Taunts");
+	cat_Bounce->CreateParamBool(&IsTransRankVO, "Trans rights on S-Rank");
+	cat_Bounce->CreateParamBool(&IsSuperYellVO, "Super Transform Yell");
+	cat_Bounce->CreateParamBool(&IsQuickstepVO, "Quickstep Grunts");
+	cat_Bounce->CreateParamBool(&IsTrickFinishVO, "Trick Finisher Voicelines");
+	cat_Bounce->CreateParamBool(&IsCheckpointVO, "Checkpoint Voicelines");
+	cat_Bounce->CreateParamBool(&IsTornadoVO, "Crisis City Tornado");
+	cat_Bounce->CreateParamBool(&IsFootTapSFX, "Foot Tapping SFX");
+
+	parameterGroup->Flush();
+
+	originalInitializeApplicationParams(This);
+}
+
 EXPORT void Init()
 {
+	INIReader reader("mod.ini");
+	std::string SelectModel = reader.Get("Main", "IncludeDir1", "disk_swa");
+	//if (SelectModel == "disk_swa")
+	//	IsSWAMDL = true;
+	//else
+	//	IsSWAMDL = false;
+	IsSWAMDL = SelectModel == "disk_swa";
+	IsIdleChatVO = reader.GetBoolean("Option", "IsIdleChatVO", IsIdleChatVO);
+	IsRankChatVO = reader.GetBoolean("Option", "IsRankChatVO", IsRankChatVO);
+	IsBossTauntVO = reader.GetBoolean("Option", "IsBossTauntVO", IsBossTauntVO);
+	IsTransRankVO = reader.GetBoolean("Option", "IsTransRankVO", IsTransRankVO);
+	IsSuperYellVO = reader.GetBoolean("Option", "IsSuperYellVO", IsSuperYellVO);
+	IsQuickstepVO = reader.GetBoolean("Option", "IsQuickstepVO", IsQuickstepVO);
+	IsTrickFinishVO = reader.GetBoolean("Option", "IsTrickFinishVO", IsTrickFinishVO);
+	IsTornadoVO = reader.GetBoolean("Option", "IsTornadoVO", IsTornadoVO);
+	IsFootTapSFX = reader.GetBoolean("Option", "IsFootTapSFX", IsFootTapSFX);
+	if (IsSWAMDL) //Fix stray polys on unleashed skeleton
+	{
+		//Right Mouth
+		WRITE_MEMORY(0x015E8FB4, const char*, "Jaw_LT")
+		WRITE_MEMORY(0x015E8FBC, const char*, "Lip_C_LT")
+		WRITE_MEMORY(0x015E8FCC, const char*, "Lip_L_LT")
+		WRITE_MEMORY(0x015E8FD4, const char*, "Lip_R_LT")
+		//Left Mouth
+		WRITE_MEMORY(0x015E8FFC, const char*, "Jaw_LT1")
+		WRITE_MEMORY(0x015E9004, const char*, "Lip_C_LT1")
+		WRITE_MEMORY(0x015E9014, const char*, "Lip_L_LT1")
+		WRITE_MEMORY(0x015E901C, const char*, "Lip_R_LT1")
+	}
 	INSTALL_HOOK(CPlayerSpeedUpdate);
 	INSTALL_HOOK(EnterRunQuickStep);
+	INSTALL_HOOK(ProcMsgNotifyLapTimeHud);
 	INSTALL_HOOK(CHudResultStart);
 	INSTALL_HOOK(RankQuote_CStateGoalFadeBeforeBegin);
 	INSTALL_HOOK(RankQuote_ChangeRank);
@@ -704,9 +810,7 @@ EXPORT void Init()
 	INSTALL_HOOK(ParseArchiveTree);
 	INSTALL_HOOK(LoadArchive);
 	INSTALL_HOOK(LoadArchiveList);
-
-	INIReader reader("TransFemSonic.ini");
-	IsTransRankVO = reader.GetBoolean("Option", "IsTransRankVO", IsTransRankVO);
+	INSTALL_HOOK(InitializeApplicationParams);
 
 	if (Common::IsModEnabled("Unleashed Project") || Common::IsModEnabled("Unleashed Project Encore"))
 		IsUnleashedProject = true;

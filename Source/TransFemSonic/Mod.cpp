@@ -42,6 +42,11 @@ inline uint32_t GetCurrentStageID()
 
 int DoubleVOFix = 0;
 int DoubleTornadoVOFix = 0;
+float EnemyVOCountdown = 0.0f;
+int EnemyComboCount = 0;
+float PatheticTimer = 30;
+bool HasSaidIntro = false;
+bool IsEnemyCombo = false;
 //Mod Compatibility Checks
 bool IsUnleashedProject = false;
 bool IsShiveryMountain = false;
@@ -67,8 +72,17 @@ bool IsCheckpointVO = true;
 bool IsTornadoVO = true;
 bool IsFootTapSFX = true;
 static SharedPtrTypeless bossVoiceHandle;
+int TrailFlag = 0;
+/*
+0 - Normal
+1 - Trans
+2 - Lesbian
+3 - Gay
+4 - Bi
+5 - Pan
+*/
 
-//Gameplay Voicelines
+//Gameplay
 HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed* This, void* _, const hh::fnd::SUpdateInfo& updateInfo)
 {
 	auto sonic = This->GetContext();
@@ -78,7 +92,10 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	bool IsIdleAnim = GetAnim == "IdleA" || GetAnim == "IdleB" || GetAnim == "IdleC" || GetAnim == "IdleD" || GetAnim == "IdleE";     //idle Anim
 	bool IsFinishAnim = GetAnim == "Trick_FinishF" || GetAnim == "Trick_FinishB" || GetAnim == "Trick_FinishSV";     //Trick Finish Anim
 	bool IsRankAnim = GetAnim == "ResultRankS" || GetAnim == "ResultRankA" || GetAnim == "ResultRankB" || GetAnim == "ResultRankC" || GetAnim == "ResultRankD";		//Result Start Anim
+	bool IsPatheticAnim = GetAnim == "ResultRankS_LinkL" || GetAnim == "IdleSleepLoopSVRev" || GetAnim == "IdleSleepLoopSV" || GetAnim == "IdleSleepShakeSVRev" || GetAnim == "IdleSleepShakeSV" || GetAnim == "IdleSleepLoop" || GetAnim == "IdleSleepShake";		//Laying down anims
 	bool IsTransformAnim = GetAnim == "TrnsStSp";		//Transform Start Anim
+	auto Flags = sonic->m_pStateFlag;
+	bool IsOutOfControl = Flags->m_Flags[sonic->eStateFlag_OutOfControl];
 	auto input = Sonic::CInputState::GetInstance()->GetPadState();
 	bool PressedY = input.IsTapped(Sonic::eKeyState_Y);
 	const auto GetAnimInfo = boost::make_shared<Sonic::Message::MsgGetAnimationInfo>();
@@ -89,6 +106,40 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	if (Sonic::Player::CSonicSpContext::GetInstance() == nullptr)
 	{
 		sonic->m_pPlayer->SendMessageImm(sonic->m_pPlayer->m_ActorID, GetAnimInfo);
+
+		switch (TrailFlag)
+		{
+		case 1:
+			WRITE_MEMORY(0x00E5FE61, char*, "homing_trans"); //Normal Trail
+			WRITE_MEMORY(0x00E8E0AF, char*, "homing_trans"); //Normal Trail
+			WRITE_MEMORY(0x00E5FE01, char*, "homing_trans"); //Super Trail
+			break;
+		case 2:
+			WRITE_MEMORY(0x00E5FE61, char*, "homing_lesb"); //Normal Trail
+			WRITE_MEMORY(0x00E8E0AF, char*, "homing_lesb"); //Normal Trail
+			WRITE_MEMORY(0x00E5FE01, char*, "homing_lesb"); //Super Trail
+			break;
+		case 3:
+			WRITE_MEMORY(0x00E5FE61, char*, "homing_gay"); //Normal Trail
+			WRITE_MEMORY(0x00E8E0AF, char*, "homing_gay"); //Normal Trail
+			WRITE_MEMORY(0x00E5FE01, char*, "homing_gay"); //Super Trail
+			break;
+		case 4:
+			WRITE_MEMORY(0x00E5FE61, char*, "homing_bi"); //Normal Trail
+			WRITE_MEMORY(0x00E8E0AF, char*, "homing_bi"); //Normal Trail
+			WRITE_MEMORY(0x00E5FE01, char*, "homing_bi"); //Super Trail
+			break;
+		case 5:
+			WRITE_MEMORY(0x00E5FE61, char*, "homing_pan"); //Normal Trail
+			WRITE_MEMORY(0x00E8E0AF, char*, "homing_pan"); //Normal Trail
+			WRITE_MEMORY(0x00E5FE01, char*, "homing_pan"); //Super Trail
+			break;
+		default:
+			WRITE_MEMORY(0x00E5FE61, char*, "homing_generic"); //Normal Trail
+			WRITE_MEMORY(0x00E8E0AF, char*, "homing_generic"); //Normal Trail
+			WRITE_MEMORY(0x00E5FE01, char*, "homing_generic_sp"); //Super Trail
+			break;
+		}
 
 		//Play random Idle anim
 		//if (PressedY)
@@ -113,6 +164,12 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 		//		break;
 		//	}
 		//}
+	}
+	else
+	{
+		WRITE_MEMORY(0x00E5FE61, char*, "homing_generic"); //Normal Trail
+		WRITE_MEMORY(0x00E8E0AF, char*, "homing_generic"); //Normal Trail
+		WRITE_MEMORY(0x00E5FE01, char*, "homing_generic_sp"); //Super Trail
 	}
 
 	//Idle Chatter
@@ -337,14 +394,14 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	}
 
 	//Trick Finisher voice line
-	if (IsFinishAnim && (GetAnimInfo->m_Frame > 10 && GetAnimInfo->m_Frame < 11) && (DoubleVOFix <= 0) && IsTrickFinishVO)
+	if (IsFinishAnim && (GetAnimInfo->m_Frame >= 10 && GetAnimInfo->m_Frame < 11) && (DoubleVOFix <= 0) && IsTrickFinishVO)
 	{
 		sonic->PlaySound(3002013, false); //Play voiceline
 		DoubleVOFix = 5;
 	}
 
 	//Yawn voice line
-	if (IsYawnAnim && (GetAnimInfo->m_Frame > 260 && GetAnimInfo->m_Frame < 261) && (DoubleVOFix <= 0) && !IsSWAMDL)
+	if (IsYawnAnim && (GetAnimInfo->m_Frame >= 260 && GetAnimInfo->m_Frame < 261) && (DoubleVOFix <= 0) && !IsSWAMDL)
 	{
 		sonic->PlaySound(3002012, false); //Play voiceline
 		DoubleVOFix = 5;
@@ -359,7 +416,7 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	}
 
 	//Foot Tap sfx
-	if (IsTapAnim && ((GetAnimInfo->m_Frame > 38 && GetAnimInfo->m_Frame < 39) || (GetAnimInfo->m_Frame > 50 && GetAnimInfo->m_Frame < 51) || (GetAnimInfo->m_Frame > 66 && GetAnimInfo->m_Frame < 67) || (GetAnimInfo->m_Frame > 94 && GetAnimInfo->m_Frame < 95)) && (DoubleVOFix <= 0) && !IsSWAMDL && IsFootTapSFX)
+	if (IsTapAnim && ((GetAnimInfo->m_Frame >= 38 && GetAnimInfo->m_Frame < 39) || (GetAnimInfo->m_Frame >= 50 && GetAnimInfo->m_Frame < 51) || (GetAnimInfo->m_Frame >= 66 && GetAnimInfo->m_Frame < 67) || (GetAnimInfo->m_Frame >= 94 && GetAnimInfo->m_Frame < 95)) && (DoubleVOFix <= 0) && !IsSWAMDL && IsFootTapSFX)
 	{
 		switch (sonic->m_Field164)
 		{
@@ -395,9 +452,61 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 		DoubleVOFix = 5;
 	}
 
+	//Boos Intro voice line
+	if (!IsOutOfControl && !HasSaidIntro)
+	{
+		switch (GetCurrentStageID())
+		{
+		case bsd:
+			Common::PlaySoundStatic(bossVoiceHandle, 3002052);
+			HasSaidIntro = true;
+			break;
+		case bsl:
+			Common::PlaySoundStatic(bossVoiceHandle, 3002051);
+			HasSaidIntro = true;
+			break;
+		case bpc:
+			Common::PlaySoundStatic(bossVoiceHandle, 3002053);
+			HasSaidIntro = true;
+			break;
+		case bne:
+			Common::PlaySoundStatic(bossVoiceHandle, 3002050);
+			HasSaidIntro = true;
+			break;
+		case blb:
+			Common::PlaySoundStatic(bossVoiceHandle, 3002054);
+			HasSaidIntro = true;
+			break;
+		}
+	}
+
+	//Alone on a Friday night? god you're pathetic
+	if (IsPatheticAnim && (PatheticTimer >= 0))
+		PatheticTimer -= updateInfo.DeltaTime;
+	if ((PatheticTimer <= 0) && (DoubleVOFix <= 0))
+	{
+		//sonic->PlaySound(40007, false); //Play voiceline
+		Common::PlaySoundStatic(bossVoiceHandle, 40007);
+		PatheticTimer = 30;
+		DoubleVOFix = 5;
+	}
+
+	//Enemy Combo Voicelines
+	if (EnemyVOCountdown > 0)
+		EnemyVOCountdown -= updateInfo.DeltaTime;
+	if ((EnemyVOCountdown <= 0) && IsEnemyCombo && sonic->m_Grounded)
+	{
+		if (EnemyComboCount >= 7)
+			sonic->PlaySound(3002013, false); //Play voiceline
+		else
+			sonic->PlaySound(3002049, false); //Play voiceline
+		IsEnemyCombo = false;
+		EnemyComboCount = 0;
+	}
+
+	//Timer Fixes
 	if (DoubleVOFix > 0)
 		DoubleVOFix--;
-
 	if (DoubleTornadoVOFix > 0)
 		DoubleTornadoVOFix--;
 
@@ -540,6 +649,27 @@ HOOK(void, __fastcall, ProcMsgNotifyLapTimeHud, 0x1097640, Sonic::CGameObject* T
 	originalProcMsgNotifyLapTimeHud(This, Edx, in_rMsg);
 }
 
+//Handle Restart/Stage switch
+void NewStage(Sonic::Player::CPlayer* player)
+{
+	HasSaidIntro = false;
+	IsEnemyCombo = false;
+	DoubleVOFix = 0;
+	DoubleTornadoVOFix = 0;
+	EnemyVOCountdown = 0;
+	EnemyComboCount = 0;
+	PatheticTimer = 30;
+}
+HOOK(void, __fastcall, MsgRestartStage, 0xE76810, Sonic::Player::CPlayer* This, void* Edx, hh::fnd::Message& message)
+{
+	NewStage(This);
+	return originalMsgRestartStage(This, Edx, message);
+}
+void __fastcall CSonicRemoveCallback(Sonic::Player::CPlayer* This, void* Edx, void* A1)
+{
+	NewStage(This);
+}
+
 //Boss Taunt Voicelines
 HOOK(void, __fastcall, CHudResultStart, 0x010B6840, hh::fnd::CStateMachineBase::CStateBase* This)
 {
@@ -640,6 +770,37 @@ HOOK(void, __fastcall, RankQuote_ShowRank, 0x10B7800, uint32_t* This)
 	WRITE_MEMORY(0x11D237A, uint32_t, 1010002);
 }
 
+//Enemy Voicelines
+void PlayEnemyVoice()
+{
+	auto sonic = Sonic::Player::CPlayerSpeedContext::GetInstance();
+
+	if (sonic->m_Grounded)
+	{
+		EnemyVOCountdown = 0.64;
+		IsEnemyCombo = true;
+	}
+	if (IsEnemyCombo)
+		EnemyComboCount++;
+
+	printf("DEAD"); printf("\n");
+}
+__declspec(naked) void Enemy_MidAsmHook()
+{
+	static void* returnAddress = (void*)0x00BDDD96;
+	static void* hhCall = (void*)0x0065FC40;
+
+	__asm
+	{
+		call[hhCall]
+		push esi
+		// Do thing
+		call PlayEnemyVoice
+		pop esi
+		jmp[returnAddress]
+	}
+}
+
 //Tornado Voiceline
 void CscGenericTornadoNull()
 {
@@ -661,6 +822,11 @@ HOOK(bool, __stdcall, ParseArchiveTree, 0xD4C8E0, void* A1, char* data, const si
 		stream << "  <DefAppend>\n";
 		stream << "    <Name>SonicSp</Name>\n";
 		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>SonicActionCommon</Name>\n";
+		stream << "    <Archive>SonicGlitter</Archive>\n";
 		stream << "  </DefAppend>\n";
 
 		stream << "  <DefAppend>\n";
@@ -752,6 +918,7 @@ HOOK(void, __cdecl, InitializeApplicationParams, 0x00D65180, Sonic::CParameterFi
 	//cat_Bounce->CreateParamBool(&someBool, "Bool");
 	//cat_Bounce->CreateParamFloat(&someFloat, "Float");
 
+	cat_Bounce->CreateParamInt(&TrailFlag, "Homing Trail Flag");
 	cat_Bounce->CreateParamBool(&IsIdleChatVO, "Idle Chatter");
 	cat_Bounce->CreateParamBool(&IsRankChatVO, "Rank Quotes");
 	cat_Bounce->CreateParamBool(&IsBossTauntVO, "Boss Taunts");
@@ -772,10 +939,6 @@ EXPORT void Init()
 {
 	INIReader reader("mod.ini");
 	std::string SelectModel = reader.Get("Main", "IncludeDir1", "disk_swa");
-	//if (SelectModel == "disk_swa")
-	//	IsSWAMDL = true;
-	//else
-	//	IsSWAMDL = false;
 	IsSWAMDL = SelectModel == "disk_swa";
 	IsIdleChatVO = reader.GetBoolean("Option", "IsIdleChatVO", IsIdleChatVO);
 	IsRankChatVO = reader.GetBoolean("Option", "IsRankChatVO", IsRankChatVO);
@@ -789,23 +952,26 @@ EXPORT void Init()
 	if (IsSWAMDL) //Fix stray polys on unleashed skeleton
 	{
 		//Right Mouth
-		WRITE_MEMORY(0x015E8FB4, const char*, "Jaw_LT")
-		WRITE_MEMORY(0x015E8FBC, const char*, "Lip_C_LT")
-		WRITE_MEMORY(0x015E8FCC, const char*, "Lip_L_LT")
-		WRITE_MEMORY(0x015E8FD4, const char*, "Lip_R_LT")
+		WRITE_MEMORY(0x015E8FB4, const char*, "Jaw_LT");
+		WRITE_MEMORY(0x015E8FBC, const char*, "Lip_C_LT");
+		WRITE_MEMORY(0x015E8FCC, const char*, "Lip_L_LT");
+		WRITE_MEMORY(0x015E8FD4, const char*, "Lip_R_LT");
 		//Left Mouth
-		WRITE_MEMORY(0x015E8FFC, const char*, "Jaw_LT1")
-		WRITE_MEMORY(0x015E9004, const char*, "Lip_C_LT1")
-		WRITE_MEMORY(0x015E9014, const char*, "Lip_L_LT1")
-		WRITE_MEMORY(0x015E901C, const char*, "Lip_R_LT1")
+		WRITE_MEMORY(0x015E8FFC, const char*, "Jaw_LT1");
+		WRITE_MEMORY(0x015E9004, const char*, "Lip_C_LT1");
+		WRITE_MEMORY(0x015E9014, const char*, "Lip_L_LT1");
+		WRITE_MEMORY(0x015E901C, const char*, "Lip_R_LT1");
 	}
 	INSTALL_HOOK(CPlayerSpeedUpdate);
 	INSTALL_HOOK(EnterRunQuickStep);
 	INSTALL_HOOK(ProcMsgNotifyLapTimeHud);
+	INSTALL_HOOK(MsgRestartStage);
+	WRITE_MEMORY(0x16D4B4C, void*, CSonicRemoveCallback);
 	INSTALL_HOOK(CHudResultStart);
 	INSTALL_HOOK(RankQuote_CStateGoalFadeBeforeBegin);
 	INSTALL_HOOK(RankQuote_ChangeRank);
 	INSTALL_HOOK(RankQuote_ShowRank);
+	WRITE_JUMP(0x00BDDD91, &Enemy_MidAsmHook);
 	WRITE_MEMORY(0x016C73D8, void*, CscGenericTornadoNull);
 	INSTALL_HOOK(ParseArchiveTree);
 	INSTALL_HOOK(LoadArchive);

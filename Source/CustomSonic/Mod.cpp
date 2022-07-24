@@ -2,70 +2,72 @@
 #include "UpdateDirector.h"
 
 //Sonic setup
+std::mutex mutex;
+std::map<boost::shared_ptr<hh::mr::CModelData>, std::vector<boost::shared_ptr<hh::mr::CNodeGroupModelData>>> models;
 enum SelectShoeType
 {
-	ShDefault			= 00, 
-	ShClassic			= 01, //TBA
-	ShSA1LightSpd		= 10, 
-	ShSoaps				= 20, 
-	ShSoapsLightSpd		= 21, 
-	ShRiders			= 30, //TBA
-	Sh06Gem				= 40, //TBA
-	ShSUAirboost		= 50, //TBA
-	ShSULightSpd		= 51, //TBA
-	ShSUStomp			= 52, //TBA
-	ShSUWallJmp			= 53, //TBA
-	ShSUWerehog			= 54, //TBA
-	ShSUZoney			= 55, //TBA
-	ShLinkBoots			= 60, //TBA
-	ShBoom				= 70, //TBA
-	ShPumas				= 80,
+	ShDefault = 00,
+	ShClassic = 01, //TBA
+	ShSA1LightSpd = 10,
+	ShSoaps = 20,
+	ShSoapsLightSpd = 21,
+	ShRiders = 30,
+	Sh06Gem = 40,
+	ShSUAirboost = 50, //TBA
+	ShSULightSpd = 51, //TBA
+	ShSUStomp = 52, //TBA
+	ShSUWallJmp = 53, //TBA
+	ShSUWerehog = 54, //TBA
+	ShSUZoney = 55, //TBA
+	ShLinkBoots = 60, //TBA
+	ShBoom = 70, //TBA
+	ShPumas = 80,
 };
 SelectShoeType SelectShoes = SelectShoeType::ShDefault;
 enum SelectBodyType
 {
-	BdDefault			= 00,
-	BdSA2RaceSuit		= 10, //TBA
-	BdWildFire			= 20,
-	BdLinkCos			= 30, //TBA
-	BdScarf				= 40,
-	BdSwimVest			= 50, //TBA
-	BdSurfShirt			= 60, //TBA
-	BdHorseShirt		= 70, //TBA
-	BdMovieSkin			= 80, //TBA
+	BdDefault = 00,
+	BdSA2RaceSuit = 10, //TBA
+	BdWildFire = 20,
+	BdLinkCos = 30, //TBA
+	BdScarf = 40,
+	BdSwimVest = 50, //TBA
+	BdSurfShirt = 60, //TBA
+	BdHorseShirt = 70, //TBA
+	BdMovieSkin = 80, //TBA
 };
 SelectBodyType SelectBody = SelectBodyType::BdDefault;
 enum SelectHeadType
 {
-	HeDefault			= 00,
-	HeSA1Sunglass		= 10,
-	HeRiders			= 20,
-	HeHeadphones		= 30, //TBA
-	HeLinkHat			= 40, //TBA
+	HeDefault = 00,
+	HeSA1Sunglass = 10,
+	HeRiders = 20,
+	HeHeadphones = 30, //TBA
+	HeLinkHat = 40, //TBA
 };
 SelectHeadType SelectHead = SelectHeadType::HeDefault;
 enum SelectHandLType
 {
-	HLDefault			= 00,
-	HLCrystalRing		= 10,
-	HLFlameRing			= 20, //TBA
-	HLRiders			= 30, //TBA
-	HL06Bounce			= 40, //TBA
-	HLChipBracelet		= 50, //TBA
-	HLLinkGlove			= 60, //TBA
+	HLDefault = 00,
+	HLCrystalRing = 10,
+	HLFlameRing = 20, //TBA
+	HLRiders = 30,
+	HL06Bounce = 40, //TBA
+	HLChipBracelet = 50, //TBA
+	HLLinkGlove = 60, //TBA
 };
 SelectHandLType SelectHandL = SelectHandLType::HLDefault;
 enum SelectHandRType
 {
-	HRDefault			= 00,
-	HRBounceBracelet	= 10, //TBA
-	HRMagicHands		= 11, //TBA
-	HRRiders			= 20, //TBA
-	HRArkCosmos			= 30, //TBA
-	HR06AntiGrav		= 40, //TBA
-	HRSecretRing		= 50, //TBA
-	HRGauntlet			= 60, //TBA
-	HRLinkGlove			= 70, //TBA
+	HRDefault = 00,
+	HRBounceBracelet = 10, //TBA
+	HRMagicHands = 11, //TBA
+	HRRiders = 20,
+	HRArkCosmos = 21, //TBA
+	HR06AntiGrav = 30, //TBA
+	HRSecretRing = 40, //TBA
+	HRGauntlet = 50, //TBA
+	HRLinkGlove = 60, //TBA
 };
 SelectHandRType SelectHandR = SelectHandRType::HRDefault;
 
@@ -147,21 +149,24 @@ void __fastcall CSonicRemoveCallback(Sonic::Player::CPlayer* This, void* Edx, vo
 	KillFireParticle(This);
 }
 
-//Handle Sonic/UI
-HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed* This, void* _, const hh::fnd::SUpdateInfo& updateInfo)
+//Handle Sonic
+void meshVisibilityHandler(const boost::shared_ptr<hh::mr::CModelData>& model, std::vector<boost::shared_ptr<hh::mr::CNodeGroupModelData>>& nodeGroupModels)
 {
-	auto sonic = This->GetContext();
-	auto model = Sonic::Player::CPlayerSpeedContext::GetInstance()->m_pPlayer->m_spCharacterModel->m_spModel;
-	auto input = Sonic::CInputState::GetInstance()->GetPadState();
-	bool PressedY = input.IsTapped(Sonic::eKeyState_Y);
+	if (!model || !(model->m_Flags & hh::db::eDatabaseDataFlags_IsMadeOne))
+		return;
+
+	if (nodeGroupModels.empty())
+		nodeGroupModels.assign(model->m_NodeGroupModels.begin(), model->m_NodeGroupModels.end());
+
+	model->m_NodeGroupModels.clear();
 
 	//Handle Mesh visibility
-	for (size_t i = 0; i < model->m_NodeGroupModels.size(); i++) 
+	for (auto& node : nodeGroupModels)
 	{
-		auto node = model->m_NodeGroupModels[i];
 		auto nodeName = node->m_Name;
 
-		////Shoes////
+		/////Normal Sonic///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		/////Shoes//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		//Default Shoes
 		if (nodeName == "Sonic_100_Shoes")
 			node->m_Visible = (SelectShoes == ShDefault);
@@ -174,46 +179,136 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 		//Soaps Lightspeed Attachment
 		if (nodeName == "Sonic_121_SoapLightSpd")
 			node->m_Visible = (SelectShoes == ShSoapsLightSpd);
+		//Riders Shoes
+		if (nodeName == "Sonic_130_Riders")
+			node->m_Visible = (SelectShoes == ShRiders);
 		//Gem Shoes
 		if (nodeName == "Sonic_140_Gems")
 			node->m_Visible = (SelectShoes == Sh06Gem);
 		//Puma Shoes
 		if (nodeName == "Sonic_180_Pumas")
 			node->m_Visible = (SelectShoes == ShPumas);
-
-		////Bodies////
+		/////Bodies//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		//Base Body
+		if (nodeName == "Sonic_000_Body")
+			node->m_Visible = ((SelectBody != BdSA2RaceSuit) && (SelectBody != BdMovieSkin));
 		//Scarf
 		if (nodeName == "Sonic_240_Scarf")
 			node->m_Visible = (SelectBody == BdScarf);
-
-		////Heads////
+		/////Heads/////
 		//SA1 Sunglasses
 		if (nodeName == "Sonic_310_SA1SunGlass")
 			node->m_Visible = (SelectHead == HeSA1Sunglass);
 		//Riders Glasses
 		if (nodeName == "Sonic_320_RidersGlass")
 			node->m_Visible = (SelectHead == HeRiders);
-
-		////Left Hands////
+		/////Left Hands//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		//Default Glove
 		if (nodeName == "Sonic_400_Glove_L")
 			node->m_Visible = ((SelectHandL != HLRiders) && (SelectHandL != HLLinkGlove));
 		//Crystal Ring
 		if (nodeName == "Sonic_410_CrystalRing")
 			node->m_Visible = (SelectHandL == HLCrystalRing);
-
-		////Right Hands////
+		//Riders Glove
+		if (nodeName == "Sonic_430_RiderGlove_L")
+			node->m_Visible = (SelectHandL == HLRiders);
+		/////Right Hands/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		//Default Glove
 		if (nodeName == "Sonic_500_Glove_R")
 			node->m_Visible = ((SelectHandR != HRRiders) && (SelectHandR != HRLinkGlove) && (SelectHandR != HRGauntlet) && (SelectHandR != HRArkCosmos));
+		//Riders Glove
+		if (nodeName == "Sonic_530_RiderGlove_R")
+			node->m_Visible = (SelectHandR == HRRiders);
 
 		//printf("%s\n", nodeName.c_str());
+
+		if (node->m_Visible)
+			model->m_NodeGroupModels.push_back(node);
 	}
-	
+
+	model->m_NodeGroupModelNum = model->m_NodeGroupModels.size();
+}
+HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed* This, void* _, const hh::fnd::SUpdateInfo& updateInfo)
+{
+	auto sonic = This->GetContext();
+	//auto model = Sonic::Player::CPlayerSpeedContext::GetInstance()->m_pPlayer->m_spCharacterModel->m_spModel;
+	//auto model = Hedgehog::Mirage::CMirageDatabaseWrapper(Sonic::CGameDocument::GetInstance()->m_pMember->m_spDatabase.get()).GetModelData("ev_chr_Sonic_HD");
+	auto input = Sonic::CInputState::GetInstance()->GetPadState();
+	bool PressedY = input.IsTapped(Sonic::eKeyState_Y);
+
 	if (SelectBody == BdWildFire)
 		SpawnFireParticle(This);
 	if (SelectBody != BdWildFire)
 		KillFireParticle(This);
+
+	//if (!model)
+	//{
+	//	originalCPlayerSpeedUpdate(This, _, updateInfo);
+	//	return;
+	//}
+
+	////Handle Mesh visibility
+	//for (size_t i = 0; i < model->m_NodeGroupModels.size(); i++) 
+	//{
+	//	auto node = model->m_NodeGroupModels[i];
+	//	auto nodeName = node->m_Name;
+
+	//	/////Shoes/////
+	//	//Default Shoes
+	//	if (nodeName == "Sonic_100_Shoes")
+	//		node->m_Visible = (SelectShoes == ShDefault);
+	//	//SA1 Lightspeed Shoes
+	//	if (nodeName == "Sonic_110_SA1LightSpd")
+	//		node->m_Visible = (SelectShoes == ShSA1LightSpd);
+	//	//Soap Shoes
+	//	if (nodeName == "Sonic_120_Soaps")
+	//		node->m_Visible = ((SelectShoes == ShSoaps) || (SelectShoes == ShSoapsLightSpd));
+	//	//Soaps Lightspeed Attachment
+	//	if (nodeName == "Sonic_121_SoapLightSpd")
+	//		node->m_Visible = (SelectShoes == ShSoapsLightSpd);
+	//	//Riders Shoes
+	//	if (nodeName == "Sonic_130_Riders")
+	//		node->m_Visible = (SelectShoes == ShRiders);
+	//	//Gem Shoes
+	//	if (nodeName == "Sonic_140_Gems")
+	//		node->m_Visible = (SelectShoes == Sh06Gem);
+	//	//Puma Shoes
+	//	if (nodeName == "Sonic_180_Pumas")
+	//		node->m_Visible = (SelectShoes == ShPumas);
+	//	/////Bodies/////
+	//	//Base Body
+	//	if (nodeName == "Sonic_000_Body")
+	//		node->m_Visible = ((SelectBody != BdSA2RaceSuit) && (SelectBody != BdMovieSkin));
+	//	//Scarf
+	//	if (nodeName == "Sonic_240_Scarf")
+	//		node->m_Visible = (SelectBody == BdScarf);
+	//	/////Heads/////
+	//	//SA1 Sunglasses
+	//	if (nodeName == "Sonic_310_SA1SunGlass")
+	//		node->m_Visible = (SelectHead == HeSA1Sunglass);
+	//	//Riders Glasses
+	//	if (nodeName == "Sonic_320_RidersGlass")
+	//		node->m_Visible = (SelectHead == HeRiders);
+	//	/////Left Hands/////
+	//	//Default Glove
+	//	if (nodeName == "Sonic_400_Glove_L")
+	//		node->m_Visible = ((SelectHandL != HLRiders) && (SelectHandL != HLLinkGlove));
+	//	//Crystal Ring
+	//	if (nodeName == "Sonic_410_CrystalRing")
+	//		node->m_Visible = (SelectHandL == HLCrystalRing);
+	//	//Riders Glove
+	//	if (nodeName == "Sonic_430_RiderGlove_L")
+	//		node->m_Visible = (SelectHandL == HLRiders);
+	//	/////Right Hands/////
+	//	//Default Glove
+	//	if (nodeName == "Sonic_500_Glove_R")
+	//		node->m_Visible = ((SelectHandR != HRRiders) && (SelectHandR != HRLinkGlove) && (SelectHandR != HRGauntlet) && (SelectHandR != HRArkCosmos));
+	//	//Riders Glove
+	//	if (nodeName == "Sonic_530_RiderGlove_R")
+	//		node->m_Visible = (SelectHandR == HRRiders);
+
+	//	//printf("%s\n", nodeName.c_str());
+	//}
 
 	//if (PressedY)
 	//{
@@ -228,15 +323,25 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	if (IsInMenu)
 		return;
 
-	//printf("Shoe Type: ", "%d", ShoeType, " ");
-	//printf("Headwear Type: ", "%d", HeadType, " ");
-	//printf("Hand L Type: ", "%d", HandLType, " ");
-	//printf("Hand R Type: ", "%d", HandRType, " ");
-	//printf("Scarf: ", "%d", Scarf);
-	//printf("\n");
-
 	originalCPlayerSpeedUpdate(This, _, updateInfo);
 }
+HOOK(void*, __fastcall, CMirageDatabaseWrapperGetModelData, hh::mr::fpCMirageDatabaseWrapperGetModelData, Hedgehog::Mirage::CMirageDatabaseWrapper* This, void* Edx, boost::shared_ptr<Hedgehog::Mirage::CModelData>& out_spModelData, const Hedgehog::Base::CSharedString& in_rName, size_t in_Unknown)
+{
+	void* result = originalCMirageDatabaseWrapperGetModelData(This, Edx, out_spModelData, in_rName, in_Unknown);
+
+	if (out_spModelData && strstr(in_rName.c_str(), "chr_Sonic_HD"))
+	{
+		std::lock_guard lock(mutex);
+
+		const auto pair = models.find(out_spModelData);
+		if (pair == models.end())
+			models[out_spModelData] = {};
+	}
+
+	return result;
+}
+
+//Handle UI
 void CreateFittingUI(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo& in_rUpdateInfo)
 {
 	Sonic::CCsdDatabaseWrapper wrapper(This->m_pMember->m_pGameDocument->m_pMember->m_spDatabase.get());
@@ -287,9 +392,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 		MenuOption = UIPartShoes;
 		ItemOption = 0;
 		if (!obCustomUI) //Create UI project if it doesn't exist
-		{
 			CreateFittingUI(This, Edx, in_rUpdateInfo);
-		}
 		//Main UI
 		scChara = prFittingScreen->CreateScene("chara");
 		scChara->SetPosition(0, 0);
@@ -417,7 +520,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 						scChara->GetNode("img_ch_2")->SetPatternIndex(1);
 				}
 				//Riders Shoes
-				if (SelectShoes == Sh06Gem)
+				if (SelectShoes == ShRiders)
 					scChara->GetNode("img_ch_3")->SetPatternIndex(2);
 				else
 					scChara->GetNode("img_ch_3")->SetPatternIndex(1);
@@ -544,9 +647,13 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 					scChara->GetNode("img_ch_1")->SetPatternIndex(8);
 				else
 					scChara->GetNode("img_ch_1")->SetPatternIndex(7);
+				//Riders Left Glove
+				if (SelectHandL == HLRiders)
+					scChara->GetNode("img_ch_3")->SetPatternIndex(8);
+				else
+					scChara->GetNode("img_ch_3")->SetPatternIndex(7);
 				//Empty Placeholders
 				scChara->GetNode("img_ch_2")->SetPatternIndex(7);
-				scChara->GetNode("img_ch_3")->SetPatternIndex(7);
 				scChara->GetNode("img_ch_4")->SetPatternIndex(7);
 				scChara->GetNode("img_ch_5")->SetPatternIndex(7);
 				scChara->GetNode("img_ch_6")->SetPatternIndex(7);
@@ -560,9 +667,13 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 					scChara->GetNode("img_ch_0")->SetPatternIndex(10);
 				else
 					scChara->GetNode("img_ch_0")->SetPatternIndex(9);
+				//Riders Right Glove
+				if (SelectHandR == HRRiders)
+					scChara->GetNode("img_ch_2")->SetPatternIndex(10);
+				else
+					scChara->GetNode("img_ch_2")->SetPatternIndex(9);
 				//Empty Placeholders
 				scChara->GetNode("img_ch_1")->SetPatternIndex(9);
-				scChara->GetNode("img_ch_2")->SetPatternIndex(9);
 				scChara->GetNode("img_ch_3")->SetPatternIndex(9);
 				scChara->GetNode("img_ch_4")->SetPatternIndex(9);
 				scChara->GetNode("img_ch_5")->SetPatternIndex(9);
@@ -601,7 +712,9 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 						SelectShoes = ShSoapsLightSpd;
 					break;
 				case 3:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					Common::PlaySoundStatic(menuSoundHandle, 1000005);
+					PlayCursorAnim();
+					SelectShoes = ShRiders;
 					break;
 				case 4:
 					Common::PlaySoundStatic(menuSoundHandle, 1000005);
@@ -720,7 +833,9 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 					Common::PlaySoundStatic(menuSoundHandle, 1000007);
 					break;
 				case 3:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					Common::PlaySoundStatic(menuSoundHandle, 1000005);
+					PlayCursorAnim();
+					SelectHandL = HLRiders;
 					break;
 				case 4:
 					Common::PlaySoundStatic(menuSoundHandle, 1000007);
@@ -752,7 +867,9 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 					Common::PlaySoundStatic(menuSoundHandle, 1000007);
 					break;
 				case 2:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					Common::PlaySoundStatic(menuSoundHandle, 1000005);
+					PlayCursorAnim();
+					SelectHandR = HRRiders;
 					break;
 				case 3:
 					Common::PlaySoundStatic(menuSoundHandle, 1000007);
@@ -823,7 +940,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 			{
 				switch (ItemOption)
 				{
-				case 2:					
+				case 2:
 					if (ShSoapVariant)
 					{
 						ShSoapVariant = false;
@@ -2247,7 +2364,7 @@ void* updateDirectorCustom(void* context, float elapsedTime)
 	addUpdateCommand(context, elapsedTime, "3");
 	addUpdateCommand(context, elapsedTime, "b");
 	//addUpdateCommand(context, elapsedTime, "e");
-	addUpdateCommand(context, elapsedTime, "9");
+	//addUpdateCommand(context, elapsedTime, "9");
 	
 	callUnknownFunction(context, elapsedTime);
 
@@ -2256,7 +2373,7 @@ void* updateDirectorCustom(void* context, float elapsedTime)
 	addRenderCommand(context, elapsedTime, "3");
 	addRenderCommand(context, elapsedTime, "b");
 	//addRenderCommand(context, elapsedTime, "e");
-	addRenderCommand(context, elapsedTime, "9");
+	//addRenderCommand(context, elapsedTime, "9");
 
 	finishRenderer(context);
 	return finishUpdater(context);
@@ -2436,6 +2553,35 @@ HOOK(void, __fastcall, LoadArchiveList, 0x69C270, void* This, void* Edx, void* A
 	return originalLoadArchiveList(This, Edx, A3, A4, name, archiveInfo);
 }
 
+//OnFrame
+EXPORT void OnFrame()
+{
+	std::lock_guard lock(mutex);
+
+	for (auto& pair : models)
+		meshVisibilityHandler(pair.first, pair.second);
+
+	//auto gameDocument = Sonic::CGameDocument::GetInstance();
+
+	//if (!**gameDocument)
+	//	return;
+
+	//if (!gameDocument->m_pMember->m_spDatabase)
+	//	return;
+
+	//Hedgehog::Mirage::CMirageDatabaseWrapper wrapper(gameDocument->m_pMember->m_spDatabase.get());
+
+	//auto chr_Sonic_HD = wrapper.GetModelData("chr_Sonic_HD");
+	//auto ev_chr_Sonic_HD = wrapper.GetModelData("ev_chr_Sonic_HD");
+
+	//if (chr_Sonic_HD)
+	//	meshVisibilityHandler(chr_Sonic_HD);
+
+	//if (ev_chr_Sonic_HD)
+	//	meshVisibilityHandler(ev_chr_Sonic_HD);
+}
+
+//Init
 EXPORT void Init()
 {
 	//INIReader reader("Mod.ini");
@@ -2451,6 +2597,7 @@ EXPORT void Init()
 	INSTALL_HOOK(UpdateDirectorSimple);
 	INSTALL_HOOK(UpdateDirectorNormal);
 	INSTALL_HOOK(CPlayerAddCallback);
+	INSTALL_HOOK(CMirageDatabaseWrapperGetModelData);
 	WRITE_MEMORY(0x16D4B4C, void*, CSonicRemoveCallback);
 	WRITE_MEMORY(0x16A467C, void*, CHudSonicStageRemoveCallback);
 	WRITE_MEMORY(0x16A5598, void*, CHudSonicStageRemoveCallback);

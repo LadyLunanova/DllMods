@@ -1,19 +1,49 @@
 #include <Common.h>
 #include "UpdateDirector.h"
 
+// Original code by Brianuuu: https://github.com/brianuuu
+inline uint32_t GetMultiLevelAddress(uint32_t initAddress, std::vector<uint32_t> offsets)
+{
+	uint32_t address = *(uint32_t*)initAddress;
+	for (uint32_t i = 0; i < offsets.size(); i++)
+	{
+		uint32_t const& offset = offsets[i];
+		address += offset;
+
+		if (i < offsets.size() - 1)
+		{
+			address = *(uint32_t*)address;
+		}
+	}
+	return address;
+}
+inline uint32_t GetCurrentStageID()
+{
+	uint32_t stageIDAddress = GetMultiLevelAddress(0x1E66B34, { 0x4, 0x1B4, 0x80, 0x0 });
+	return *(uint32_t*)stageIDAddress;
+}
+
 //Sonic setup
 std::mutex mutex;
 std::map<boost::shared_ptr<hh::mr::CModelData>, std::vector<boost::shared_ptr<hh::mr::CNodeGroupModelData>>> models;
 enum SelectShoeType
 {
 	ShDefault = 00,
-	ShClassic = 01, //TBA
+	ShClassic = 01,
+	ShArchie = 02,
 	ShSA1LightSpd = 10,
 	ShSoaps = 20,
 	ShSoapsLightSpd = 21,
 	ShRiders = 30,
-	Sh06Gem = 40,
-	ShSUAirboost = 50, //TBA
+	Sh06GemDefault = 40,
+	Sh06GemRed = 41,
+	Sh06GemBlue = 42,
+	Sh06GemGreen = 43,
+	Sh06GemPurple = 44,
+	Sh06GemSky = 45,
+	Sh06GemWhite = 46,
+	Sh06GemYellow = 47,
+	ShSUAirboost = 50,
 	ShSULightSpd = 51, //TBA
 	ShSUStomp = 52, //TBA
 	ShSUWallJmp = 53, //TBA
@@ -108,6 +138,25 @@ enum ShSUVariantType
 	SUZoney		= 5,
 };
 ShSUVariantType ShSUVariant = ShSUVariantType::SUAirboost;
+enum Sh06VariantType
+{
+	GemDefault = 0,
+	GemRed = 1,
+	GemBlue = 2,
+	GemGreen = 3,
+	GemPurple = 4,
+	GemSky = 5,
+	GemWhite = 6,
+	GemYellow = 7,
+};
+Sh06VariantType Sh06Variant = Sh06VariantType::GemDefault;
+enum ShDefaultVariantType
+{
+	ShoeDefault = 0,
+	ShoeClassic = 1,
+	ShoeArchie = 2,
+};
+ShDefaultVariantType ShDefaultVariant = ShDefaultVariantType::ShoeDefault;
 bool HRMagicVariant = false;
 bool* const ENABLE_BLUR = (bool*)0x1A43103;
 void PlayCursorAnim()
@@ -165,11 +214,16 @@ void meshVisibilityHandler(const boost::shared_ptr<hh::mr::CModelData>& model, s
 	{
 		auto nodeName = node->m_Name;
 
-		/////Normal Sonic///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		/////Shoes//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		//Default Shoes
 		if (nodeName == "Sonic_100_Shoes")
 			node->m_Visible = (SelectShoes == ShDefault);
+		//Classic Shoes
+		if (nodeName == "Sonic_101_Classic")
+			node->m_Visible = (SelectShoes == ShClassic);
+		//Archie Shoes
+		if (nodeName == "Sonic_102_Archie")
+			node->m_Visible = (SelectShoes == ShArchie);
 		//SA1 Lightspeed Shoes
 		if (nodeName == "Sonic_110_SA1LightSpd")
 			node->m_Visible = (SelectShoes == ShSA1LightSpd);
@@ -184,7 +238,34 @@ void meshVisibilityHandler(const boost::shared_ptr<hh::mr::CModelData>& model, s
 			node->m_Visible = (SelectShoes == ShRiders);
 		//Gem Shoes
 		if (nodeName == "Sonic_140_Gems")
-			node->m_Visible = (SelectShoes == Sh06Gem);
+			node->m_Visible = (SelectShoes == Sh06GemDefault);
+		if (nodeName == "Sonic_141_Gem_Red")
+			node->m_Visible = (SelectShoes == Sh06GemRed);
+		if (nodeName == "Sonic_142_Gem_Blue")
+			node->m_Visible = (SelectShoes == Sh06GemBlue);
+		if (nodeName == "Sonic_143_Gem_Green")
+			node->m_Visible = (SelectShoes == Sh06GemGreen);
+		if (nodeName == "Sonic_144_Gem_Purple")
+			node->m_Visible = (SelectShoes == Sh06GemPurple);
+		if (nodeName == "Sonic_145_Gem_Sky")
+			node->m_Visible = (SelectShoes == Sh06GemSky);
+		if (nodeName == "Sonic_146_Gem_White")
+			node->m_Visible = (SelectShoes == Sh06GemWhite);
+		if (nodeName == "Sonic_147_Gem_Yellow")
+			node->m_Visible = (SelectShoes == Sh06GemYellow);
+		//Unleashed Shoes
+		if (nodeName == "Sonic_150_SUAirboost")
+			node->m_Visible = (SelectShoes == ShSUAirboost);
+		if (nodeName == "Sonic_151_SULightSpd")
+			node->m_Visible = (SelectShoes == ShSULightSpd);
+		if (nodeName == "Sonic_152_SUStomp")
+			node->m_Visible = (SelectShoes == ShSUStomp);
+		if (nodeName == "Sonic_153_SUWallJmp")
+			node->m_Visible = (SelectShoes == ShSUWallJmp);
+		if (nodeName == "Sonic_154_SUWerehog")
+			node->m_Visible = (SelectShoes == ShSUWerehog);
+		if (nodeName == "Sonic_155_SUZoney")
+			node->m_Visible = (SelectShoes == ShSUZoney);
 		//Puma Shoes
 		if (nodeName == "Sonic_180_Pumas")
 			node->m_Visible = (SelectShoes == ShPumas);
@@ -231,8 +312,6 @@ void meshVisibilityHandler(const boost::shared_ptr<hh::mr::CModelData>& model, s
 HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed* This, void* _, const hh::fnd::SUpdateInfo& updateInfo)
 {
 	auto sonic = This->GetContext();
-	//auto model = Sonic::Player::CPlayerSpeedContext::GetInstance()->m_pPlayer->m_spCharacterModel->m_spModel;
-	//auto model = Hedgehog::Mirage::CMirageDatabaseWrapper(Sonic::CGameDocument::GetInstance()->m_pMember->m_spDatabase.get()).GetModelData("ev_chr_Sonic_HD");
 	auto input = Sonic::CInputState::GetInstance()->GetPadState();
 	bool PressedY = input.IsTapped(Sonic::eKeyState_Y);
 
@@ -240,75 +319,6 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 		SpawnFireParticle(This);
 	if (SelectBody != BdWildFire)
 		KillFireParticle(This);
-
-	//if (!model)
-	//{
-	//	originalCPlayerSpeedUpdate(This, _, updateInfo);
-	//	return;
-	//}
-
-	////Handle Mesh visibility
-	//for (size_t i = 0; i < model->m_NodeGroupModels.size(); i++) 
-	//{
-	//	auto node = model->m_NodeGroupModels[i];
-	//	auto nodeName = node->m_Name;
-
-	//	/////Shoes/////
-	//	//Default Shoes
-	//	if (nodeName == "Sonic_100_Shoes")
-	//		node->m_Visible = (SelectShoes == ShDefault);
-	//	//SA1 Lightspeed Shoes
-	//	if (nodeName == "Sonic_110_SA1LightSpd")
-	//		node->m_Visible = (SelectShoes == ShSA1LightSpd);
-	//	//Soap Shoes
-	//	if (nodeName == "Sonic_120_Soaps")
-	//		node->m_Visible = ((SelectShoes == ShSoaps) || (SelectShoes == ShSoapsLightSpd));
-	//	//Soaps Lightspeed Attachment
-	//	if (nodeName == "Sonic_121_SoapLightSpd")
-	//		node->m_Visible = (SelectShoes == ShSoapsLightSpd);
-	//	//Riders Shoes
-	//	if (nodeName == "Sonic_130_Riders")
-	//		node->m_Visible = (SelectShoes == ShRiders);
-	//	//Gem Shoes
-	//	if (nodeName == "Sonic_140_Gems")
-	//		node->m_Visible = (SelectShoes == Sh06Gem);
-	//	//Puma Shoes
-	//	if (nodeName == "Sonic_180_Pumas")
-	//		node->m_Visible = (SelectShoes == ShPumas);
-	//	/////Bodies/////
-	//	//Base Body
-	//	if (nodeName == "Sonic_000_Body")
-	//		node->m_Visible = ((SelectBody != BdSA2RaceSuit) && (SelectBody != BdMovieSkin));
-	//	//Scarf
-	//	if (nodeName == "Sonic_240_Scarf")
-	//		node->m_Visible = (SelectBody == BdScarf);
-	//	/////Heads/////
-	//	//SA1 Sunglasses
-	//	if (nodeName == "Sonic_310_SA1SunGlass")
-	//		node->m_Visible = (SelectHead == HeSA1Sunglass);
-	//	//Riders Glasses
-	//	if (nodeName == "Sonic_320_RidersGlass")
-	//		node->m_Visible = (SelectHead == HeRiders);
-	//	/////Left Hands/////
-	//	//Default Glove
-	//	if (nodeName == "Sonic_400_Glove_L")
-	//		node->m_Visible = ((SelectHandL != HLRiders) && (SelectHandL != HLLinkGlove));
-	//	//Crystal Ring
-	//	if (nodeName == "Sonic_410_CrystalRing")
-	//		node->m_Visible = (SelectHandL == HLCrystalRing);
-	//	//Riders Glove
-	//	if (nodeName == "Sonic_430_RiderGlove_L")
-	//		node->m_Visible = (SelectHandL == HLRiders);
-	//	/////Right Hands/////
-	//	//Default Glove
-	//	if (nodeName == "Sonic_500_Glove_R")
-	//		node->m_Visible = ((SelectHandR != HRRiders) && (SelectHandR != HRLinkGlove) && (SelectHandR != HRGauntlet) && (SelectHandR != HRArkCosmos));
-	//	//Riders Glove
-	//	if (nodeName == "Sonic_530_RiderGlove_R")
-	//		node->m_Visible = (SelectHandR == HRRiders);
-
-	//	//printf("%s\n", nodeName.c_str());
-	//}
 
 	//if (PressedY)
 	//{
@@ -320,8 +330,11 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	//		ShoeType = 0;
 	//}
 
-	if (IsInMenu)
-		return;
+	//if (IsInMenu)
+	//	return;
+
+	printf(This->m_StateMachine.GetCurrentState()->GetStateName().c_str());
+	printf("\n");
 
 	originalCPlayerSpeedUpdate(This, _, updateInfo);
 }
@@ -329,7 +342,7 @@ HOOK(void*, __fastcall, CMirageDatabaseWrapperGetModelData, hh::mr::fpCMirageDat
 {
 	void* result = originalCMirageDatabaseWrapperGetModelData(This, Edx, out_spModelData, in_rName, in_Unknown);
 
-	if (out_spModelData && strstr(in_rName.c_str(), "chr_Sonic_HD"))
+	if (out_spModelData && (strstr(in_rName.c_str(), "chr_Sonic_HD") || strstr(in_rName.c_str(), "chr_SuperSonic_HD")))
 	{
 		std::lock_guard lock(mutex);
 
@@ -341,6 +354,39 @@ HOOK(void*, __fastcall, CMirageDatabaseWrapperGetModelData, hh::mr::fpCMirageDat
 	return result;
 }
 
+//INI file Handling
+void writeINI(FILE* iniFile)
+{
+	if (!iniFile)
+		return;
+	char buffer[256]{};
+	snprintf(buffer, 256,
+		"%s\n%s%d\n%s%d\n%s%d\n%s%d\n%s%d\n",
+		"[Select]",
+		"SelectShoes=", SelectShoes,
+		"SelectBody=", SelectBody,
+		"SelectHead=", SelectHead,
+		"SelectHandL=", SelectHandL,
+		"SelectHandR=", SelectHandR);
+	fputs(buffer, iniFile);
+}
+void readINI()
+{
+	INIReader* reader = new INIReader("CustomSelect.ini");
+	if (reader->ParseError() != 0)
+	{
+		FILE* pFile = fopen("CustomSelect.ini", "wb");
+		writeINI(pFile);
+		fclose(pFile);
+		reader = new INIReader("CustomSelect.ini");
+	}
+	SelectShoes = (SelectShoeType)reader->GetInteger("Select", "SelectShoes", SelectShoes);
+	SelectBody = (SelectBodyType)reader->GetInteger("Select", "SelectBody", SelectBody);
+	SelectHead = (SelectHeadType)reader->GetInteger("Select", "SelectHead", SelectHead);
+	SelectHandL = (SelectHandLType)reader->GetInteger("Select", "SelectHandL", SelectHandL);
+	SelectHandR = (SelectHandRType)reader->GetInteger("Select", "SelectHandR", SelectHandR);
+}
+
 //Handle UI
 void CreateFittingUI(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo& in_rUpdateInfo)
 {
@@ -349,6 +395,14 @@ void CreateFittingUI(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 	prFittingScreen = spCsdProject->m_rcProject;
 	obCustomUI = boost::make_shared<Sonic::CGameObjectCSD>(prFittingScreen, 0.5f, "HUD_Pause", true);
 	Sonic::CGameDocument::GetInstance()->AddGameObject(obCustomUI, "main", This);
+}
+void KillScreen()
+{
+	if (obCustomUI)
+	{
+		obCustomUI->SendMessage(obCustomUI->m_ActorID, boost::make_shared<Sonic::Message::MsgKill>());
+		obCustomUI = nullptr;
+	}
 }
 void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo& in_rUpdateInfo)
 {
@@ -373,6 +427,14 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 	bool PushedDown = inputPtr->LeftStickVertical <= -0.5f;
 	bool PushedLeft = inputPtr->LeftStickHorizontal <= -0.5f;
 	bool PushedRight = inputPtr->LeftStickHorizontal >= 0.5f;
+	auto speedContext = Sonic::Player::CPlayerSpeedContext::GetInstance();
+	auto sonic = speedContext->m_pPlayer;
+	auto Flags = speedContext->m_pStateFlag;
+	bool IsOutOfControl = Flags->m_Flags[speedContext->eStateFlag_OutOfControl];
+	bool IsModernSonic = (Sonic::Player::CSonicClassicContext::GetInstance() == nullptr) && (Sonic::Player::CSonicSpContext::GetInstance() == nullptr);
+	bool ExternalControl = sonic->m_StateMachine.GetCurrentState()->GetStateName() == "ExternalControl";
+	bool Goal = sonic->m_StateMachine.GetCurrentState()->GetStateName() == "Goal";
+	uint8_t getPackedID = GetCurrentStageID();
 	auto arX = 1280;
 	auto arY = 720;
 	auto rowX1 = 0.6885;
@@ -385,1914 +447,1338 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 	FUNCTION_PTR(void, __thiscall, changeState, 0x773250, void* This, boost::shared_ptr<void>&spState, const Hedgehog::Base::CSharedString name);
 	boost::shared_ptr<void> spState;
 
-	if (PressedSL && !IsInMenu)
+	if (PressedSL && !IsInMenu && IsModernSonic && !ExternalControl && !Goal && !((getPackedID == pam000) && IsOutOfControl))
 	{
-		prevblur = *ENABLE_BLUR;
-		*ENABLE_BLUR = false;
-		MenuOption = UIPartShoes;
-		ItemOption = 0;
-		if (!obCustomUI) //Create UI project if it doesn't exist
-			CreateFittingUI(This, Edx, in_rUpdateInfo);
-		//Main UI
-		scChara = prFittingScreen->CreateScene("chara");
-		scChara->SetPosition(0, 0);
-		scChara->SetMotion("Intro_Anim");
-		scChara->SetMotionFrame(0.0f);
-		scChara->m_MotionDisableFlag = false;
-		scChara->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scChara->m_MotionSpeed = 1.0f;
-		scChara->Update();
-		//Cursor
-		scIcon = prFittingScreen->CreateScene("icon");
-		scIcon->SetPosition(rowX1 * arX, rowY1 * arY);
-		scIcon->SetMotion("ON_Anim");
-		scIcon->SetMotionFrame(0.0f);
-		scIcon->m_MotionDisableFlag = false;
-		scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scIcon->m_MotionSpeed = 1.0f;
-		scIcon->Update();
-		//Category Text
-		scTextArea = prFittingScreen->CreateScene("textarea");
-		scTextArea->SetPosition(0, 0);
-		scTextArea->SetMotion("Intro_Anim");
-		scTextArea->SetMotionFrame(0.0f);
-		scTextArea->m_MotionDisableFlag = false;
-		scTextArea->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scTextArea->m_MotionSpeed = 0.5f;
-		scTextArea->Update();
-		//L/R Bumpers
-		scLRMove = prFittingScreen->CreateScene("LRmove");
-		scLRMove->SetPosition(0, 0);
-		scLRMove->SetMotion("Intro_Anim");
-		scLRMove->SetMotionFrame(0.0f);
-		scLRMove->m_MotionDisableFlag = false;
-		scLRMove->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scLRMove->m_MotionSpeed = 1.0f;
-		scLRMove->Update();
-		//Decoration
-		if (ConfigDecoEnable)
+		switch (getPackedID)
 		{
-			scDeco = prFittingScreen->CreateScene("deco");
-			scDeco->SetPosition(0, 0);
-			scDeco->SetMotion("Color_change");
-			scDeco->SetMotionFrame(1.0f);
-			scDeco->m_MotionDisableFlag = false;
-			scDeco->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scDeco->m_MotionSpeed = 0.0f;
-			scDeco->Update();
-			scDeco->SetMotion("Intro_Anim");
-			scDeco->SetMotionFrame(0.0f);
-			scDeco->m_MotionDisableFlag = false;
-			scDeco->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scDeco->m_MotionSpeed = 1.0f;
-			scDeco->Update();
+		case blb:
+		case cnz100:
+		case fig000:
+		case evt041:
+		case evt105:
+		case evt121:
+			return;
+			break;
+		default:
+			readINI();
+			prevblur = *ENABLE_BLUR;
+			*ENABLE_BLUR = false;
+			MenuOption = UIPartShoes;
+			ItemOption = 0;
+			if (!obCustomUI) //Create UI project if it doesn't exist
+				CreateFittingUI(This, Edx, in_rUpdateInfo);
+			switch (SelectShoes) //Set proper variants on open
+			{
+			case ShClassic:
+				ShDefaultVariant = ShoeClassic;
+				ShSoapVariant = false;
+				Sh06Variant = GemDefault;
+				ShSUVariant = SUAirboost;
+				break;
+			case ShArchie:
+				ShDefaultVariant = ShoeArchie;
+				ShSoapVariant = false;
+				Sh06Variant = GemDefault;
+				ShSUVariant = SUAirboost;
+				break;
+			case ShSoapsLightSpd:
+				ShSoapVariant = true;
+				ShDefaultVariant = ShoeDefault;
+				Sh06Variant = GemDefault;
+				ShSUVariant = SUAirboost;
+				break;
+			case Sh06GemRed:
+				Sh06Variant = GemRed;
+				ShDefaultVariant = ShoeDefault;
+				ShSoapVariant = false;
+				ShSUVariant = SUAirboost;
+				break;
+			case Sh06GemBlue:
+				Sh06Variant = GemBlue;
+				ShDefaultVariant = ShoeDefault;
+				ShSoapVariant = false;
+				ShSUVariant = SUAirboost;
+				break;
+			case Sh06GemGreen:
+				Sh06Variant = GemGreen;
+				ShDefaultVariant = ShoeDefault;
+				ShSoapVariant = false;
+				ShSUVariant = SUAirboost;
+				break;
+			case Sh06GemPurple:
+				Sh06Variant = GemPurple;
+				ShDefaultVariant = ShoeDefault;
+				ShSoapVariant = false;
+				ShSUVariant = SUAirboost;
+				break;
+			case Sh06GemSky:
+				Sh06Variant = GemSky;
+				ShDefaultVariant = ShoeDefault;
+				ShSoapVariant = false;
+				ShSUVariant = SUAirboost;
+				break;
+			case Sh06GemWhite:
+				Sh06Variant = GemWhite;
+				ShDefaultVariant = ShoeDefault;
+				ShSoapVariant = false;
+				ShSUVariant = SUAirboost;
+				break;
+			case Sh06GemYellow:
+				Sh06Variant = GemYellow;
+				ShDefaultVariant = ShoeDefault;
+				ShSoapVariant = false;
+				ShSUVariant = SUAirboost;
+				break;
+			case ShSULightSpd:
+				ShSUVariant = SULightSpd;
+				ShDefaultVariant = ShoeDefault;
+				ShSoapVariant = false;
+				Sh06Variant = GemDefault;
+				break;
+			case ShSUStomp:
+				ShSUVariant = SUStomp;
+				ShDefaultVariant = ShoeDefault;
+				ShSoapVariant = false;
+				Sh06Variant = GemDefault;
+				break;
+			case ShSUWallJmp:
+				ShSUVariant = SUWallJmp;
+				ShDefaultVariant = ShoeDefault;
+				ShSoapVariant = false;
+				Sh06Variant = GemDefault;
+				break;
+			case ShSUWerehog:
+				ShSUVariant = SUWerehog;
+				ShDefaultVariant = ShoeDefault;
+				ShSoapVariant = false;
+				Sh06Variant = GemDefault;
+				break;
+			case ShSUZoney:
+				ShSUVariant = SUZoney;
+				ShDefaultVariant = ShoeDefault;
+				ShSoapVariant = false;
+				Sh06Variant = GemDefault;
+				break;
+			default:
+				ShDefaultVariant = ShoeDefault;
+				ShSoapVariant = false;
+				Sh06Variant = GemDefault;
+				ShSUVariant = SUAirboost;
+				break;
+			}
+			//Main UI
+			scChara = prFittingScreen->CreateScene("chara");
+			scChara->SetPosition(0, 0);
+			scChara->SetMotion("Intro_Anim");
+			scChara->SetMotionFrame(0.0f);
+			scChara->m_MotionDisableFlag = false;
+			scChara->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+			scChara->m_MotionSpeed = 1.0f;
+			scChara->Update();
+			//Cursor
+			scIcon = prFittingScreen->CreateScene("icon");
+			scIcon->SetPosition(rowX1 * arX, rowY1 * arY);
+			scIcon->SetMotion("ON_Anim");
+			scIcon->SetMotionFrame(0.0f);
+			scIcon->m_MotionDisableFlag = false;
+			scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+			scIcon->m_MotionSpeed = 1.0f;
+			scIcon->Update();
+			//Category Text
+			scTextArea = prFittingScreen->CreateScene("textarea");
+			scTextArea->SetPosition(0, 0);
+			scTextArea->SetMotion("Intro_Anim");
+			scTextArea->SetMotionFrame(0.0f);
+			scTextArea->m_MotionDisableFlag = false;
+			scTextArea->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+			scTextArea->m_MotionSpeed = 0.5f;
+			scTextArea->Update();
+			//L/R Bumpers
+			scLRMove = prFittingScreen->CreateScene("LRmove");
+			scLRMove->SetPosition(0, 0);
+			scLRMove->SetMotion("Intro_Anim");
+			scLRMove->SetMotionFrame(0.0f);
+			scLRMove->m_MotionDisableFlag = false;
+			scLRMove->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+			scLRMove->m_MotionSpeed = 1.0f;
+			scLRMove->Update();
+			//Decoration
+			if (ConfigDecoEnable)
+			{
+				scDeco = prFittingScreen->CreateScene("deco");
+				scDeco->SetPosition(0, 0);
+				scDeco->SetMotion("Color_change");
+				scDeco->SetMotionFrame(1.0f);
+				scDeco->m_MotionDisableFlag = false;
+				scDeco->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+				scDeco->m_MotionSpeed = 0.0f;
+				scDeco->Update();
+				scDeco->SetMotion("Intro_Anim");
+				scDeco->SetMotionFrame(0.0f);
+				scDeco->m_MotionDisableFlag = false;
+				scDeco->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+				scDeco->m_MotionSpeed = 1.0f;
+				scDeco->Update();
 
+			}
+			//Misc
+			IsInMenu = true;
+			Common::PlaySoundStatic(menuSoundHandle, 1000002);
+			return;
+			break;
 		}
-		//Misc
-		IsInMenu = true;
-		Common::PlaySoundStatic(menuSoundHandle, 1000002);
-		return;
 	}
 
-	if (IsInMenu && scIcon && scChara)
+	if (IsInMenu && scIcon && scChara && IsModernSonic && !ExternalControl && !Goal && !((getPackedID == pam000) && IsOutOfControl))
 	{
-		//Handle Cursor Position//
-		switch (ItemOption)
+		switch (getPackedID)
 		{
-		case 0:
-			scIcon->SetPosition(rowX1 * arX, rowY1 * arY);
+		case blb:
+		case cnz100:
+		case fig000:
+		case evt041:
+		case evt105:
+		case evt121:
+			return;
 			break;
-		case 1:
-			scIcon->SetPosition(rowX2 * arX, rowY1 * arY);
-			break;
-		case 2:
-			scIcon->SetPosition(rowX3 * arX, rowY1 * arY);
-			break;
-		case 3:
-			scIcon->SetPosition(rowX1 * arX, rowY2 * arY);
-			break;
-		case 4:
-			scIcon->SetPosition(rowX2 * arX, rowY2 * arY);
-			break;
-		case 5:
-			scIcon->SetPosition(rowX3 * arX, rowY2 * arY);
-			break;
-		case 6:
-			scIcon->SetPosition(rowX1 * arX, rowY3 * arY);
-			break;
-		case 7:
-			scIcon->SetPosition(rowX2 * arX, rowY3 * arY);
-			break;
-		case 8:
-			scIcon->SetPosition(rowX3 * arX, rowY3 * arY);
-			break;
-		}
-
-		////Icon Handlers////
-		if (scenecheck)
-		{
-			switch (MenuOption)
+		default:
+			//Handle Cursor Position//
+			switch (ItemOption)
 			{
-			case UIPartShoes: ////Shoe Icons////
-				//Default Shoes
-				if (SelectShoes == ShDefault)
-					scChara->GetNode("img_ch_0")->SetPatternIndex(2);
-				else
-					scChara->GetNode("img_ch_0")->SetPatternIndex(1);
-				//SA1 Lightspeed Shoes
-				if (SelectShoes == ShSA1LightSpd)
-					scChara->GetNode("img_ch_1")->SetPatternIndex(2);
-				else
-					scChara->GetNode("img_ch_1")->SetPatternIndex(1);
-				//Soap Shoes
-				if (ShSoapVariant)
-				{
-					if (SelectShoes == ShSoapsLightSpd)
-						scChara->GetNode("img_ch_2")->SetPatternIndex(12);
-					else
-						scChara->GetNode("img_ch_2")->SetPatternIndex(11);
-				}
-				else
-				{
-					if (SelectShoes == ShSoaps)
-						scChara->GetNode("img_ch_2")->SetPatternIndex(2);
-					else
-						scChara->GetNode("img_ch_2")->SetPatternIndex(1);
-				}
-				//Riders Shoes
-				if (SelectShoes == ShRiders)
-					scChara->GetNode("img_ch_3")->SetPatternIndex(2);
-				else
-					scChara->GetNode("img_ch_3")->SetPatternIndex(1);
-				//Gem Shoes
-				if (SelectShoes == Sh06Gem)
-					scChara->GetNode("img_ch_4")->SetPatternIndex(2);
-				else
-					scChara->GetNode("img_ch_4")->SetPatternIndex(1);
-				//Unleashed Shoes
-				switch (ShSUVariant)
-				{
-				case SUAirboost:
-					if (SelectShoes == ShSUAirboost)
-						scChara->GetNode("img_ch_5")->SetPatternIndex(2);
-					else
-						scChara->GetNode("img_ch_5")->SetPatternIndex(1);
-					break;
-				case SULightSpd:
-					if (SelectShoes == ShSULightSpd)
-						scChara->GetNode("img_ch_5")->SetPatternIndex(2);
-					else
-						scChara->GetNode("img_ch_5")->SetPatternIndex(1);
-					break;
-				case SUStomp:
-					if (SelectShoes == ShSUStomp)
-						scChara->GetNode("img_ch_5")->SetPatternIndex(2);
-					else
-						scChara->GetNode("img_ch_5")->SetPatternIndex(1);
-					break;
-				case SUWallJmp:
-					if (SelectShoes == ShSUWallJmp)
-						scChara->GetNode("img_ch_5")->SetPatternIndex(2);
-					else
-						scChara->GetNode("img_ch_5")->SetPatternIndex(1);
-					break;
-				case SUWerehog:
-					if (SelectShoes == ShSUWerehog)
-						scChara->GetNode("img_ch_5")->SetPatternIndex(2);
-					else
-						scChara->GetNode("img_ch_5")->SetPatternIndex(1);
-					break;
-				case SUZoney:
-					if (SelectShoes == ShSUZoney)
-						scChara->GetNode("img_ch_5")->SetPatternIndex(2);
-					else
-						scChara->GetNode("img_ch_5")->SetPatternIndex(1);
-					break;
-				}
-				//Link Boots
-				if (SelectShoes == ShPumas)
-					scChara->GetNode("img_ch_6")->SetPatternIndex(2);
-				else
-					scChara->GetNode("img_ch_6")->SetPatternIndex(1);
-				//Boom Shoes
-				if (SelectShoes == ShPumas)
-					scChara->GetNode("img_ch_7")->SetPatternIndex(2);
-				else
-					scChara->GetNode("img_ch_7")->SetPatternIndex(1);
-				//Puma Shoes
-				if (SelectShoes == ShPumas)
-					scChara->GetNode("img_ch_8")->SetPatternIndex(2);
-				else
-					scChara->GetNode("img_ch_8")->SetPatternIndex(1);
-				scTextArea->GetNode("textarea_textbox")->SetPatternIndex(0);
+			case 0:
+				scIcon->SetPosition(rowX1 * arX, rowY1 * arY);
 				break;
-			case UIPartBody: ////Body Icons////
-				//Default Body
-				if (SelectBody == BdDefault)
-					scChara->GetNode("img_ch_0")->SetPatternIndex(4);
-				else
-					scChara->GetNode("img_ch_0")->SetPatternIndex(3);
-				//Wildfire
-				if (SelectBody == BdWildFire)
-					scChara->GetNode("img_ch_2")->SetPatternIndex(4);
-				else
-					scChara->GetNode("img_ch_2")->SetPatternIndex(3);
-				//Scarf
-				if (SelectBody == BdScarf)
-					scChara->GetNode("img_ch_4")->SetPatternIndex(4);
-				else
-					scChara->GetNode("img_ch_4")->SetPatternIndex(3);
-				//Empty Placeholders
-				scChara->GetNode("img_ch_1")->SetPatternIndex(3);
-				scChara->GetNode("img_ch_3")->SetPatternIndex(3);
-				scChara->GetNode("img_ch_5")->SetPatternIndex(3);
-				scChara->GetNode("img_ch_6")->SetPatternIndex(3);
-				scChara->GetNode("img_ch_7")->SetPatternIndex(3);
-				scChara->GetNode("img_ch_8")->SetPatternIndex(3);
-				scTextArea->GetNode("textarea_textbox")->SetPatternIndex(1);
+			case 1:
+				scIcon->SetPosition(rowX2 * arX, rowY1 * arY);
 				break;
-			case UIPartHead: ////Head Icons////
-				//Default Head
-				if (SelectHead == HeDefault)
-					scChara->GetNode("img_ch_0")->SetPatternIndex(6);
-				else
-					scChara->GetNode("img_ch_0")->SetPatternIndex(5);
-				//SA1 Sunglasses
-				if (SelectHead == HeSA1Sunglass)
-					scChara->GetNode("img_ch_1")->SetPatternIndex(6);
-				else
-					scChara->GetNode("img_ch_1")->SetPatternIndex(5);
-				//Riders Glasses
-				if (SelectHead == HeRiders)
-					scChara->GetNode("img_ch_2")->SetPatternIndex(6);
-				else
-					scChara->GetNode("img_ch_2")->SetPatternIndex(5);
-				//Empty Placeholders
-				scChara->GetNode("img_ch_3")->SetPatternIndex(5);
-				scChara->GetNode("img_ch_4")->SetPatternIndex(5);
-				scChara->GetNode("img_ch_5")->SetPatternIndex(5);
-				scChara->GetNode("img_ch_6")->SetPatternIndex(5);
-				scChara->GetNode("img_ch_7")->SetPatternIndex(5);
-				scChara->GetNode("img_ch_8")->SetPatternIndex(5);
-				scTextArea->GetNode("textarea_textbox")->SetPatternIndex(2);
+			case 2:
+				scIcon->SetPosition(rowX3 * arX, rowY1 * arY);
 				break;
-			case UIPartHandL: ////Hand L Icons////
-				//Default Left Glove
-				if (SelectHandL == HLDefault)
-					scChara->GetNode("img_ch_0")->SetPatternIndex(8);
-				else
-					scChara->GetNode("img_ch_0")->SetPatternIndex(7);
-				//Crystal Ring
-				if (SelectHandL == HLCrystalRing)
-					scChara->GetNode("img_ch_1")->SetPatternIndex(8);
-				else
-					scChara->GetNode("img_ch_1")->SetPatternIndex(7);
-				//Riders Left Glove
-				if (SelectHandL == HLRiders)
-					scChara->GetNode("img_ch_3")->SetPatternIndex(8);
-				else
-					scChara->GetNode("img_ch_3")->SetPatternIndex(7);
-				//Empty Placeholders
-				scChara->GetNode("img_ch_2")->SetPatternIndex(7);
-				scChara->GetNode("img_ch_4")->SetPatternIndex(7);
-				scChara->GetNode("img_ch_5")->SetPatternIndex(7);
-				scChara->GetNode("img_ch_6")->SetPatternIndex(7);
-				scChara->GetNode("img_ch_7")->SetPatternIndex(7);
-				scChara->GetNode("img_ch_8")->SetPatternIndex(7);
-				scTextArea->GetNode("textarea_textbox")->SetPatternIndex(3);
+			case 3:
+				scIcon->SetPosition(rowX1 * arX, rowY2 * arY);
 				break;
-			case UIPartHandR: ////Hand R Icons////
-				//Default Right Glove
-				if (SelectHandR == HRDefault)
-					scChara->GetNode("img_ch_0")->SetPatternIndex(10);
-				else
-					scChara->GetNode("img_ch_0")->SetPatternIndex(9);
-				//Riders Right Glove
-				if (SelectHandR == HRRiders)
-					scChara->GetNode("img_ch_2")->SetPatternIndex(10);
-				else
-					scChara->GetNode("img_ch_2")->SetPatternIndex(9);
-				//Empty Placeholders
-				scChara->GetNode("img_ch_1")->SetPatternIndex(9);
-				scChara->GetNode("img_ch_3")->SetPatternIndex(9);
-				scChara->GetNode("img_ch_4")->SetPatternIndex(9);
-				scChara->GetNode("img_ch_5")->SetPatternIndex(9);
-				scChara->GetNode("img_ch_6")->SetPatternIndex(9);
-				scChara->GetNode("img_ch_7")->SetPatternIndex(9);
-				scChara->GetNode("img_ch_8")->SetPatternIndex(9);
-				scTextArea->GetNode("textarea_textbox")->SetPatternIndex(4);
+			case 4:
+				scIcon->SetPosition(rowX2 * arX, rowY2 * arY);
+				break;
+			case 5:
+				scIcon->SetPosition(rowX3 * arX, rowY2 * arY);
+				break;
+			case 6:
+				scIcon->SetPosition(rowX1 * arX, rowY3 * arY);
+				break;
+			case 7:
+				scIcon->SetPosition(rowX2 * arX, rowY3 * arY);
+				break;
+			case 8:
+				scIcon->SetPosition(rowX3 * arX, rowY3 * arY);
 				break;
 			}
 
-		}
-
-		if (scenecheck && (PressedA && scIcon->m_MotionFrame >= 3) && !IsInMenuExit && !IsInMenuChange)
-		{
+			//Handle Alt Prompt
 			switch (MenuOption)
 			{
 			case UIPartShoes:
 				switch (ItemOption)
 				{
 				case 0:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					PlayCursorAnim();
-					SelectShoes = ShDefault;
-					break;
-				case 1:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					PlayCursorAnim();
-					SelectShoes = ShSA1LightSpd;
-					break;
 				case 2:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					PlayCursorAnim();
-					if (!ShSoapVariant)
-						SelectShoes = ShSoaps;
-					else
-						SelectShoes = ShSoapsLightSpd;
-					break;
-				case 3:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					PlayCursorAnim();
-					SelectShoes = ShRiders;
-					break;
 				case 4:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					PlayCursorAnim();
-					SelectShoes = Sh06Gem;
-					break;
 				case 5:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					scIcon->GetNode("star")->SetPatternIndex(1);
 					break;
-				case 6:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 7:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 8:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					PlayCursorAnim();
-					SelectShoes = ShPumas;
+				default:
+					scIcon->GetNode("star")->SetPatternIndex(0);
 					break;
 				}
-				return;
-				break;
-			case UIPartBody:
-				switch (ItemOption)
-				{
-				case 0:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					PlayCursorAnim();
-					SelectBody = BdDefault;
-					break;
-				case 1:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 2:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					PlayCursorAnim();
-					SelectBody = BdWildFire;
-					break;
-				case 3:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 4:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					PlayCursorAnim();
-					SelectBody = BdScarf;
-					break;
-				case 5:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 6:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 7:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 8:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				}
-				return;
-				break;
-			case UIPartHead:
-				switch (ItemOption)
-				{
-				case 0:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					PlayCursorAnim();
-					SelectHead = HeDefault;
-					break;
-				case 1:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					PlayCursorAnim();
-					SelectHead = HeSA1Sunglass;
-					break;
-				case 2:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					PlayCursorAnim();
-					SelectHead = HeRiders;
-					break;
-				case 3:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 4:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 5:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 6:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 7:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 8:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				}
-				return;
-				break;
-			case UIPartHandL:
-				switch (ItemOption)
-				{
-				case 0:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					PlayCursorAnim();
-					SelectHandL = HLDefault;
-					break;
-				case 1:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					PlayCursorAnim();
-					SelectHandL = HLCrystalRing;
-					break;
-				case 2:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 3:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					PlayCursorAnim();
-					SelectHandL = HLRiders;
-					break;
-				case 4:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 5:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 6:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 7:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 8:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				}
-				return;
 				break;
 			case UIPartHandR:
 				switch (ItemOption)
 				{
-				case 0:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					PlayCursorAnim();
-					SelectHandR = HRDefault;
-					break;
 				case 1:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+					scIcon->GetNode("star")->SetPatternIndex(1);
 					break;
-				case 2:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					PlayCursorAnim();
-					SelectHandR = HRRiders;
-					break;
-				case 3:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 4:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 5:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 6:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 7:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 8:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
+				default:
+					scIcon->GetNode("star")->SetPatternIndex(0);
 					break;
 				}
-				return;
+				break;
+			default:
+				scIcon->GetNode("star")->SetPatternIndex(0);
 				break;
 			}
-		}
 
-		if (scenecheck && PressedB && !IsInMenuExit && !IsInMenuChange)
-		{
-			Common::PlaySoundStatic(menuSoundHandle, 1000003);
-			IsInMenuExit = true;
-			//IsInMenu = false;
-			//MenuOption = 0;
-			//ItemOption = 0;
-			//Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scChara);
-			//Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scIcon);
-			scChara->SetMotion("Intro_Anim");
-			scChara->SetMotionFrame(22.0f);
-			scChara->m_MotionDisableFlag = false;
-			scChara->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scChara->m_MotionSpeed = -1.0f;
-			scChara->Update();
-			scIcon->SetMotion("OFF_Anim");
-			scIcon->SetMotionFrame(0.0f);
-			scIcon->m_MotionDisableFlag = false;
-			scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scIcon->m_MotionSpeed = 1.0f;
-			scIcon->Update();
-			scTextArea->SetMotion("Intro_Anim");
-			scTextArea->SetMotionFrame(17.0f);
-			scTextArea->m_MotionDisableFlag = false;
-			scTextArea->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scTextArea->m_MotionSpeed = -0.5f;
-			scTextArea->Update();
-			if (scDeco)
+			////Icon Handlers////
+			if (scenecheck)
 			{
-				scDeco->SetMotion("Intro_Anim");
-				scDeco->SetMotionFrame(23.0f);
-				scDeco->m_MotionDisableFlag = false;
-				scDeco->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-				scDeco->m_MotionSpeed = -1.0f;
-				scDeco->Update();
-			}
-			return;
-		}
-
-		if (scenecheck && (PressedY && scIcon->m_MotionFrame >= 3) && !IsInMenuExit && !IsInMenuChange)
-		{
-			if (MenuOption == UIPartShoes)
-			{
-				switch (ItemOption)
+				switch (MenuOption)
 				{
-				case 2:
+				case UIPartShoes: ////Shoe Icons////
+					//Default Shoes
+					switch (ShDefaultVariant)
+					{
+					case ShoeDefault:
+						if (SelectShoes == ShDefault)
+							scChara->GetNode("img_ch_0")->SetPatternIndex(2);
+						else
+							scChara->GetNode("img_ch_0")->SetPatternIndex(1);
+						break;
+					case ShoeClassic:
+						if (SelectShoes == ShClassic)
+							scChara->GetNode("img_ch_0")->SetPatternIndex(12);
+						else
+							scChara->GetNode("img_ch_0")->SetPatternIndex(11);
+						break;
+					case ShoeArchie:
+						if (SelectShoes == ShArchie)
+							scChara->GetNode("img_ch_0")->SetPatternIndex(14);
+						else
+							scChara->GetNode("img_ch_0")->SetPatternIndex(13);
+						break;
+					}
+					//SA1 Lightspeed Shoes
+					if (SelectShoes == ShSA1LightSpd)
+						scChara->GetNode("img_ch_1")->SetPatternIndex(2);
+					else
+						scChara->GetNode("img_ch_1")->SetPatternIndex(1);
+					//Soap Shoes
 					if (ShSoapVariant)
 					{
-						ShSoapVariant = false;
 						if (SelectShoes == ShSoapsLightSpd)
-							SelectShoes = ShSoaps;
+							scChara->GetNode("img_ch_2")->SetPatternIndex(12);
+						else
+							scChara->GetNode("img_ch_2")->SetPatternIndex(11);
 					}
 					else
 					{
-						ShSoapVariant = true;
 						if (SelectShoes == ShSoaps)
-							SelectShoes = ShSoapsLightSpd;
+							scChara->GetNode("img_ch_2")->SetPatternIndex(2);
+						else
+							scChara->GetNode("img_ch_2")->SetPatternIndex(1);
 					}
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					PlayCursorAnim();
-					//scIcon->SetMotion("ON_Anim");
-					//scIcon->SetMotionFrame(0.0f);
-					//scIcon->m_MotionDisableFlag = false;
-					//scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-					//scIcon->m_MotionSpeed = 1.0f;
-					//scIcon->Update();
-					break;
-				case 5:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					PlayCursorAnim();
-					//scIcon->SetMotion("ON_Anim");
-					//scIcon->SetMotionFrame(0.0f);
-					//scIcon->m_MotionDisableFlag = false;
-					//scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-					//scIcon->m_MotionSpeed = 1.0f;
-					//scIcon->Update();
+					//Riders Shoes
+					if (SelectShoes == ShRiders)
+						scChara->GetNode("img_ch_3")->SetPatternIndex(2);
+					else
+						scChara->GetNode("img_ch_3")->SetPatternIndex(1);
+					//Gem Shoes
+					switch (Sh06Variant)
+					{
+					case GemDefault:
+						if (SelectShoes == Sh06GemDefault)
+							scChara->GetNode("img_ch_4")->SetPatternIndex(2);
+						else
+							scChara->GetNode("img_ch_4")->SetPatternIndex(1);
+						break;
+					case GemRed:
+						if (SelectShoes == Sh06GemRed)
+							scChara->GetNode("img_ch_4")->SetPatternIndex(12);
+						else
+							scChara->GetNode("img_ch_4")->SetPatternIndex(11);
+						break;
+					case GemBlue:
+						if (SelectShoes == Sh06GemBlue)
+							scChara->GetNode("img_ch_4")->SetPatternIndex(14);
+						else
+							scChara->GetNode("img_ch_4")->SetPatternIndex(13);
+						break;
+					case GemGreen:
+						if (SelectShoes == Sh06GemGreen)
+							scChara->GetNode("img_ch_4")->SetPatternIndex(16);
+						else
+							scChara->GetNode("img_ch_4")->SetPatternIndex(15);
+						break;
+					case GemPurple:
+						if (SelectShoes == Sh06GemPurple)
+							scChara->GetNode("img_ch_4")->SetPatternIndex(18);
+						else
+							scChara->GetNode("img_ch_4")->SetPatternIndex(17);
+						break;
+					case GemSky:
+						if (SelectShoes == Sh06GemSky)
+							scChara->GetNode("img_ch_4")->SetPatternIndex(20);
+						else
+							scChara->GetNode("img_ch_4")->SetPatternIndex(19);
+						break;
+					case GemWhite:
+						if (SelectShoes == Sh06GemWhite)
+							scChara->GetNode("img_ch_4")->SetPatternIndex(22);
+						else
+							scChara->GetNode("img_ch_4")->SetPatternIndex(21);
+						break;
+					case GemYellow:
+						if (SelectShoes == Sh06GemYellow)
+							scChara->GetNode("img_ch_4")->SetPatternIndex(24);
+						else
+							scChara->GetNode("img_ch_4")->SetPatternIndex(23);
+						break;
+					}
+					//Unleashed Shoes
 					switch (ShSUVariant)
 					{
 					case SUAirboost:
-						ShSUVariant = SULightSpd;
+						if (SelectShoes == ShSUAirboost)
+							scChara->GetNode("img_ch_5")->SetPatternIndex(2);
+						else
+							scChara->GetNode("img_ch_5")->SetPatternIndex(1);
 						break;
 					case SULightSpd:
-						ShSUVariant = SUStomp;
+						if (SelectShoes == ShSULightSpd)
+							scChara->GetNode("img_ch_5")->SetPatternIndex(2);
+						else
+							scChara->GetNode("img_ch_5")->SetPatternIndex(1);
 						break;
 					case SUStomp:
-						ShSUVariant = SUWallJmp;
+						if (SelectShoes == ShSUStomp)
+							scChara->GetNode("img_ch_5")->SetPatternIndex(2);
+						else
+							scChara->GetNode("img_ch_5")->SetPatternIndex(1);
 						break;
 					case SUWallJmp:
-						ShSUVariant = SUWerehog;
+						if (SelectShoes == ShSUWallJmp)
+							scChara->GetNode("img_ch_5")->SetPatternIndex(2);
+						else
+							scChara->GetNode("img_ch_5")->SetPatternIndex(1);
 						break;
 					case SUWerehog:
-						ShSUVariant = SUZoney;
+						if (SelectShoes == ShSUWerehog)
+							scChara->GetNode("img_ch_5")->SetPatternIndex(2);
+						else
+							scChara->GetNode("img_ch_5")->SetPatternIndex(1);
 						break;
 					case SUZoney:
-						ShSUVariant = SUAirboost;
+						if (SelectShoes == ShSUZoney)
+							scChara->GetNode("img_ch_5")->SetPatternIndex(2);
+						else
+							scChara->GetNode("img_ch_5")->SetPatternIndex(1);
 						break;
 					}
+					//Link Boots
+					if (SelectShoes == ShPumas)
+						scChara->GetNode("img_ch_6")->SetPatternIndex(2);
+					else
+						scChara->GetNode("img_ch_6")->SetPatternIndex(1);
+					//Boom Shoes
+					if (SelectShoes == ShPumas)
+						scChara->GetNode("img_ch_7")->SetPatternIndex(2);
+					else
+						scChara->GetNode("img_ch_7")->SetPatternIndex(1);
+					//Puma Shoes
+					if (SelectShoes == ShPumas)
+						scChara->GetNode("img_ch_8")->SetPatternIndex(2);
+					else
+						scChara->GetNode("img_ch_8")->SetPatternIndex(1);
+					scTextArea->GetNode("textarea_textbox")->SetPatternIndex(0);
 					break;
+				case UIPartBody: ////Body Icons////
+					//Default Body
+					if (SelectBody == BdDefault)
+						scChara->GetNode("img_ch_0")->SetPatternIndex(4);
+					else
+						scChara->GetNode("img_ch_0")->SetPatternIndex(3);
+					//Wildfire
+					if (SelectBody == BdWildFire)
+						scChara->GetNode("img_ch_2")->SetPatternIndex(4);
+					else
+						scChara->GetNode("img_ch_2")->SetPatternIndex(3);
+					//Scarf
+					if (SelectBody == BdScarf)
+						scChara->GetNode("img_ch_4")->SetPatternIndex(4);
+					else
+						scChara->GetNode("img_ch_4")->SetPatternIndex(3);
+					//Empty Placeholders
+					scChara->GetNode("img_ch_1")->SetPatternIndex(3);
+					scChara->GetNode("img_ch_3")->SetPatternIndex(3);
+					scChara->GetNode("img_ch_5")->SetPatternIndex(3);
+					scChara->GetNode("img_ch_6")->SetPatternIndex(3);
+					scChara->GetNode("img_ch_7")->SetPatternIndex(3);
+					scChara->GetNode("img_ch_8")->SetPatternIndex(3);
+					scTextArea->GetNode("textarea_textbox")->SetPatternIndex(1);
+					break;
+				case UIPartHead: ////Head Icons////
+					//Default Head
+					if (SelectHead == HeDefault)
+						scChara->GetNode("img_ch_0")->SetPatternIndex(6);
+					else
+						scChara->GetNode("img_ch_0")->SetPatternIndex(5);
+					//SA1 Sunglasses
+					if (SelectHead == HeSA1Sunglass)
+						scChara->GetNode("img_ch_1")->SetPatternIndex(6);
+					else
+						scChara->GetNode("img_ch_1")->SetPatternIndex(5);
+					//Riders Glasses
+					if (SelectHead == HeRiders)
+						scChara->GetNode("img_ch_2")->SetPatternIndex(6);
+					else
+						scChara->GetNode("img_ch_2")->SetPatternIndex(5);
+					//Empty Placeholders
+					scChara->GetNode("img_ch_3")->SetPatternIndex(5);
+					scChara->GetNode("img_ch_4")->SetPatternIndex(5);
+					scChara->GetNode("img_ch_5")->SetPatternIndex(5);
+					scChara->GetNode("img_ch_6")->SetPatternIndex(5);
+					scChara->GetNode("img_ch_7")->SetPatternIndex(5);
+					scChara->GetNode("img_ch_8")->SetPatternIndex(5);
+					scTextArea->GetNode("textarea_textbox")->SetPatternIndex(2);
+					break;
+				case UIPartHandL: ////Hand L Icons////
+					//Default Left Glove
+					if (SelectHandL == HLDefault)
+						scChara->GetNode("img_ch_0")->SetPatternIndex(8);
+					else
+						scChara->GetNode("img_ch_0")->SetPatternIndex(7);
+					//Crystal Ring
+					if (SelectHandL == HLCrystalRing)
+						scChara->GetNode("img_ch_1")->SetPatternIndex(8);
+					else
+						scChara->GetNode("img_ch_1")->SetPatternIndex(7);
+					//Riders Left Glove
+					if (SelectHandL == HLRiders)
+						scChara->GetNode("img_ch_3")->SetPatternIndex(8);
+					else
+						scChara->GetNode("img_ch_3")->SetPatternIndex(7);
+					//Empty Placeholders
+					scChara->GetNode("img_ch_2")->SetPatternIndex(7);
+					scChara->GetNode("img_ch_4")->SetPatternIndex(7);
+					scChara->GetNode("img_ch_5")->SetPatternIndex(7);
+					scChara->GetNode("img_ch_6")->SetPatternIndex(7);
+					scChara->GetNode("img_ch_7")->SetPatternIndex(7);
+					scChara->GetNode("img_ch_8")->SetPatternIndex(7);
+					scTextArea->GetNode("textarea_textbox")->SetPatternIndex(3);
+					break;
+				case UIPartHandR: ////Hand R Icons////
+					//Default Right Glove
+					if (SelectHandR == HRDefault)
+						scChara->GetNode("img_ch_0")->SetPatternIndex(10);
+					else
+						scChara->GetNode("img_ch_0")->SetPatternIndex(9);
+					//Riders Right Glove
+					if (SelectHandR == HRRiders)
+						scChara->GetNode("img_ch_2")->SetPatternIndex(10);
+					else
+						scChara->GetNode("img_ch_2")->SetPatternIndex(9);
+					//Empty Placeholders
+					scChara->GetNode("img_ch_1")->SetPatternIndex(9);
+					scChara->GetNode("img_ch_3")->SetPatternIndex(9);
+					scChara->GetNode("img_ch_4")->SetPatternIndex(9);
+					scChara->GetNode("img_ch_5")->SetPatternIndex(9);
+					scChara->GetNode("img_ch_6")->SetPatternIndex(9);
+					scChara->GetNode("img_ch_7")->SetPatternIndex(9);
+					scChara->GetNode("img_ch_8")->SetPatternIndex(9);
+					scTextArea->GetNode("textarea_textbox")->SetPatternIndex(4);
+					break;
+				}
+
+			}
+
+			//Functionality//
+			if (scenecheck && (PressedA && scIcon->m_MotionFrame >= 3) && !IsInMenuExit && !IsInMenuChange)
+			{
+				switch (MenuOption)
+				{
+				case UIPartShoes:
+					switch (ItemOption)
+					{
+					case 0:
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						switch (ShDefaultVariant)
+						{
+						case ShoeDefault:
+							SelectShoes = ShDefault;
+							break;
+						case ShoeClassic:
+							SelectShoes = ShClassic;
+							break;
+						case ShoeArchie:
+							SelectShoes = ShArchie;
+							break;
+						}
+						break;
+					case 1:
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectShoes = ShSA1LightSpd;
+						break;
+					case 2:
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						if (!ShSoapVariant)
+							SelectShoes = ShSoaps;
+						else
+							SelectShoes = ShSoapsLightSpd;
+						break;
+					case 3:
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectShoes = ShRiders;
+						break;
+					case 4:
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						switch (Sh06Variant)
+						{
+						case GemDefault:
+							SelectShoes = Sh06GemDefault;
+							break;
+						case GemRed:
+							SelectShoes = Sh06GemRed;
+							break;
+						case GemBlue:
+							SelectShoes = Sh06GemBlue;
+							break;
+						case GemGreen:
+							SelectShoes = Sh06GemGreen;
+							break;
+						case GemPurple:
+							SelectShoes = Sh06GemPurple;
+							break;
+						case GemSky:
+							SelectShoes = Sh06GemSky;
+							break;
+						case GemWhite:
+							SelectShoes = Sh06GemWhite;
+							break;
+						case GemYellow:
+							SelectShoes = Sh06GemYellow;
+							break;
+						}
+						break;
+					case 5:
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						switch (ShSUVariant)
+						{
+						case SUAirboost:
+							SelectShoes = ShSUAirboost;
+							break;
+						case SULightSpd:
+							SelectShoes = ShSULightSpd;
+							break;
+						case SUStomp:
+							SelectShoes = ShSUStomp;
+							break;
+						case SUWallJmp:
+							SelectShoes = ShSUWallJmp;
+							break;
+						case SUWerehog:
+							SelectShoes = ShSUWerehog;
+							break;
+						case SUZoney:
+							SelectShoes = ShSUZoney;
+							break;
+						}
+						break;
+					case 6:
+						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						break;
+					case 7:
+						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						break;
+					case 8:
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectShoes = ShPumas;
+						break;
+					}
+					return;
+					break;
+				case UIPartBody:
+					switch (ItemOption)
+					{
+					case 0:
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectBody = BdDefault;
+						break;
+					case 1:
+						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						break;
+					case 2:
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectBody = BdWildFire;
+						break;
+					case 3:
+						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						break;
+					case 4:
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectBody = BdScarf;
+						break;
+					case 5:
+						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						break;
+					case 6:
+						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						break;
+					case 7:
+						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						break;
+					case 8:
+						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						break;
+					}
+					return;
+					break;
+				case UIPartHead:
+					switch (ItemOption)
+					{
+					case 0:
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectHead = HeDefault;
+						break;
+					case 1:
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectHead = HeSA1Sunglass;
+						break;
+					case 2:
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectHead = HeRiders;
+						break;
+					case 3:
+						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						break;
+					case 4:
+						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						break;
+					case 5:
+						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						break;
+					case 6:
+						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						break;
+					case 7:
+						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						break;
+					case 8:
+						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						break;
+					}
+					return;
+					break;
+				case UIPartHandL:
+					switch (ItemOption)
+					{
+					case 0:
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectHandL = HLDefault;
+						break;
+					case 1:
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectHandL = HLCrystalRing;
+						break;
+					case 2:
+						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						break;
+					case 3:
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectHandL = HLRiders;
+						break;
+					case 4:
+						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						break;
+					case 5:
+						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						break;
+					case 6:
+						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						break;
+					case 7:
+						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						break;
+					case 8:
+						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						break;
+					}
+					return;
+					break;
+				case UIPartHandR:
+					switch (ItemOption)
+					{
+					case 0:
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectHandR = HRDefault;
+						break;
+					case 1:
+						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						break;
+					case 2:
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectHandR = HRRiders;
+						break;
+					case 3:
+						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						break;
+					case 4:
+						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						break;
+					case 5:
+						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						break;
+					case 6:
+						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						break;
+					case 7:
+						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						break;
+					case 8:
+						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						break;
+					}
+					return;
+					break;
+				}
+			}
+
+			if (scenecheck && PressedB && !IsInMenuExit && !IsInMenuChange)
+			{
+				Common::PlaySoundStatic(menuSoundHandle, 1000003);
+				IsInMenuExit = true;
+				//IsInMenu = false;
+				//MenuOption = 0;
+				//ItemOption = 0;
+				//Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scChara);
+				//Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scIcon);
+				scChara->SetMotion("Intro_Anim");
+				scChara->SetMotionFrame(22.0f);
+				scChara->m_MotionDisableFlag = false;
+				scChara->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+				scChara->m_MotionSpeed = -1.0f;
+				scChara->Update();
+				scIcon->SetMotion("OFF_Anim");
+				scIcon->SetMotionFrame(0.0f);
+				scIcon->m_MotionDisableFlag = false;
+				scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+				scIcon->m_MotionSpeed = 1.0f;
+				scIcon->Update();
+				scTextArea->SetMotion("Intro_Anim");
+				scTextArea->SetMotionFrame(17.0f);
+				scTextArea->m_MotionDisableFlag = false;
+				scTextArea->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+				scTextArea->m_MotionSpeed = -0.5f;
+				scTextArea->Update();
+				if (scDeco)
+				{
+					scDeco->SetMotion("Intro_Anim");
+					scDeco->SetMotionFrame(23.0f);
+					scDeco->m_MotionDisableFlag = false;
+					scDeco->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+					scDeco->m_MotionSpeed = -1.0f;
+					scDeco->Update();
 				}
 				return;
 			}
-			if (MenuOption == UIPartHandR)
+
+			if (scenecheck && (PressedY && scIcon->m_MotionFrame >= 3) && !IsInMenuExit && !IsInMenuChange)
 			{
+				if (MenuOption == UIPartShoes)
+				{
+					switch (ItemOption)
+					{
+					case 0:
+						switch (ShDefaultVariant)
+						{
+						case ShoeDefault:
+							if (SelectShoes == ShDefault)
+								SelectShoes = ShClassic;
+							ShDefaultVariant = ShoeClassic;
+							break;
+						case ShoeClassic:
+							if (SelectShoes == ShClassic)
+								SelectShoes = ShArchie;
+							ShDefaultVariant = ShoeArchie;
+							break;
+						case ShoeArchie:
+							if (SelectShoes == ShArchie)
+								SelectShoes = ShDefault;
+							ShDefaultVariant = ShoeDefault;
+							break;
+						}
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						break;
+					case 2:
+						if (ShSoapVariant)
+						{
+							ShSoapVariant = false;
+							if (SelectShoes == ShSoapsLightSpd)
+								SelectShoes = ShSoaps;
+						}
+						else
+						{
+							ShSoapVariant = true;
+							if (SelectShoes == ShSoaps)
+								SelectShoes = ShSoapsLightSpd;
+						}
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						break;
+					case 4:
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						switch (Sh06Variant)
+						{
+						case GemDefault:
+							if (SelectShoes == Sh06GemDefault)
+								SelectShoes = Sh06GemRed;
+							Sh06Variant = GemRed;
+							break;
+						case GemRed:
+							if (SelectShoes == Sh06GemRed)
+								SelectShoes = Sh06GemBlue;
+							Sh06Variant = GemBlue;
+							break;
+						case GemBlue:
+							if (SelectShoes == Sh06GemBlue)
+								SelectShoes = Sh06GemGreen;
+							Sh06Variant = GemGreen;
+							break;
+						case GemGreen:
+							if (SelectShoes == Sh06GemGreen)
+								SelectShoes = Sh06GemPurple;
+							Sh06Variant = GemPurple;
+							break;
+						case GemPurple:
+							if (SelectShoes == Sh06GemPurple)
+								SelectShoes = Sh06GemSky;
+							Sh06Variant = GemSky;
+							break;
+						case GemSky:
+							if (SelectShoes == Sh06GemSky)
+								SelectShoes = Sh06GemWhite;
+							Sh06Variant = GemWhite;
+							break;
+						case GemWhite:
+							if (SelectShoes == Sh06GemWhite)
+								SelectShoes = Sh06GemYellow;
+							Sh06Variant = GemYellow;
+							break;
+						case GemYellow:
+							if (SelectShoes == Sh06GemYellow)
+								SelectShoes = Sh06GemDefault;
+							Sh06Variant = GemDefault;
+							break;
+						}
+						break;
+					case 5:
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						switch (ShSUVariant)
+						{
+						case SUAirboost:
+							ShSUVariant = SULightSpd;
+							if (SelectShoes == ShSUAirboost)
+								SelectShoes = ShSULightSpd;
+							break;
+						case SULightSpd:
+							ShSUVariant = SUStomp;
+							if (SelectShoes == ShSULightSpd)
+								SelectShoes = ShSUStomp;
+							break;
+						case SUStomp:
+							ShSUVariant = SUWallJmp;
+							if (SelectShoes == ShSUStomp)
+								SelectShoes = ShSUWallJmp;
+							break;
+						case SUWallJmp:
+							ShSUVariant = SUWerehog;
+							if (SelectShoes == ShSUWallJmp)
+								SelectShoes = ShSUWerehog;
+							break;
+						case SUWerehog:
+							ShSUVariant = SUZoney;
+							if (SelectShoes == ShSUWerehog)
+								SelectShoes = ShSUZoney;
+							break;
+						case SUZoney:
+							ShSUVariant = SUAirboost;
+							if (SelectShoes == ShSUZoney)
+								SelectShoes = ShSUAirboost;
+							break;
+						}
+						break;
+					}
+					return;
+				}
+				if (MenuOption == UIPartHandR)
+				{
+					switch (ItemOption)
+					{
+					case 1:
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						if (HRMagicVariant)
+						{
+							HRMagicVariant = false;
+							if (SelectHandR == HRMagicHands)
+								SelectHandR = HRBounceBracelet;
+						}
+						else
+						{
+							HRMagicVariant = true;
+							if (SelectHandR == HRBounceBracelet)
+								SelectHandR = HRMagicHands;
+						}
+						break;
+					}
+					return;
+				}
+			}
+
+			if (scenecheck && (PressedRB || PressedLB) && !IsInMenuExit)
+			{
+				Common::PlaySoundStatic(menuSoundHandle, 1000006);
+				IsInMenuChange = true;
+				if (PressedRB)
+				{
+					IsInMenuChangeR = true;
+					scLRMove->SetMotion("Right_ON_Anim");
+					scLRMove->SetMotionFrame(0.0f);
+					scLRMove->m_MotionDisableFlag = false;
+					scLRMove->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+					scLRMove->m_MotionSpeed = 1.0f;
+					scLRMove->Update();
+				}
+				if (PressedLB)
+				{
+					IsInMenuChangeL = true;
+					scLRMove->SetMotion("Left_ON_Anim");
+					scLRMove->SetMotionFrame(0.0f);
+					scLRMove->m_MotionDisableFlag = false;
+					scLRMove->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+					scLRMove->m_MotionSpeed = 1.0f;
+					scLRMove->Update();
+				}
+				IsInMenuExit = false;
+				//MenuOption = 0;
+				//ItemOption = 0;
+				scChara->SetMotion("Intro_Anim");
+				scChara->SetMotionFrame(22.0f);
+				scChara->m_MotionDisableFlag = false;
+				scChara->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+				scChara->m_MotionSpeed = -2.0f;
+				scChara->Update();
+				scIcon->SetMotion("OFF_Anim");
+				scIcon->SetMotionFrame(0.0f);
+				scIcon->m_MotionDisableFlag = false;
+				scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+				scIcon->m_MotionSpeed = 1.0f;
+				scIcon->Update();
+				scTextArea->SetMotion("Intro_Anim");
+				scTextArea->SetMotionFrame(17.0f);
+				scTextArea->m_MotionDisableFlag = false;
+				scTextArea->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+				scTextArea->m_MotionSpeed = -1.8f;
+				scTextArea->Update();
+				return;
+			}
+
+			if (scenecheck && IsInMenuExit && scChara->m_MotionFrame <= 0 && !IsInMenuChange)
+			{
+				IsInMenuExit = false;
+				IsInMenu = false;
+				MenuOption = UIPartShoes;
+				ItemOption = 0;
+				*ENABLE_BLUR = prevblur;
+				FILE* pFile = fopen("CustomSelect.ini", "wb");
+				writeINI(pFile);
+				fclose(pFile);
+				Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scChara);
+				Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scIcon);
+				Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scTextArea);
+				Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scLRMove);
+				if (scDeco)
+					Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scDeco);
+				return;
+			}
+
+			if (scenecheck && IsInMenuChange && scChara->m_MotionFrame <= 0 && !IsInMenuExit)
+			{
+				IsInMenuChange = false;
+				//MenuOption = UIPartShoes;
+				if (IsInMenuChangeR)
+				{
+					switch (MenuOption)
+					{
+					case UIPartShoes:
+						MenuOption = UIPartBody;
+						break;
+					case UIPartBody:
+						MenuOption = UIPartHead;
+						break;
+					case UIPartHead:
+						MenuOption = UIPartHandL;
+						break;
+					case UIPartHandL:
+						MenuOption = UIPartHandR;
+						break;
+					case UIPartHandR:
+						MenuOption = UIPartShoes;
+						break;
+					}
+				}
+				if (IsInMenuChangeL)
+				{
+					switch (MenuOption)
+					{
+					case UIPartShoes:
+						MenuOption = UIPartHandR;
+						break;
+					case UIPartBody:
+						MenuOption = UIPartShoes;
+						break;
+					case UIPartHead:
+						MenuOption = UIPartBody;
+						break;
+					case UIPartHandL:
+						MenuOption = UIPartHead;
+						break;
+					case UIPartHandR:
+						MenuOption = UIPartHandL;
+						break;
+					}
+				}
+				//ItemOption = 0;
+				IsInMenuChangeR = false;
+				IsInMenuChangeL = false;
+				scChara->SetMotion("Intro_Anim");
+				scChara->SetMotionFrame(0.0f);
+				scChara->m_MotionDisableFlag = false;
+				scChara->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+				scChara->m_MotionSpeed = 2.0f;
+				scChara->Update();
+				PlayCursorAnim();
+				//scIcon->SetMotion("ON_Anim");
+				//scIcon->SetMotionFrame(0.0f);
+				//scIcon->m_MotionDisableFlag = false;
+				//scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+				//scIcon->m_MotionSpeed = 1.0f;
+				//scIcon->Update();
+				scTextArea->SetMotion("Intro_Anim");
+				scTextArea->SetMotionFrame(0.0f);
+				scTextArea->m_MotionDisableFlag = false;
+				scTextArea->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+				scTextArea->m_MotionSpeed = 1.0f;
+				scTextArea->Update();
+				return;
+			}
+
+			if (scenecheck && ((PressedUp && scIcon->m_MotionFrame >= 3) || (PushedUp && scIcon->m_MotionFrame >= 7)) && !IsInMenuExit && !IsInMenuChange)
+			{
+				Common::PlaySoundStatic(menuSoundHandle, 1000004);
 				switch (ItemOption)
 				{
+				case 0:
+					ItemOption = 6;
+					break;
 				case 1:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					PlayCursorAnim();
-					//scIcon->SetMotion("ON_Anim");
-					//scIcon->SetMotionFrame(0.0f);
-					//scIcon->m_MotionDisableFlag = false;
-					//scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-					//scIcon->m_MotionSpeed = 1.0f;
-					//scIcon->Update();
-					if (HRMagicVariant)
-					{
-						HRMagicVariant = false;
-						if (SelectHandR == HRMagicHands)
-							SelectHandR = HRBounceBracelet;
-					}
-					else
-					{
-						HRMagicVariant = true;
-						if (SelectHandR == HRBounceBracelet)
-							SelectHandR = HRMagicHands;
-					}
+					ItemOption = 7;
+					break;
+				case 2:
+					ItemOption = 8;
+					break;
+				case 3:
+					ItemOption = 0;
+					break;
+				case 4:
+					ItemOption = 1;
+					break;
+				case 5:
+					ItemOption = 2;
+					break;
+				case 6:
+					ItemOption = 3;
+					break;
+				case 7:
+					ItemOption = 4;
+					break;
+				case 8:
+					ItemOption = 5;
 					break;
 				}
+				PlayCursorAnim();
+				//scIcon->SetMotion("ON_Anim");
+				//scIcon->SetMotionFrame(0.0f);
+				//scIcon->m_MotionDisableFlag = false;
+				//scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+				//scIcon->m_MotionSpeed = 1.0f;
+				//scIcon->Update();
 				return;
 			}
-		}
 
-		if (scenecheck && (PressedRB || PressedLB) && !IsInMenuExit)
-		{
-			Common::PlaySoundStatic(menuSoundHandle, 1000006);
-			IsInMenuChange = true;
-			if (PressedRB)
+			if (scenecheck && ((PressedDown && scIcon->m_MotionFrame >= 3) || (PushedDown && scIcon->m_MotionFrame >= 7)) && !IsInMenuExit && !IsInMenuChange)
 			{
-				IsInMenuChangeR = true;
-				scLRMove->SetMotion("Right_ON_Anim");
-				scLRMove->SetMotionFrame(0.0f);
-				scLRMove->m_MotionDisableFlag = false;
-				scLRMove->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-				scLRMove->m_MotionSpeed = 1.0f;
-				scLRMove->Update();
-			}
-			if (PressedLB)
-			{
-				IsInMenuChangeL = true;
-				scLRMove->SetMotion("Left_ON_Anim");
-				scLRMove->SetMotionFrame(0.0f);
-				scLRMove->m_MotionDisableFlag = false;
-				scLRMove->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-				scLRMove->m_MotionSpeed = 1.0f;
-				scLRMove->Update();
-			}
-			IsInMenuExit = false;
-			//MenuOption = 0;
-			//ItemOption = 0;
-			scChara->SetMotion("Intro_Anim");
-			scChara->SetMotionFrame(22.0f);
-			scChara->m_MotionDisableFlag = false;
-			scChara->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scChara->m_MotionSpeed = -2.0f;
-			scChara->Update();
-			scIcon->SetMotion("OFF_Anim");
-			scIcon->SetMotionFrame(0.0f);
-			scIcon->m_MotionDisableFlag = false;
-			scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scIcon->m_MotionSpeed = 1.0f;
-			scIcon->Update();
-			scTextArea->SetMotion("Intro_Anim");
-			scTextArea->SetMotionFrame(17.0f);
-			scTextArea->m_MotionDisableFlag = false;
-			scTextArea->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scTextArea->m_MotionSpeed = -1.8f;
-			scTextArea->Update();
-			return;
-		}
-
-		if (scenecheck && IsInMenuExit && scChara->m_MotionFrame <= 0 && !IsInMenuChange)
-		{
-			IsInMenuExit = false;
-			IsInMenu = false;
-			MenuOption = UIPartShoes;
-			ItemOption = 0;
-			*ENABLE_BLUR = prevblur;
-			Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scChara);
-			Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scIcon);
-			Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scTextArea);
-			Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scLRMove);
-			if (scDeco)
-				Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scDeco);
-			return;
-		}
-
-		if (scenecheck && IsInMenuChange && scChara->m_MotionFrame <= 0 && !IsInMenuExit)
-		{
-			IsInMenuChange = false;
-			//MenuOption = UIPartShoes;
-			if (IsInMenuChangeR)
-			{
-				switch (MenuOption)
+				Common::PlaySoundStatic(menuSoundHandle, 1000004);
+				switch (ItemOption)
 				{
-				case UIPartShoes:
-					MenuOption = UIPartBody;
+				case 0:
+					ItemOption = 3;
 					break;
-				case UIPartBody:
-					MenuOption = UIPartHead;
+				case 1:
+					ItemOption = 4;
 					break;
-				case UIPartHead:
-					MenuOption = UIPartHandL;
+				case 2:
+					ItemOption = 5;
 					break;
-				case UIPartHandL:
-					MenuOption = UIPartHandR;
+				case 3:
+					ItemOption = 6;
 					break;
-				case UIPartHandR:
-					MenuOption = UIPartShoes;
+				case 4:
+					ItemOption = 7;
+					break;
+				case 5:
+					ItemOption = 8;
+					break;
+				case 6:
+					ItemOption = 0;
+					break;
+				case 7:
+					ItemOption = 1;
+					break;
+				case 8:
+					ItemOption = 2;
 					break;
 				}
+				PlayCursorAnim();
+				//scIcon->SetMotion("ON_Anim");
+				//scIcon->SetMotionFrame(0.0f);
+				//scIcon->m_MotionDisableFlag = false;
+				//scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+				//scIcon->m_MotionSpeed = 1.0f;
+				//scIcon->Update();
+				return;
 			}
-			if (IsInMenuChangeL)
+
+			if (scenecheck && ((PressedLeft && scIcon->m_MotionFrame >= 3) || (PushedLeft && scIcon->m_MotionFrame >= 7)) && !IsInMenuExit && !IsInMenuChange)
 			{
-				switch (MenuOption)
+				Common::PlaySoundStatic(menuSoundHandle, 1000004);
+				switch (ItemOption)
 				{
-				case UIPartShoes:
-					MenuOption = UIPartHandR;
+				case 0:
+					ItemOption = 2;
 					break;
-				case UIPartBody:
-					MenuOption = UIPartShoes;
+				case 1:
+					ItemOption = 0;
 					break;
-				case UIPartHead:
-					MenuOption = UIPartBody;
+				case 2:
+					ItemOption = 1;
 					break;
-				case UIPartHandL:
-					MenuOption = UIPartHead;
+				case 3:
+					ItemOption = 5;
 					break;
-				case UIPartHandR:
-					MenuOption = UIPartHandL;
+				case 4:
+					ItemOption = 3;
+					break;
+				case 5:
+					ItemOption = 4;
+					break;
+				case 6:
+					ItemOption = 8;
+					break;
+				case 7:
+					ItemOption = 6;
+					break;
+				case 8:
+					ItemOption = 7;
 					break;
 				}
+				PlayCursorAnim();
+				//scIcon->SetMotion("ON_Anim");
+				//scIcon->SetMotionFrame(0.0f);
+				//scIcon->m_MotionDisableFlag = false;
+				//scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+				//scIcon->m_MotionSpeed = 1.0f;
+				//scIcon->Update();
+				return;
 			}
-			//ItemOption = 0;
-			IsInMenuChangeR = false;
-			IsInMenuChangeL = false;
-			scChara->SetMotion("Intro_Anim");
-			scChara->SetMotionFrame(0.0f);
-			scChara->m_MotionDisableFlag = false;
-			scChara->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scChara->m_MotionSpeed = 2.0f;
-			scChara->Update();
-			PlayCursorAnim();
-			//scIcon->SetMotion("ON_Anim");
-			//scIcon->SetMotionFrame(0.0f);
-			//scIcon->m_MotionDisableFlag = false;
-			//scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			//scIcon->m_MotionSpeed = 1.0f;
-			//scIcon->Update();
-			scTextArea->SetMotion("Intro_Anim");
-			scTextArea->SetMotionFrame(0.0f);
-			scTextArea->m_MotionDisableFlag = false;
-			scTextArea->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scTextArea->m_MotionSpeed = 1.0f;
-			scTextArea->Update();
-			return;
-		}
 
-		if (scenecheck && ((PressedUp && scIcon->m_MotionFrame >= 3) || (PushedUp && scIcon->m_MotionFrame >= 7)) && !IsInMenuExit && !IsInMenuChange)
-		{
-			Common::PlaySoundStatic(menuSoundHandle, 1000004);
-			switch (ItemOption)
+			if (scenecheck && ((PressedRight && scIcon->m_MotionFrame >= 3) || (PushedRight && scIcon->m_MotionFrame >= 7)) && !IsInMenuExit && !IsInMenuChange)
 			{
-			case 0:
-				ItemOption = 6;
-				break;
-			case 1:
-				ItemOption = 7;
-				break;
-			case 2:
-				ItemOption = 8;
-				break;
-			case 3:
-				ItemOption = 0;
-				break;
-			case 4:
-				ItemOption = 1;
-				break;
-			case 5:
-				ItemOption = 2;
-				break;
-			case 6:
-				ItemOption = 3;
-				break;
-			case 7:
-				ItemOption = 4;
-				break;
-			case 8:
-				ItemOption = 5;
-				break;
+				Common::PlaySoundStatic(menuSoundHandle, 1000004);
+				switch (ItemOption)
+				{
+				case 0:
+					ItemOption = 1;
+					break;
+				case 1:
+					ItemOption = 2;
+					break;
+				case 2:
+					ItemOption = 0;
+					break;
+				case 3:
+					ItemOption = 4;
+					break;
+				case 4:
+					ItemOption = 5;
+					break;
+				case 5:
+					ItemOption = 3;
+					break;
+				case 6:
+					ItemOption = 7;
+					break;
+				case 7:
+					ItemOption = 8;
+					break;
+				case 8:
+					ItemOption = 6;
+					break;
+				}
+				PlayCursorAnim();
+				//scIcon->SetMotion("ON_Anim");
+				//scIcon->SetMotionFrame(0.0f);
+				//scIcon->m_MotionDisableFlag = false;
+				//scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+				//scIcon->m_MotionSpeed = 1.0f;
+				//scIcon->Update();
+				return;
 			}
-			PlayCursorAnim();
-			//scIcon->SetMotion("ON_Anim");
-			//scIcon->SetMotionFrame(0.0f);
-			//scIcon->m_MotionDisableFlag = false;
-			//scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			//scIcon->m_MotionSpeed = 1.0f;
-			//scIcon->Update();
-			return;
-		}
 
-		if (scenecheck && ((PressedDown && scIcon->m_MotionFrame >= 3) || (PushedDown && scIcon->m_MotionFrame >= 7)) && !IsInMenuExit && !IsInMenuChange)
-		{
-			Common::PlaySoundStatic(menuSoundHandle, 1000004);
-			switch (ItemOption)
-			{
-			case 0:
-				ItemOption = 3;
-				break;
-			case 1:
-				ItemOption = 4;
-				break;
-			case 2:
-				ItemOption = 5;
-				break;
-			case 3:
-				ItemOption = 6;
-				break;
-			case 4:
-				ItemOption = 7;
-				break;
-			case 5:
-				ItemOption = 8;
-				break;
-			case 6:
-				ItemOption = 0;
-				break;
-			case 7:
-				ItemOption = 1;
-				break;
-			case 8:
-				ItemOption = 2;
-				break;
-			}
-			PlayCursorAnim();
-			//scIcon->SetMotion("ON_Anim");
-			//scIcon->SetMotionFrame(0.0f);
-			//scIcon->m_MotionDisableFlag = false;
-			//scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			//scIcon->m_MotionSpeed = 1.0f;
-			//scIcon->Update();
-			return;
+			//printf("%d", ShSoapVariant);
+			//printf(" - ");
+			//printf("%d", HRMagicVariant);
+			//printf(" - ");
+			//printf("%d", ShSUVariant);
+			//printf(" - ");
+			//printf("%d", Sh06Variant);
+			//printf(" - ");
+			//printf("%f", scIcon->m_MotionFrame);
+			//printf("\n");
+			break;
 		}
-
-		if (scenecheck && ((PressedLeft && scIcon->m_MotionFrame >= 3) || (PushedLeft && scIcon->m_MotionFrame >= 7)) && !IsInMenuExit && !IsInMenuChange)
-		{
-			Common::PlaySoundStatic(menuSoundHandle, 1000004);
-			switch (ItemOption)
-			{
-			case 0:
-				ItemOption = 2;
-				break;
-			case 1:
-				ItemOption = 0;
-				break;
-			case 2:
-				ItemOption = 1;
-				break;
-			case 3:
-				ItemOption = 5;
-				break;
-			case 4:
-				ItemOption = 3;
-				break;
-			case 5:
-				ItemOption = 4;
-				break;
-			case 6:
-				ItemOption = 8;
-				break;
-			case 7:
-				ItemOption = 6;
-				break;
-			case 8:
-				ItemOption = 7;
-				break;
-			}
-			PlayCursorAnim();
-			//scIcon->SetMotion("ON_Anim");
-			//scIcon->SetMotionFrame(0.0f);
-			//scIcon->m_MotionDisableFlag = false;
-			//scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			//scIcon->m_MotionSpeed = 1.0f;
-			//scIcon->Update();
-			return;
-		}
-
-		if (scenecheck && ((PressedRight && scIcon->m_MotionFrame >= 3) || (PushedRight && scIcon->m_MotionFrame >= 7)) && !IsInMenuExit && !IsInMenuChange)
-		{
-			Common::PlaySoundStatic(menuSoundHandle, 1000004);
-			switch (ItemOption)
-			{
-			case 0:
-				ItemOption = 1;
-				break;
-			case 1:
-				ItemOption = 2;
-				break;
-			case 2:
-				ItemOption = 0;
-				break;
-			case 3:
-				ItemOption = 4;
-				break;
-			case 4:
-				ItemOption = 5;
-				break;
-			case 5:
-				ItemOption = 3;
-				break;
-			case 6:
-				ItemOption = 7;
-				break;
-			case 7:
-				ItemOption = 8;
-				break;
-			case 8:
-				ItemOption = 6;
-				break;
-			}
-			PlayCursorAnim();
-			//scIcon->SetMotion("ON_Anim");
-			//scIcon->SetMotionFrame(0.0f);
-			//scIcon->m_MotionDisableFlag = false;
-			//scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			//scIcon->m_MotionSpeed = 1.0f;
-			//scIcon->Update();
-			return;
-		}
-
-		printf("%d", ShSoapVariant);
-		printf(" - ");
-		printf("%d", HRMagicVariant);
-		printf(" - ");
-		printf("%d", ShSUVariant);
-		printf(" - ");
-		printf("%f", scIcon->m_MotionFrame);
-		printf("\n");
 	}
 
-}
-void KillScreen()
-{
-	if (obCustomUI)
-	{
-		obCustomUI->SendMessage(obCustomUI->m_ActorID, boost::make_shared<Sonic::Message::MsgKill>());
-		obCustomUI = nullptr;
-	}
 }
 HOOK(void, __fastcall, CHudSonicStageUpdate, 0x1098A50, Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo& in_rUpdateInfo)
 {
-	CHudFittingMenu(This, Edx, in_rUpdateInfo);
-	/*
-	auto input = Sonic::CInputState::GetInstance()->GetPadState();
-	auto inputState = Sonic::CInputState::GetInstance();
-	auto inputPtr = &inputState->m_PadStates[inputState->m_CurrentPadStateIndex];
-	bool PressedY = input.IsTapped(Sonic::eKeyState_Y);
-	bool PressedX = input.IsTapped(Sonic::eKeyState_X);
-	bool PressedB = input.IsTapped(Sonic::eKeyState_B);
-	bool PressedA = input.IsTapped(Sonic::eKeyState_A);
-	bool PressedSL = input.IsTapped(Sonic::eKeyState_Select);
-	bool PressedST = input.IsTapped(Sonic::eKeyState_Start);
-	bool PressedLB = input.IsTapped(Sonic::eKeyState_LeftBumper);
-	bool PressedRB = input.IsTapped(Sonic::eKeyState_RightBumper);
-	bool PressedLT = input.IsTapped(Sonic::eKeyState_LeftTrigger);
-	bool PressedRT = input.IsTapped(Sonic::eKeyState_RightTrigger);
-	bool PressedUp = input.IsTapped(Sonic::eKeyState_DpadUp);
-	bool PressedDown = input.IsTapped(Sonic::eKeyState_DpadDown);
-	bool PressedLeft = input.IsTapped(Sonic::eKeyState_DpadLeft);
-	bool PressedRight = input.IsTapped(Sonic::eKeyState_DpadRight);
-	bool PushedUp = inputPtr->LeftStickVertical >= 0.5f;
-	bool PushedDown = inputPtr->LeftStickVertical <= -0.5f;
-	bool PushedLeft = inputPtr->LeftStickHorizontal <= -0.5f;
-	bool PushedRight = inputPtr->LeftStickHorizontal >= 0.5f;
-	auto arX = 1280;
-	auto arY = 720;
-	auto rowX1 = 0.6885;
-	auto rowX2 = 0.7745;
-	auto rowX3 = 0.8611;
-	auto rowY1 = 0.3990;
-	auto rowY2 = 0.5515;
-	auto rowY3 = 0.7046;
-	FUNCTION_PTR(void, __thiscall, changeState, 0x773250, void* This, boost::shared_ptr<void>&spState, const Hedgehog::Base::CSharedString name);
-	boost::shared_ptr<void> spState;
-
-	if (PressedSL && !IsInMenu)
-	{
-		MenuOption = UIPartShoes;
-		ItemOption = 0;
-		if (!prFittingScreen) //Create UI project if it doesn't exist
-		{
-			CreateFittingUI(This, Edx, in_rUpdateInfo);
-		}
-		//Main UI
-		scChara = prFittingScreen->CreateScene("chara");
-		scChara->SetPosition(0, 0);
-		scChara->SetMotion("Intro_Anim");
-		scChara->SetMotionFrame(0.0f);
-		scChara->m_MotionDisableFlag = false;
-		scChara->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scChara->m_MotionSpeed = 1.0f;
-		scChara->Update();
-		//Cursor
-		scIcon = prFittingScreen->CreateScene("icon");
-		scIcon->SetPosition(rowX1*arX, rowY1*arY);
-		scIcon->SetMotion("ON_Anim");
-		scIcon->SetMotionFrame(0.0f);
-		scIcon->m_MotionDisableFlag = false;
-		scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scIcon->m_MotionSpeed = 1.0f;
-		scIcon->Update();
-		//Category Text
-		scTextArea = prFittingScreen->CreateScene("textarea");
-		scTextArea->SetPosition(0, 0);
-		scTextArea->SetMotion("Intro_Anim");
-		scTextArea->SetMotionFrame(0.0f);
-		scTextArea->m_MotionDisableFlag = false;
-		scTextArea->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scTextArea->m_MotionSpeed = 0.5f;
-		scTextArea->Update();
-		//L/R Bumpers
-		scLRMove = prFittingScreen->CreateScene("LRmove");
-		scLRMove->SetPosition(0, 0);
-		scLRMove->SetMotion("Intro_Anim");
-		scLRMove->SetMotionFrame(0.0f);
-		scLRMove->m_MotionDisableFlag = false;
-		scLRMove->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scLRMove->m_MotionSpeed = 1.0f;
-		scLRMove->Update();
-		//Decoration
-		if (ConfigDecoEnable)
-		{
-			scDeco = prFittingScreen->CreateScene("deco");
-			scDeco->SetPosition(0, 0);
-			scDeco->SetMotion("Color_change");
-			scDeco->SetMotionFrame(1.0f);
-			scDeco->m_MotionDisableFlag = false;
-			scDeco->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scDeco->m_MotionSpeed = 0.0f;
-			scDeco->Update();
-			scDeco->SetMotion("Intro_Anim");
-			scDeco->SetMotionFrame(0.0f);
-			scDeco->m_MotionDisableFlag = false;
-			scDeco->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scDeco->m_MotionSpeed = 1.0f;
-			scDeco->Update();
-
-		}
-		//Misc
-		IsInMenu = true;
-		Common::PlaySoundStatic(menuSoundHandle, 1000002);
-	}
-
-	if (IsInMenu && scIcon && scChara)
-	{
-		//Handle Cursor Position//
-		switch (ItemOption)
-		{
-		case 0:
-			scIcon->SetPosition(rowX1 * arX, rowY1 * arY);
-			break;
-		case 1:
-			scIcon->SetPosition(rowX2 * arX, rowY1 * arY);
-			break;
-		case 2:
-			scIcon->SetPosition(rowX3 * arX, rowY1 * arY);
-			break;
-		case 3:
-			scIcon->SetPosition(rowX1 * arX, rowY2 * arY);
-			break;
-		case 4:
-			scIcon->SetPosition(rowX2 * arX, rowY2 * arY);
-			break;
-		case 5:
-			scIcon->SetPosition(rowX3 * arX, rowY2 * arY);
-			break;
-		case 6:
-			scIcon->SetPosition(rowX1 * arX, rowY3 * arY);
-			break;
-		case 7:
-			scIcon->SetPosition(rowX2 * arX, rowY3 * arY);
-			break;
-		case 8:
-			scIcon->SetPosition(rowX3 * arX, rowY3 * arY);
-			break;
-		}
-
-		if (scIcon && scChara && scTextArea && scLRMove && PressedA && !IsInMenuExit && !IsInMenuChange)
-		{
-			switch (MenuOption)
-			{
-			case UIPartShoes:
-				switch (ItemOption)
-				{
-				case 0:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					SelectShoes = ShDefault;
-					break;
-				case 1:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					SelectShoes = ShSA1LightSpd;
-					break;
-				case 2:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					if (!ShSoapVariant)
-						SelectShoes = ShSoaps;
-					else
-						SelectShoes = ShSoapsLightSpd;
-					break;
-				case 3:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 4:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					SelectShoes = Sh06Gem;
-					break;
-				case 5:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 6:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 7:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 8:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					SelectShoes = ShPumas;
-					break;
-				}
-				break;
-			case UIPartBody:
-				switch (ItemOption)
-				{
-				case 0:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					SelectBody = BdDefault;
-					break;
-				case 1:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 2:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					SelectBody = BdWildFire;
-					break;
-				case 3:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 4:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					SelectBody = BdScarf;
-					break;
-				case 5:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 6:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 7:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 8:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				}
-				break;
-			case UIPartHead:
-				switch (ItemOption)
-				{
-				case 0:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					SelectHead = HeDefault;
-					break;
-				case 1:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					SelectHead = HeSA1Sunglass;
-					break;
-				case 2:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					SelectHead = HeRiders;
-					break;
-				case 3:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 4:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 5:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 6:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 7:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 8:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				}
-				break;
-			case UIPartHandL:
-				switch (ItemOption)
-				{
-				case 0:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					SelectHandL = HLDefault;
-					break;
-				case 1:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					SelectHandL = HLCrystalRing;
-					break;
-				case 2:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 3:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 4:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 5:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 6:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 7:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 8:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				}
-				break;
-			case UIPartHandR:
-				switch (ItemOption)
-				{
-				case 0:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					SelectHandR = HRDefault;
-					break;
-				case 1:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 2:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 3:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 4:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 5:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 6:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 7:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				case 8:
-					Common::PlaySoundStatic(menuSoundHandle, 1000007);
-					break;
-				}
-				break;
-			}
-		}
-
-		if (scIcon && scChara && scTextArea && scLRMove && PressedB && !IsInMenuExit && !IsInMenuChange)
-		{
-			Common::PlaySoundStatic(menuSoundHandle, 1000003);
-			IsInMenuExit = true;
-			//IsInMenu = false;
-			//MenuOption = 0;
-			//ItemOption = 0;
-			//Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scChara);
-			//Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scIcon);
-			scChara->SetMotion("Intro_Anim");
-			scChara->SetMotionFrame(22.0f);
-			scChara->m_MotionDisableFlag = false;
-			scChara->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scChara->m_MotionSpeed = -1.0f;
-			scChara->Update();
-			scIcon->SetMotion("OFF_Anim");
-			scIcon->SetMotionFrame(0.0f);
-			scIcon->m_MotionDisableFlag = false;
-			scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scIcon->m_MotionSpeed = 1.0f;
-			scIcon->Update();
-			scTextArea->SetMotion("Intro_Anim");
-			scTextArea->SetMotionFrame(17.0f);
-			scTextArea->m_MotionDisableFlag = false;
-			scTextArea->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scTextArea->m_MotionSpeed = -0.5f;
-			scTextArea->Update();
-			if (scDeco)
-			{
-				scDeco->SetMotion("Intro_Anim");
-				scDeco->SetMotionFrame(23.0f);
-				scDeco->m_MotionDisableFlag = false;
-				scDeco->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-				scDeco->m_MotionSpeed = -1.0f;
-				scDeco->Update();
-			}
-		}
-
-		if (scIcon && scChara && scTextArea && scLRMove && PressedY && !IsInMenuExit && !IsInMenuChange)
-		{
-			if (MenuOption == UIPartShoes)
-			{
-				switch (ItemOption)
-				{
-				case 2:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					scIcon->SetMotion("ON_Anim");
-					scIcon->SetMotionFrame(0.0f);
-					scIcon->m_MotionDisableFlag = false;
-					scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-					scIcon->m_MotionSpeed = 1.0f;
-					scIcon->Update();
-					if (!ShSoapVariant)
-					{
-						ShSoapVariant = true;
-						if (SelectShoes == ShSoaps)
-							SelectShoes = ShSoapsLightSpd;
-					}
-					else
-					{
-						ShSoapVariant = false;
-						if (SelectShoes == ShSoapsLightSpd)
-							SelectShoes = ShSoaps;
-					}
-					break;
-				case 5:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					scIcon->SetMotion("ON_Anim");
-					scIcon->SetMotionFrame(0.0f);
-					scIcon->m_MotionDisableFlag = false;
-					scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-					scIcon->m_MotionSpeed = 1.0f;
-					scIcon->Update();
-					switch (ShSUVariant)
-					{
-					case SUAirboost:
-						ShSUVariant = SULightSpd;
-						break;
-					case SULightSpd:
-						ShSUVariant = SUStomp;
-						break;
-					case SUStomp:
-						ShSUVariant = SUWallJmp;
-						break;
-					case SUWallJmp:
-						ShSUVariant = SUWerehog;
-						break;
-					case SUWerehog:
-						ShSUVariant = SUZoney;
-						break;
-					case SUZoney:
-						ShSUVariant = SUAirboost;
-						break;
-					}
-					break;
-				}
-			}
-			if (MenuOption == UIPartHandR)
-			{
-				switch (ItemOption)
-				{
-				case 1:
-					Common::PlaySoundStatic(menuSoundHandle, 1000005);
-					scIcon->SetMotion("ON_Anim");
-					scIcon->SetMotionFrame(0.0f);
-					scIcon->m_MotionDisableFlag = false;
-					scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-					scIcon->m_MotionSpeed = 1.0f;
-					scIcon->Update();
-					if (!HRMagicVariant)
-					{
-						HRMagicVariant = true;
-						if (SelectHandR == HRBounceBracelet)
-							SelectHandR = HRMagicHands;
-					}
-					else
-					{
-						HRMagicVariant = false;
-						if (SelectHandR == HRMagicHands)
-							SelectHandR = HRBounceBracelet;
-					}
-					break;
-				}
-			}
-		}
-
-		if (scIcon && scChara && scTextArea && scLRMove && (PressedRB || PressedLB) && !IsInMenuExit)
-		{
-			Common::PlaySoundStatic(menuSoundHandle, 1000006);
-			IsInMenuChange = true;
-			if (PressedRB)
-			{
-				IsInMenuChangeR = true;
-				scLRMove->SetMotion("Right_ON_Anim");
-				scLRMove->SetMotionFrame(0.0f);
-				scLRMove->m_MotionDisableFlag = false;
-				scLRMove->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-				scLRMove->m_MotionSpeed = 1.0f;
-				scLRMove->Update();
-			}
-			if (PressedLB)
-			{
-				IsInMenuChangeL = true;
-				scLRMove->SetMotion("Left_ON_Anim");
-				scLRMove->SetMotionFrame(0.0f);
-				scLRMove->m_MotionDisableFlag = false;
-				scLRMove->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-				scLRMove->m_MotionSpeed = 1.0f;
-				scLRMove->Update();
-			}
-			IsInMenuExit = false;
-			//MenuOption = 0;
-			//ItemOption = 0;
-			scChara->SetMotion("Intro_Anim");
-			scChara->SetMotionFrame(22.0f);
-			scChara->m_MotionDisableFlag = false;
-			scChara->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scChara->m_MotionSpeed = -2.0f;
-			scChara->Update();
-			scIcon->SetMotion("OFF_Anim");
-			scIcon->SetMotionFrame(0.0f);
-			scIcon->m_MotionDisableFlag = false;
-			scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scIcon->m_MotionSpeed = 1.0f;
-			scIcon->Update();
-			scTextArea->SetMotion("Intro_Anim");
-			scTextArea->SetMotionFrame(17.0f);
-			scTextArea->m_MotionDisableFlag = false;
-			scTextArea->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scTextArea->m_MotionSpeed = -1.8f;
-			scTextArea->Update();
-		}
-
-		if (scIcon && scChara && scTextArea && scLRMove && IsInMenuExit && scChara->m_MotionFrame <= 0 && !IsInMenuChange)
-		{
-			IsInMenuExit = false;
-			IsInMenu = false;
-			MenuOption = UIPartShoes;
-			ItemOption = 0;
-			Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scChara);
-			Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scIcon);
-			Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scTextArea);
-			Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scLRMove);
-			if (scDeco)
-				Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scDeco);
-		}
-
-		if (scIcon && scChara && scTextArea && scLRMove && IsInMenuChange && scChara->m_MotionFrame <= 0 && !IsInMenuExit)
-		{
-			IsInMenuChange = false;
-			//MenuOption = UIPartShoes;
-			if (IsInMenuChangeR)
-			{
-				switch (MenuOption)
-				{
-				case UIPartShoes:
-					MenuOption = UIPartBody;
-					break;
-				case UIPartBody:
-					MenuOption = UIPartHead;
-					break;
-				case UIPartHead:
-					MenuOption = UIPartHandL;
-					break;
-				case UIPartHandL:
-					MenuOption = UIPartHandR;
-					break;
-				case UIPartHandR:
-					MenuOption = UIPartShoes;
-					break;
-				}
-			}
-			if (IsInMenuChangeL)
-			{
-				switch (MenuOption)
-				{
-				case UIPartShoes:
-					MenuOption = UIPartHandR;
-					break;
-				case UIPartBody:
-					MenuOption = UIPartShoes;
-					break;
-				case UIPartHead:
-					MenuOption = UIPartBody;
-					break;
-				case UIPartHandL:
-					MenuOption = UIPartHead;
-					break;
-				case UIPartHandR:
-					MenuOption = UIPartHandL;
-					break;
-				}
-			}
-			//ItemOption = 0;
-			IsInMenuChangeR = false;
-			IsInMenuChangeL = false;
-			scChara->SetMotion("Intro_Anim");
-			scChara->SetMotionFrame(0.0f);
-			scChara->m_MotionDisableFlag = false;
-			scChara->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scChara->m_MotionSpeed = 2.0f;
-			scChara->Update();
-			scIcon->SetMotion("ON_Anim");
-			scIcon->SetMotionFrame(0.0f);
-			scIcon->m_MotionDisableFlag = false;
-			scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scIcon->m_MotionSpeed = 1.0f;
-			scIcon->Update();
-			scTextArea->SetMotion("Intro_Anim");
-			scTextArea->SetMotionFrame(0.0f);
-			scTextArea->m_MotionDisableFlag = false;
-			scTextArea->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scTextArea->m_MotionSpeed = 1.0f;
-			scTextArea->Update();
-		}
-
-		if (scIcon && scChara && scTextArea && scLRMove && (PressedUp || (PushedUp && scIcon->m_MotionFrame >= 10)) && !IsInMenuExit && !IsInMenuChange)
-		{
-			Common::PlaySoundStatic(menuSoundHandle, 1000004);
-			switch (ItemOption)
-			{
-			case 0:
-				ItemOption = 6;
-				break;
-			case 1:
-				ItemOption = 7;
-				break;
-			case 2:
-				ItemOption = 8;
-				break;
-			case 3:
-				ItemOption = 0;
-				break;
-			case 4:
-				ItemOption = 1;
-				break;
-			case 5:
-				ItemOption = 2;
-				break;
-			case 6:
-				ItemOption = 3;
-				break;
-			case 7:
-				ItemOption = 4;
-				break;
-			case 8:
-				ItemOption = 5;
-				break;
-			}
-			scIcon->SetMotion("ON_Anim");
-			scIcon->SetMotionFrame(0.0f);
-			scIcon->m_MotionDisableFlag = false;
-			scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scIcon->m_MotionSpeed = 1.0f;
-			scIcon->Update();
-		}
-
-		if (scIcon && scChara && scTextArea && scLRMove && (PressedDown || (PushedDown && scIcon->m_MotionFrame >= 10)) && !IsInMenuExit && !IsInMenuChange)
-		{
-			Common::PlaySoundStatic(menuSoundHandle, 1000004);
-			switch (ItemOption)
-			{
-			case 0:
-				ItemOption = 3;
-				break;
-			case 1:
-				ItemOption = 4;
-				break;
-			case 2:
-				ItemOption = 5;
-				break;
-			case 3:
-				ItemOption = 6;
-				break;
-			case 4:
-				ItemOption = 7;
-				break;
-			case 5:
-				ItemOption = 8;
-				break;
-			case 6:
-				ItemOption = 0;
-				break;
-			case 7:
-				ItemOption = 1;
-				break;
-			case 8:
-				ItemOption = 2;
-				break;
-			}
-			scIcon->SetMotion("ON_Anim");
-			scIcon->SetMotionFrame(0.0f);
-			scIcon->m_MotionDisableFlag = false;
-			scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scIcon->m_MotionSpeed = 1.0f;
-			scIcon->Update();
-		}
-
-		if (scIcon && scChara && scTextArea && scLRMove && (PressedLeft || (PushedLeft && scIcon->m_MotionFrame >= 10)) && !IsInMenuExit && !IsInMenuChange)
-		{
-			Common::PlaySoundStatic(menuSoundHandle, 1000004);
-			switch (ItemOption)
-			{
-			case 0:
-				ItemOption = 2;
-				break;
-			case 1:
-				ItemOption = 0;
-				break;
-			case 2:
-				ItemOption = 1;
-				break;
-			case 3:
-				ItemOption = 5;
-				break;
-			case 4:
-				ItemOption = 3;
-				break;
-			case 5:
-				ItemOption = 4;
-				break;
-			case 6:
-				ItemOption = 8;
-				break;
-			case 7:
-				ItemOption = 6;
-				break;
-			case 8:
-				ItemOption = 7;
-				break;
-			}
-			scIcon->SetMotion("ON_Anim");
-			scIcon->SetMotionFrame(0.0f);
-			scIcon->m_MotionDisableFlag = false;
-			scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scIcon->m_MotionSpeed = 1.0f;
-			scIcon->Update();
-		}
-
-		if (scIcon && scChara && scTextArea && scLRMove && (PressedRight || (PushedRight && scIcon->m_MotionFrame >= 10)) && !IsInMenuExit && !IsInMenuChange)
-		{
-			Common::PlaySoundStatic(menuSoundHandle, 1000004);
-			switch (ItemOption)
-			{
-			case 0:
-				ItemOption = 1;
-				break;
-			case 1:
-				ItemOption = 2;
-				break;
-			case 2:
-				ItemOption = 0;
-				break;
-			case 3:
-				ItemOption = 4;
-				break;
-			case 4:
-				ItemOption = 5;
-				break;
-			case 5:
-				ItemOption = 3;
-				break;
-			case 6:
-				ItemOption = 7;
-				break;
-			case 7:
-				ItemOption = 8;
-				break;
-			case 8:
-				ItemOption = 6;
-				break;
-			}
-			scIcon->SetMotion("ON_Anim");
-			scIcon->SetMotionFrame(0.0f);
-			scIcon->m_MotionDisableFlag = false;
-			scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scIcon->m_MotionSpeed = 1.0f;
-			scIcon->Update();
-		}
-
-		////Icon Handlers////
-		if (scIcon && scChara)
-		{
-			switch (MenuOption)
-			{
-			case UIPartShoes: ////Shoe Icons////
-				//Default Shoes
-				if (SelectShoes == ShDefault)
-					scChara->GetNode("img_ch_0")->SetPatternIndex(2);
-				else
-					scChara->GetNode("img_ch_0")->SetPatternIndex(1);
-				//SA1 Lightspeed Shoes
-				if (SelectShoes == ShSA1LightSpd)
-					scChara->GetNode("img_ch_1")->SetPatternIndex(2);
-				else
-					scChara->GetNode("img_ch_1")->SetPatternIndex(1);
-				//Soap Shoes
-				if (!ShSoapVariant)
-				{
-					if (SelectShoes == ShSoaps)
-						scChara->GetNode("img_ch_2")->SetPatternIndex(2);
-					else
-						scChara->GetNode("img_ch_2")->SetPatternIndex(1);
-				}
-				else
-				{
-					if (SelectShoes == ShSoapsLightSpd)
-						scChara->GetNode("img_ch_2")->SetPatternIndex(12);
-					else
-						scChara->GetNode("img_ch_2")->SetPatternIndex(11);
-				}
-				//Riders Shoes
-				if (SelectShoes == Sh06Gem)
-					scChara->GetNode("img_ch_3")->SetPatternIndex(2);
-				else
-					scChara->GetNode("img_ch_3")->SetPatternIndex(1);
-				//Gem Shoes
-				if (SelectShoes == Sh06Gem)
-					scChara->GetNode("img_ch_4")->SetPatternIndex(2);
-				else
-					scChara->GetNode("img_ch_4")->SetPatternIndex(1);
-				//Unleashed Shoes
-				switch (ShSUVariant)
-				{
-				case SUAirboost:
-					if (SelectShoes == ShSUAirboost)
-						scChara->GetNode("img_ch_5")->SetPatternIndex(2);
-					else
-						scChara->GetNode("img_ch_5")->SetPatternIndex(1);
-					break;
-				case SULightSpd:
-					if (SelectShoes == ShSULightSpd)
-						scChara->GetNode("img_ch_5")->SetPatternIndex(2);
-					else
-						scChara->GetNode("img_ch_5")->SetPatternIndex(1);
-					break;
-				case SUStomp:
-					if (SelectShoes == ShSUStomp)
-						scChara->GetNode("img_ch_5")->SetPatternIndex(2);
-					else
-						scChara->GetNode("img_ch_5")->SetPatternIndex(1);
-					break;
-				case SUWallJmp:
-					if (SelectShoes == ShSUWallJmp)
-						scChara->GetNode("img_ch_5")->SetPatternIndex(2);
-					else
-						scChara->GetNode("img_ch_5")->SetPatternIndex(1);
-					break;
-				case SUWerehog:
-					if (SelectShoes == ShSUWerehog)
-						scChara->GetNode("img_ch_5")->SetPatternIndex(2);
-					else
-						scChara->GetNode("img_ch_5")->SetPatternIndex(1);
-					break;
-				case SUZoney:
-					if (SelectShoes == ShSUZoney)
-						scChara->GetNode("img_ch_5")->SetPatternIndex(2);
-					else
-						scChara->GetNode("img_ch_5")->SetPatternIndex(1);
-					break;
-				}
-				//Link Boots
-				if (SelectShoes == ShPumas)
-					scChara->GetNode("img_ch_6")->SetPatternIndex(2);
-				else
-					scChara->GetNode("img_ch_6")->SetPatternIndex(1);
-				//Boom Shoes
-				if (SelectShoes == ShPumas)
-					scChara->GetNode("img_ch_7")->SetPatternIndex(2);
-				else
-					scChara->GetNode("img_ch_7")->SetPatternIndex(1);
-				//Puma Shoes
-				if (SelectShoes == ShPumas)
-					scChara->GetNode("img_ch_8")->SetPatternIndex(2);
-				else
-					scChara->GetNode("img_ch_8")->SetPatternIndex(1);
-				scTextArea->GetNode("textarea_textbox")->SetPatternIndex(0);
-				break;
-			case UIPartBody: ////Body Icons////
-				//Default Body
-				if (SelectBody == BdDefault)
-					scChara->GetNode("img_ch_0")->SetPatternIndex(4);
-				else
-					scChara->GetNode("img_ch_0")->SetPatternIndex(3);
-				//Wildfire
-				if (SelectBody == BdWildFire)
-					scChara->GetNode("img_ch_2")->SetPatternIndex(4);
-				else
-					scChara->GetNode("img_ch_2")->SetPatternIndex(3);
-				//Scarf
-				if (SelectBody == BdScarf)
-					scChara->GetNode("img_ch_4")->SetPatternIndex(4);
-				else
-					scChara->GetNode("img_ch_4")->SetPatternIndex(3);
-				//Empty Placeholders
-				scChara->GetNode("img_ch_1")->SetPatternIndex(3);
-				scChara->GetNode("img_ch_3")->SetPatternIndex(3);
-				scChara->GetNode("img_ch_5")->SetPatternIndex(3);
-				scChara->GetNode("img_ch_6")->SetPatternIndex(3);
-				scChara->GetNode("img_ch_7")->SetPatternIndex(3);
-				scChara->GetNode("img_ch_8")->SetPatternIndex(3);
-				scTextArea->GetNode("textarea_textbox")->SetPatternIndex(1);
-				break;
-			case UIPartHead: ////Head Icons////
-				//Default Head
-				if (SelectHead == HeDefault)
-					scChara->GetNode("img_ch_0")->SetPatternIndex(6);
-				else
-					scChara->GetNode("img_ch_0")->SetPatternIndex(5);
-				//SA1 Sunglasses
-				if (SelectHead == HeSA1Sunglass)
-					scChara->GetNode("img_ch_1")->SetPatternIndex(6);
-				else
-					scChara->GetNode("img_ch_1")->SetPatternIndex(5);
-				//Riders Glasses
-				if (SelectHead == HeRiders)
-					scChara->GetNode("img_ch_2")->SetPatternIndex(6);
-				else
-					scChara->GetNode("img_ch_2")->SetPatternIndex(5);
-				//Empty Placeholders
-				scChara->GetNode("img_ch_3")->SetPatternIndex(5);
-				scChara->GetNode("img_ch_4")->SetPatternIndex(5);
-				scChara->GetNode("img_ch_5")->SetPatternIndex(5);
-				scChara->GetNode("img_ch_6")->SetPatternIndex(5);
-				scChara->GetNode("img_ch_7")->SetPatternIndex(5);
-				scChara->GetNode("img_ch_8")->SetPatternIndex(5);
-				scTextArea->GetNode("textarea_textbox")->SetPatternIndex(2);
-				break;
-			case UIPartHandL: ////Hand L Icons////
-				//Default Left Glove
-				if (SelectHandL == HLDefault)
-					scChara->GetNode("img_ch_0")->SetPatternIndex(8);
-				else
-					scChara->GetNode("img_ch_0")->SetPatternIndex(7);
-				//Crystal Ring
-				if (SelectHandL == HLCrystalRing)
-					scChara->GetNode("img_ch_1")->SetPatternIndex(8);
-				else
-					scChara->GetNode("img_ch_1")->SetPatternIndex(7);
-				//Empty Placeholders
-				scChara->GetNode("img_ch_2")->SetPatternIndex(7);
-				scChara->GetNode("img_ch_3")->SetPatternIndex(7);
-				scChara->GetNode("img_ch_4")->SetPatternIndex(7);
-				scChara->GetNode("img_ch_5")->SetPatternIndex(7);
-				scChara->GetNode("img_ch_6")->SetPatternIndex(7);
-				scChara->GetNode("img_ch_7")->SetPatternIndex(7);
-				scChara->GetNode("img_ch_8")->SetPatternIndex(7);
-				scTextArea->GetNode("textarea_textbox")->SetPatternIndex(3);
-				break;
-			case UIPartHandR: ////Hand R Icons////
-				//Default Right Glove
-				if (SelectHandR == HRDefault)
-					scChara->GetNode("img_ch_0")->SetPatternIndex(10);
-				else
-					scChara->GetNode("img_ch_0")->SetPatternIndex(9);
-				//Empty Placeholders
-				scChara->GetNode("img_ch_1")->SetPatternIndex(9);
-				scChara->GetNode("img_ch_2")->SetPatternIndex(9);
-				scChara->GetNode("img_ch_3")->SetPatternIndex(9);
-				scChara->GetNode("img_ch_4")->SetPatternIndex(9);
-				scChara->GetNode("img_ch_5")->SetPatternIndex(9);
-				scChara->GetNode("img_ch_6")->SetPatternIndex(9);
-				scChara->GetNode("img_ch_7")->SetPatternIndex(9);
-				scChara->GetNode("img_ch_8")->SetPatternIndex(9);
-				scTextArea->GetNode("textarea_textbox")->SetPatternIndex(4);
-				break;
-			}
-		}
-
-		//printf("%f", scChara->m_MotionFrame);
-	}
-	*/
+	auto speedContext = Sonic::Player::CPlayerSpeedContext::GetInstance();
+	auto sonic = speedContext->m_pPlayer;
+	bool IsModernSonic = (Sonic::Player::CSonicClassicContext::GetInstance() == nullptr) && (Sonic::Player::CSonicSpContext::GetInstance() == nullptr);
+	bool ExternalControl = sonic->m_StateMachine.GetCurrentState()->GetStateName() == "ExternalControl";
+	bool Goal = sonic->m_StateMachine.GetCurrentState()->GetStateName() == "Goal";
+	if (IsModernSonic && !ExternalControl && !Goal)
+		CHudFittingMenu(This, Edx, in_rUpdateInfo);
 	//printf("Gameplay HUD\n");
 	originalCHudSonicStageUpdate(This, Edx, in_rUpdateInfo);
 }
 HOOK(void, __fastcall, CHudPlayableMenuUpdate, 0x0108D510, Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo& in_rUpdateInfo)
 {
-	CHudFittingMenu(This, Edx, in_rUpdateInfo);
+	auto speedContext = Sonic::Player::CPlayerSpeedContext::GetInstance();
+	auto sonic = speedContext->m_pPlayer;
+	bool IsModernSonic = (Sonic::Player::CSonicClassicContext::GetInstance() == nullptr) && (Sonic::Player::CSonicSpContext::GetInstance() == nullptr);
+	bool ExternalControl = sonic->m_StateMachine.GetCurrentState()->GetStateName() == "ExternalControl";
+	bool Goal = sonic->m_StateMachine.GetCurrentState()->GetStateName() == "Goal";
+	if (IsModernSonic && !ExternalControl && !Goal)
+		CHudFittingMenu(This, Edx, in_rUpdateInfo);
 	//printf("Hub world HUD\n");
 	originalCHudPlayableMenuUpdate(This, Edx, in_rUpdateInfo);
 }
@@ -2315,8 +1801,6 @@ HOOK(void, __fastcall, CHUDPauseUpdate, 0x0042A520, hh::fnd::CStateMachineBase::
 		Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scDeco);
 	originalCHUDPauseUpdate(This);
 }
-
-//Handle Stage change/exit
 void __fastcall CHudSonicStageRemoveCallback(Sonic::CGameObject* This, void*, Sonic::CGameDocument* pGameDocument)
 {
 	KillScreen();
@@ -2412,7 +1896,7 @@ HOOK(void, __cdecl, InitializeApplicationParams, 0x00D65180, Sonic::CParameterFi
 			{ "Soap Shoes", ShSoaps},
 			{ "Soaps + Lightspeed", ShSoapsLightSpd},
 			{ "Riders Shoes", ShRiders},
-			{ "Gem Shoes", Sh06Gem},
+			{ "Gem Shoes", Sh06GemDefault},
 			{ "Airboost Shoes", ShSUAirboost},
 			{ "Lightspeed Dash Shoes", ShSULightSpd},
 			{ "Stomp Shoes", ShSUStomp},
@@ -2558,33 +2042,25 @@ EXPORT void OnFrame()
 {
 	std::lock_guard lock(mutex);
 
-	for (auto& pair : models)
-		meshVisibilityHandler(pair.first, pair.second);
-
-	//auto gameDocument = Sonic::CGameDocument::GetInstance();
-
-	//if (!**gameDocument)
-	//	return;
-
-	//if (!gameDocument->m_pMember->m_spDatabase)
-	//	return;
-
-	//Hedgehog::Mirage::CMirageDatabaseWrapper wrapper(gameDocument->m_pMember->m_spDatabase.get());
-
-	//auto chr_Sonic_HD = wrapper.GetModelData("chr_Sonic_HD");
-	//auto ev_chr_Sonic_HD = wrapper.GetModelData("ev_chr_Sonic_HD");
-
-	//if (chr_Sonic_HD)
-	//	meshVisibilityHandler(chr_Sonic_HD);
-
-	//if (ev_chr_Sonic_HD)
-	//	meshVisibilityHandler(ev_chr_Sonic_HD);
+	for (auto it = models.begin(); it != models.end();)
+	{
+		if (it->first.unique())
+		{
+			it = models.erase(it);
+			printf("SONIC IS DEAD!!!!!!!!!!!!\n");
+		}
+		else
+		{
+			meshVisibilityHandler(it->first, it->second);
+			++it;
+		}
+	}
 }
 
 //Init
 EXPORT void Init()
 {
-	//INIReader reader("Mod.ini");
+	readINI();
 	INSTALL_HOOK(CPlayerSpeedUpdate);
 	INSTALL_HOOK(CHudSonicStageUpdate);
 	INSTALL_HOOK(CHudPlayableMenuUpdate);

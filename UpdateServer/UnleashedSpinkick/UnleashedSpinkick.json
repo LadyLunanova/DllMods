@@ -1,0 +1,71 @@
+{
+   "Groups":[
+	{
+         "Name":"Config",
+         "DisplayName":"Foot Sweep Options",
+         "Elements":
+         [
+			{
+			"Name": "CustomTimerEnable",
+			"Description": [
+				"Use a custom timer for the double-tap window."
+			],
+			"DisplayName": "Use Custom Input Timer",
+			"Type":"bool",
+			"MinValue":null,
+			"MaxValue":null,
+			"DefaultValue":false
+			},
+			{
+               "Name":"CustomTimer",
+               "DisplayName":"Custom Input Timer",
+               "Description":[
+                  "The custom input window to use the foot sweep.",
+				  "(Default: 0.25)"
+               ],
+               "Type":"float",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":0.25
+            },
+			{
+               "Name":"SoundType",
+               "DisplayName":"Sound Type",
+               "Description":[
+                  "Choose what SFX gets played when you kick."
+               ],
+               "Type":"SoundType",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":"0"
+            }
+         ]
+      }
+   ],
+   "Enums":{
+      "SoundType":[
+         {
+            "DisplayName":"Unleashed",
+            "Value":"0",
+            "Description":[
+            "Use Unleashed's original SFX."
+            ]
+         },
+		 {
+            "DisplayName":"06",
+            "Value":"1",
+            "Description":[
+            "Use Sonic 06's kick SFX."
+            ]
+         },
+         {
+            "DisplayName":"SA2",
+            "Value":"2",
+            "Description":[
+            "Use Sonic Adventure 2's summersault SFX."
+            ]
+         }
+      ]
+   },
+   "IniFile":"UnleashedSpinkick.ini"
+}

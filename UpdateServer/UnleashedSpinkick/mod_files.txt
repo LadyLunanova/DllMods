@@ -1,4 +1,6 @@
 add UnleashedSpinkick.dll
+add UnleashedSpinkick.ini
+add UnleashedSpinkick.json
 add disk/bb3/SonicSquatKick.ar.00
 add disk/bb3/SonicSquatKick.arl
 add mod.ini

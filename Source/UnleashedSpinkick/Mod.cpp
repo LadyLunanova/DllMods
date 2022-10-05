@@ -1,53 +1,12 @@
+bool CustomTimerEnable = false;
+float CustomTimer = 0.25f;
+int SoundType = 0;
+float KickTimer = 0.0f;
+
 // Original code by Brianuuu: https://github.com/brianuuu
 using SharedPtrTypeless = boost::shared_ptr<void>;
-enum SonicCollision : uint32_t
-{
-	TypeNoAttack = 0x1E61B5C,
-	TypeRagdoll = 0x1E61B60,
-	TypeSonicSpinCharge = 0x1E61B64,
-	TypeSonicSpin = 0x1E61B68,
-	TypeSonicUnbeaten = 0x1E61B6C,
-	TypeSuperSonic = 0x1E61B70,
-	TypeSonicSliding = 0x1E61B74,
-	TypeSonicHoming = 0x1E61B78,
-	TypeSonicSelectJump = 0x1E61B7C,
-	TypeSonicDrift = 0x1E61B80,
-	TypeSonicBoost = 0x1E61B84,
-	TypeSonicStomping = 0x1E61B88,
-	TypeSonicTrickAttack = 0x1E61B8C,
-	TypeSonicSquatKick = 0x1E61B90,
-	TypeSonicClassicSpin = 0x1E61B94,
-	TypeExplosion = 0x1E61B98,
-	TypeBossAttack = 0x1E61B9C,
-	TypeGunTruckAttack = 0x1E61BA0,
-	TypeRagdollEnemyAttack = 0x1E61BA4,
-};
 namespace Common
 {
-	static void* SonicContextSetCollision(SonicCollision collisionType, bool enabled, Sonic::Player::CPlayerSpeedContext* sonic)
-	{
-		static void* const pEnableFunc = (void*)0xE65610;
-		static void* const pDisableFunc = (void*)0xE655C0;
-		__asm
-		{
-			mov		edi, sonic
-
-			mov		ecx, collisionType
-			mov		ecx, [ecx]
-			push	ecx
-
-			cmp		enabled, 0
-			je		jump
-
-			call[pEnableFunc]
-			jmp		end
-
-			jump :
-			call[pDisableFunc]
-
-				end :
-		}
-	}
 	static void* fCGlitterCreate
 	(
 		void* pContext,
@@ -104,10 +63,9 @@ namespace Common
 		}
 	}
 }
-
-float KickTimer = 0.0f;
 SharedPtrTypeless KickVfxHandle; //VFX handler
 
+//State Stuff
 HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed* This, void* _, const hh::fnd::SUpdateInfo& updateInfo)
 {
 	auto sonic = This->GetContext();
@@ -133,7 +91,10 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 		}
 		else
 		{
-			KickTimer = 0.25f;
+			if (CustomTimerEnable)
+				KickTimer = CustomTimer;
+			else
+				KickTimer = 0.25f;
 		}
 	}
 	else if (KickTimer > 0.0f)
@@ -141,21 +102,28 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 		KickTimer -= updateInfo.DeltaTime;
 	}
 
-	//printf("%f",KickTimer);
-	//printf("\n");
-
 	originalCPlayerSpeedUpdate(This, _, updateInfo);
 }
-
 HOOK(void, __fastcall, SquatKickBegin, 0x012526D0, hh::fnd::CStateMachineBase::CStateBase* This)
 {
 	auto sonic = (Sonic::Player::CPlayerSpeedContext*)This->m_pContext;
 	void* groundmatrixNode = (void*)((uint32_t)sonic + 0x10); //Set up ground matrix for VFX
 	Common::fCGlitterCreate(sonic, KickVfxHandle, groundmatrixNode, "sonic_sliding_kick", 1);  //Create particle effect "sonic_sliding_kick"
-	sonic->PlaySound(2002033, true); //Play SFX
+	//sonic->PlaySound(2002033, true); //Play SFX
+	switch (SoundType)
+	{
+	case 1:
+		sonic->PlaySound(9000084, false); //Play SFX
+		break;
+	case 2:
+		sonic->PlaySound(9000085, false); //Play SFX
+		break;
+	default:
+		sonic->PlaySound(9000083, false); //Play SFX
+		break;
+	}
 	originalSquatKickBegin(This);
 }
-
 HOOK(void, __fastcall, SquatKickEnd, 0x012527B0, hh::fnd::CStateMachineBase::CStateBase* This)
 {
 	auto sonic = (Sonic::Player::CPlayerSpeedContext*)This->m_pContext;
@@ -163,6 +131,7 @@ HOOK(void, __fastcall, SquatKickEnd, 0x012527B0, hh::fnd::CStateMachineBase::CSt
 	originalSquatKickEnd(This);
 }
 
+//Archive Stuff
 HOOK(bool, __stdcall, ParseArchiveTree, 0xD4C8E0, void* A1, char* data, const size_t size, void* database)
 {
 	std::string str;
@@ -194,10 +163,40 @@ HOOK(bool, __stdcall, ParseArchiveTree, 0xD4C8E0, void* A1, char* data, const si
 	return result;
 }
 
+//Parameter Editor Options
+HOOK(void, __cdecl, InitializeApplicationParams, 0x00D65180, Sonic::CParameterFile* This)
+{
+	boost::shared_ptr<Sonic::CParameterGroup> parameterGroup;
+	This->CreateParameterGroup(parameterGroup, "Luna's Mods", "Parameters for Lady Luna's code mods");
+	Sonic::CParameterCategory* cat_Bounce = parameterGroup->CreateParameterCategory("Unleashed Foot Sweep", "Parameters for the Unleashed Foot Sweep");
+
+	//cat_Bounce->CreateParamInt(&someInt, "Integer");
+	//cat_Bounce->CreateParamBool(&someBool, "Bool");
+	//cat_Bounce->CreateParamFloat(&someFloat, "Float");
+
+	cat_Bounce->CreateParamBool(&CustomTimerEnable, "Enable Custom Timer");
+	cat_Bounce->CreateParamFloat(&CustomTimer, "Custom Timer");
+	cat_Bounce->CreateParamTypeList((uint32_t*)&SoundType, "Sound Type", "Choose what homing trail",
+		{
+			{ "Unleashed Foot Sweep", 0},
+			{ "06 Spinkick", 1},
+			{ "SA2 Summersault", 2},
+		});
+
+	parameterGroup->Flush();
+
+	originalInitializeApplicationParams(This);
+}
+
 EXPORT void Init()
 {
+	INIReader reader("UnleashedSpinkick.ini");
+	CustomTimerEnable = reader.GetBoolean("Config", "CustomTimerEnable", CustomTimerEnable);
+	CustomTimer = reader.GetFloat("Config", "CustomTimer", CustomTimer);
+	SoundType = reader.GetInteger("Config", "SoundType", SoundType);
 	INSTALL_HOOK(SquatKickBegin);
 	INSTALL_HOOK(SquatKickEnd);
 	INSTALL_HOOK(CPlayerSpeedUpdate);
 	INSTALL_HOOK(ParseArchiveTree);
+	INSTALL_HOOK(InitializeApplicationParams);
 }

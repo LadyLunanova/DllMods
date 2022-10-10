@@ -1,0 +1,33 @@
+{
+   "Groups":[
+      {
+         "Name":"Mod",
+         "DisplayName":"Configuration",
+         "Elements":[
+            {
+               "Name":"ConfigDecoEnable",
+               "Description":[
+                  "Show the fitting room UI decorations."
+               ],
+               "DisplayName":"Fitting Room Decorations",
+               "Type":"bool",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":true
+            },
+            {
+               "Name":"EyelidSkin",
+               "Description":[
+                  "Makes Sonic's eyelids use his skintone instead of his blue fur."
+               ],
+               "DisplayName":"Use Skin Eyelids",
+               "Type":"bool",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":false
+            }
+         ]
+      }
+   ],
+   "IniFile":"Config.ini"
+}

@@ -29,11 +29,12 @@ std::map<boost::shared_ptr<hh::mr::CModelData>, std::vector<boost::shared_ptr<hh
 enum SelectShoeType
 {
 	ShDefault = 00,
-	ShClassic = 01,
+	ShClassic = 001,
 	ShArchie = 02,
 	ShSA1LightSpd = 10,
 	ShSoaps = 20,
 	ShSoapsLightSpd = 21,
+	ShSoapsRacing = 22,
 	ShRiders = 30,
 	Sh06GemDefault = 40,
 	Sh06GemRed = 41,
@@ -44,27 +45,45 @@ enum SelectShoeType
 	Sh06GemWhite = 46,
 	Sh06GemYellow = 47,
 	ShSUAirboost = 50,
-	ShSULightSpd = 51, //TBA
-	ShSUStomp = 52, //TBA
-	ShSUWallJmp = 53, //TBA
-	ShSUWerehog = 54, //TBA
-	ShSUZoney = 55, //TBA
-	ShLinkBoots = 60, //TBA
-	ShBoom = 70, //TBA
+	ShSULightSpd = 51,
+	ShSUStomp = 52,
+	ShSUWallJmp = 53,
+	ShSUWerehog = 54,
+	ShSUZoney = 55,
+	ShLinkBoots = 60,
+	ShBoom = 70,
 	ShPumas = 80,
+	/*
+	
+	ShSimulator = xx,
+	Sh2020Running = xx,
+	Sh2020HorseShoe = xx,
+	
+	*/
 };
 SelectShoeType SelectShoes = SelectShoeType::ShDefault;
 enum SelectBodyType
 {
 	BdDefault = 00,
-	BdSA2RaceSuit = 10, //TBA
+	BdBlueArms = 01,
+	BdRaceSuit = 10,
 	BdWildFire = 20,
-	BdLinkCos = 30, //TBA
+	BdLinkCos = 30,
 	BdScarf = 40,
-	BdSwimVest = 50, //TBA
-	BdSurfShirt = 60, //TBA
-	BdHorseShirt = 70, //TBA
-	BdMovieSkin = 80, //TBA
+	BdScarfArms = 41,
+	Bd2020SwimVest = 50,
+	Bd2020SurfSuit = 60,
+	Bd2020HorseShirt = 70,
+	BdMovieSkin = 80,
+	BdMovieSkinArms = 81,
+	/*
+	
+	BdSimulator = xx,
+	Bd2020Running = xx,
+	BdSpeedSlugger = xx,
+	BdSpeedPirate = xx,
+	
+	*/
 };
 SelectBodyType SelectBody = SelectBodyType::BdDefault;
 enum SelectHeadType
@@ -72,34 +91,89 @@ enum SelectHeadType
 	HeDefault = 00,
 	HeSA1Sunglass = 10,
 	HeRiders = 20,
-	HeHeadphones = 30, //TBA
-	HeLinkHat = 40, //TBA
+	HeHeadphones = 30,
+	HeLinkHat = 40,
+	HeBoomSpikes = 50,
+	/*
+	
+	HeSimulator = xx,
+	HeSpeedSlugger = xx,
+	HeSpeedPirate = xx,
+	
+	*/
 };
 SelectHeadType SelectHead = SelectHeadType::HeDefault;
 enum SelectHandLType
 {
 	HLDefault = 00,
 	HLCrystalRing = 10,
-	HLFlameRing = 20, //TBA
-	HLRiders = 30,
-	HL06Bounce = 40, //TBA
-	HLChipBracelet = 50, //TBA
-	HLLinkGlove = 60, //TBA
+	HLFlameRing = 20,
+	HLRacingGlove = 30,
+	HLRiders = 40,
+	HL06Bounce = 50,
+	HLChipBracelet = 60,
+	HLLinkGlove = 70,
+	HLBoomGlove = 80,
 };
 SelectHandLType SelectHandL = SelectHandLType::HLDefault;
 enum SelectHandRType
 {
 	HRDefault = 00,
-	HRBounceBracelet = 10, //TBA
-	HRMagicHands = 11, //TBA
-	HRRiders = 20,
-	HRArkCosmos = 21, //TBA
-	HR06AntiGrav = 30, //TBA
-	HRSecretRing = 40, //TBA
-	HRGauntlet = 50, //TBA
-	HRLinkGlove = 60, //TBA
+	HRBounceBracelet = 10,
+	HRMagicHands = 11,
+	HRRacingGlove = 20,
+	HRRiders = 30,
+	HRArkCosmos = 31,
+	HR06HomingSmash = 40,
+	HRSecretRing = 50,
+	HRGauntlet = 60,
+	HRLinkGlove = 70,
+	HRBoomGlove = 80,
 };
 SelectHandRType SelectHandR = SelectHandRType::HRDefault;
+bool EyelidSkin = false;
+bool NoBallJump = true;
+bool BdBlueArmVariant = false;
+bool BdScarfVariant = false;
+bool BdMovieVariant = false;
+bool HRMagicVariant = false;
+bool HRRidersVariant = false;
+enum ShDefaultVariantType
+{
+	ShoeDefault = 0,
+	ShoeClassic = 1,
+	ShoeArchie = 2,
+};
+ShDefaultVariantType ShDefaultVariant = ShDefaultVariantType::ShoeDefault;
+enum ShSA2VariantType
+{
+	SA2Soap = 0,
+	SA2LightSpd = 1,
+	SA2Racing = 2,
+};
+ShSA2VariantType ShSA2Variant = ShSA2VariantType::SA2Soap;
+enum Sh06VariantType
+{
+	GemDefault = 0,
+	GemRed = 1,
+	GemBlue = 2,
+	GemGreen = 3,
+	GemPurple = 4,
+	GemSky = 5,
+	GemWhite = 6,
+	GemYellow = 7,
+};
+Sh06VariantType Sh06Variant = Sh06VariantType::GemDefault;
+enum ShSUVariantType
+{
+	SUAirboost = 0,
+	SULightSpd = 1,
+	SUStomp = 2,
+	SUWallJmp = 3,
+	SUWerehog = 4,
+	SUZoney = 5,
+};
+ShSUVariantType ShSUVariant = ShSUVariantType::SUAirboost;
 
 //Menu setup
 Chao::CSD::RCPtr<Chao::CSD::CProject> prFittingScreen;
@@ -127,37 +201,6 @@ bool IsInMenuChangeL = false;
 bool IsInMenuChangeR = false;
 bool IsInMenuExit = false;
 bool ConfigDecoEnable = true;
-bool ShSoapVariant = false;
-enum ShSUVariantType
-{
-	SUAirboost	= 0,
-	SULightSpd	= 1,
-	SUStomp		= 2,
-	SUWallJmp	= 3,
-	SUWerehog	= 4,
-	SUZoney		= 5,
-};
-ShSUVariantType ShSUVariant = ShSUVariantType::SUAirboost;
-enum Sh06VariantType
-{
-	GemDefault = 0,
-	GemRed = 1,
-	GemBlue = 2,
-	GemGreen = 3,
-	GemPurple = 4,
-	GemSky = 5,
-	GemWhite = 6,
-	GemYellow = 7,
-};
-Sh06VariantType Sh06Variant = Sh06VariantType::GemDefault;
-enum ShDefaultVariantType
-{
-	ShoeDefault = 0,
-	ShoeClassic = 1,
-	ShoeArchie = 2,
-};
-ShDefaultVariantType ShDefaultVariant = ShDefaultVariantType::ShoeDefault;
-bool HRMagicVariant = false;
 bool* const ENABLE_BLUR = (bool*)0x1A43103;
 void PlayCursorAnim()
 {
@@ -168,6 +211,16 @@ void PlayCursorAnim()
 	scIcon->m_MotionSpeed = 1.0f;
 	scIcon->Update();
 }
+struct MsgLookAtStruct
+{
+	int field_0;
+	int field_4;
+	int field_8;
+	int field_C;
+	bool Condition;
+	__declspec(align(16)) Hedgehog::Math::CVector TargetPosition[4];
+};
+bool IsLookAt = false;
 
 //Handle Fire VFX
 SharedPtrTypeless WildfireVfxHandle;
@@ -198,6 +251,98 @@ void __fastcall CSonicRemoveCallback(Sonic::Player::CPlayer* This, void* Edx, vo
 	KillFireParticle(This);
 }
 
+//Dynamic Omnis
+// Original code by Skyth: https://github.com/blueskythlikesclouds
+hh::base::CRefPtr<Sonic::CLocalLight> genericPLight;
+hh::base::CRefPtr<Sonic::CLocalLight> superPLight;
+hh::base::CRefPtr<Sonic::CLocalLight> grindPLight;
+hh::base::CRefPtr<Sonic::CLocalLight> wildfirePLight;
+void CustomParticleLight(float ColorR, float ColorG, float ColorB, float ColorA, float LightRange, Sonic::Player::CPlayer* player)
+{
+	auto gameDocument = Sonic::CGameDocument::GetInstance();
+	if (!gameDocument.get().get() || !gameDocument->m_pMember->m_spLightManager)
+		return;
+
+	auto playerContext = Sonic::Player::CPlayerSpeedContext::GetInstance();
+	if (!playerContext)
+		return;
+
+	const auto& stateName = playerContext->m_pPlayer->m_StateMachine.GetCurrentState()->GetStateName();
+	const auto& animName = playerContext->GetCurrentAnimationName();
+
+	auto FootNode = player->m_spCharacterModel->GetNode("Toe_R"); //Set up Chest bone matrix for VFX
+	Eigen::Affine3f affineFootNode;
+	affineFootNode = FootNode->m_WorldMatrix;
+	hh::math::CVector FootVector;
+	FootVector = affineFootNode.translation();
+
+	if ((animName == "SpinAttack" && stateName == "Jump") || stateName == "Stomping" || playerContext->StateFlag(eStateFlag_Boost))
+	{
+		auto position = playerContext->m_spMatrixNode->m_Transform.m_Position;
+
+		const auto& up = playerContext->m_ModelUpDirection;
+		const auto fwd = playerContext->m_spMatrixNode->m_Transform.m_Rotation * hh::math::CVector::UnitZ();
+
+		//if (stateName == "Sliding" || playerContext->StateFlag(eStateFlag_Boost))
+		//	position += fwd * 0.5f + up * 0.25f;
+
+		if (!genericPLight)
+			if (playerContext->StateFlag(eStateFlag_InvokeSuperSonic))
+				genericPLight = gameDocument->m_pMember->m_spLightManager->AddLocalLight(position, { 1.0f, 0.7f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 5.0f });
+			else
+				genericPLight = gameDocument->m_pMember->m_spLightManager->AddLocalLight(position, { ColorR, ColorG, ColorB, ColorA }, { 0.0f, 0.0f, 0.0f, LightRange });
+		else
+			genericPLight->SetPosition(position);
+	}
+	else if (stateName == "SquatKick" || stateName == "Sliding")
+	{
+		if (!genericPLight)
+			if (playerContext->StateFlag(eStateFlag_InvokeSuperSonic))
+				genericPLight = gameDocument->m_pMember->m_spLightManager->AddLocalLight(FootVector, { 1.0f, 0.7f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 5.0f });
+			else
+				genericPLight = gameDocument->m_pMember->m_spLightManager->AddLocalLight(FootVector, { ColorR, ColorG * 1.23f, ColorB * 1.5f, ColorA }, { 0.0f, 0.0f, 0.0f, 2.2f });
+		else
+			genericPLight->SetPosition(FootVector);
+	}
+	else
+		genericPLight = nullptr;
+
+	if (stateName == "Grind" || stateName == "GrindSquat" || stateName == "GrindLandJumpShort")
+	{
+		auto position = playerContext->m_spMatrixNode->m_Transform.m_Position;
+
+		const auto& up = playerContext->m_ModelUpDirection;
+		const auto fwd = playerContext->m_spMatrixNode->m_Transform.m_Rotation * hh::math::CVector::UnitZ();
+
+		position += up * 0.06f;
+
+		if (!grindPLight)
+			grindPLight = gameDocument->m_pMember->m_spLightManager->AddLocalLight(position, { 2.0f, 0.666f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 1.5f });
+		else
+			grindPLight->SetPosition(position);
+	}
+	else
+		grindPLight = nullptr;
+
+	if (playerContext->StateFlag(eStateFlag_InvokeSuperSonic))
+	{
+		auto position = playerContext->m_spMatrixNode->m_Transform.m_Position;
+
+		const auto& up = playerContext->m_ModelUpDirection;
+		const auto fwd = playerContext->m_spMatrixNode->m_Transform.m_Rotation * hh::math::CVector::UnitZ();
+
+		if (stateName == "Sliding" || playerContext->StateFlag(eStateFlag_Boost))
+			position += fwd * 0.5f + up * 0.25f;
+
+		if (!superPLight)
+			superPLight = gameDocument->m_pMember->m_spLightManager->AddLocalLight(position, { 1.0f, 0.7f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 5.0f });
+		else
+			superPLight->SetPosition(position);
+	}
+	else
+		superPLight = nullptr;
+}
+
 //Handle Sonic
 void meshVisibilityHandler(const boost::shared_ptr<hh::mr::CModelData>& model, std::vector<boost::shared_ptr<hh::mr::CNodeGroupModelData>>& nodeGroupModels)
 {
@@ -218,10 +363,8 @@ void meshVisibilityHandler(const boost::shared_ptr<hh::mr::CModelData>& model, s
 		//Default Shoes
 		if (nodeName == "Sonic_100_Shoes")
 			node->m_Visible = (SelectShoes == ShDefault);
-		//Classic Shoes
 		if (nodeName == "Sonic_101_Classic")
 			node->m_Visible = (SelectShoes == ShClassic);
-		//Archie Shoes
 		if (nodeName == "Sonic_102_Archie")
 			node->m_Visible = (SelectShoes == ShArchie);
 		//SA1 Lightspeed Shoes
@@ -230,9 +373,10 @@ void meshVisibilityHandler(const boost::shared_ptr<hh::mr::CModelData>& model, s
 		//Soap Shoes
 		if (nodeName == "Sonic_120_Soaps")
 			node->m_Visible = ((SelectShoes == ShSoaps) || (SelectShoes == ShSoapsLightSpd));
-		//Soaps Lightspeed Attachment
 		if (nodeName == "Sonic_121_SoapLightSpd")
 			node->m_Visible = (SelectShoes == ShSoapsLightSpd);
+		if (nodeName == "Sonic_122_SoapRacing")
+			node->m_Visible = (SelectShoes == ShSoapsRacing);
 		//Riders Shoes
 		if (nodeName == "Sonic_130_Riders")
 			node->m_Visible = (SelectShoes == ShRiders);
@@ -266,40 +410,137 @@ void meshVisibilityHandler(const boost::shared_ptr<hh::mr::CModelData>& model, s
 			node->m_Visible = (SelectShoes == ShSUWerehog);
 		if (nodeName == "Sonic_155_SUZoney")
 			node->m_Visible = (SelectShoes == ShSUZoney);
+		//Link Boots
+		if (nodeName == "Sonic_160_LinkBoots")
+			node->m_Visible = (SelectShoes == ShLinkBoots);
+		//Boom Shoes
+		if (nodeName == "Sonic_170_BoomShoes")
+			node->m_Visible = (SelectShoes == ShBoom);
 		//Puma Shoes
 		if (nodeName == "Sonic_180_Pumas")
 			node->m_Visible = (SelectShoes == ShPumas);
+
 		/////Bodies//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		//Base Body
 		if (nodeName == "Sonic_000_Body")
-			node->m_Visible = ((SelectBody != BdSA2RaceSuit) && (SelectBody != BdMovieSkin));
+			node->m_Visible = ((SelectBody == BdDefault) || (SelectBody == BdMovieSkin) || (SelectBody == BdScarf) || (SelectBody == BdWildFire));
+		//Racing Suit
+		if (nodeName == "Sonic_210_Racing")
+			node->m_Visible = (SelectBody == BdRaceSuit);
+		//Link Tunic
+		if (nodeName == "Sonic_230_LinkCos")
+			node->m_Visible = (SelectBody == BdLinkCos);
 		//Scarf
 		if (nodeName == "Sonic_240_Scarf")
-			node->m_Visible = (SelectBody == BdScarf);
-		/////Heads/////
+			node->m_Visible = ((SelectBody == BdScarf) || (SelectBody == BdScarfArms));
+		if (nodeName == "Sonic_241_ScarfArms")
+			node->m_Visible = (SelectBody == BdScarfArms) || (SelectBody == BdBlueArms) || (SelectBody == BdMovieSkinArms);
+		//Swim Vest
+		if (nodeName == "Sonic_250_Swim")
+			node->m_Visible = (SelectBody == Bd2020SwimVest);
+		//Surf Suit
+		if (nodeName == "Sonic_260_Surf")
+			node->m_Visible = (SelectBody == Bd2020SurfSuit);
+		//Horse Shirt
+		if (nodeName == "Sonic_270_Horse")
+			node->m_Visible = (SelectBody == Bd2020HorseShirt);
+		//Movie Quills
+		if (nodeName == "Sonic_280_Movie_Body")
+			node->m_Visible = (SelectBody == BdMovieSkin) || (SelectBody == BdMovieSkinArms);
+		if (nodeName == "Sonic_280_Movie_Head")
+			node->m_Visible = (((SelectBody == BdMovieSkin) || (SelectBody == BdMovieSkinArms)) && (SelectHead != HeLinkHat) && (SelectHead != HeBoomSpikes));
+		if (nodeName == "Sonic_280_Movie_BoomHead")
+			node->m_Visible = (((SelectBody == BdMovieSkin) || (SelectBody == BdMovieSkinArms)) && (SelectHead == HeBoomSpikes));
+		if (nodeName == "Sonic_280_Movie_LinkHead")
+			node->m_Visible = (((SelectBody == BdMovieSkin) || (SelectBody == BdMovieSkinArms)) && (SelectHead == HeLinkHat));
+
+		/////Heads//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		//Base Head
+		if (nodeName == "Sonic_001_Head")
+			node->m_Visible = ((SelectHead != HeLinkHat) && (SelectHead != HeBoomSpikes));
 		//SA1 Sunglasses
 		if (nodeName == "Sonic_310_SA1SunGlass")
 			node->m_Visible = (SelectHead == HeSA1Sunglass);
 		//Riders Glasses
 		if (nodeName == "Sonic_320_RidersGlass")
 			node->m_Visible = (SelectHead == HeRiders);
+		//Headphones
+		if (nodeName == "Sonic_330_Headphone")
+			node->m_Visible = (SelectHead == HeHeadphones);
+		//Link Hat
+		if (nodeName == "Sonic_340_LinkHat")
+			node->m_Visible = (SelectHead == HeLinkHat);
+		//Boom Spikes
+		if (nodeName == "Sonic_350_BoomSpikes")
+			node->m_Visible = (SelectHead == HeBoomSpikes);
+
 		/////Left Hands//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		//Default Glove
 		if (nodeName == "Sonic_400_Glove_L")
-			node->m_Visible = ((SelectHandL != HLRiders) && (SelectHandL != HLLinkGlove));
+			node->m_Visible = ((SelectHandL != HLRiders) && (SelectHandL != HLLinkGlove) && (SelectHandL != HLRacingGlove) && (SelectHandL != HLBoomGlove));
 		//Crystal Ring
 		if (nodeName == "Sonic_410_CrystalRing")
 			node->m_Visible = (SelectHandL == HLCrystalRing);
+		//Flame Ring
+		if (nodeName == "Sonic_420_FlameRing")
+			node->m_Visible = (SelectHandL == HLFlameRing);
+		//Racing Glove
+		if (nodeName == "Sonic_430_RaceGlove_L")
+			node->m_Visible = (SelectHandL == HLRacingGlove);
 		//Riders Glove
-		if (nodeName == "Sonic_430_RiderGlove_L")
+		if (nodeName == "Sonic_440_RiderGlove_L")
 			node->m_Visible = (SelectHandL == HLRiders);
+		//06 Bounce Bracelet
+		if (nodeName == "Sonic_450_06Bounce")
+			node->m_Visible = (SelectHandL == HL06Bounce);
+		//Chip Ring
+		if (nodeName == "Sonic_460_ChipRing")
+			node->m_Visible = (SelectHandL == HLChipBracelet);
+		//Link Glove
+		if (nodeName == "Sonic_470_LinkGlove_L")
+			node->m_Visible = (SelectHandL == HLLinkGlove);
+		//Boom Glove
+		if (nodeName == "Sonic_480_BoomGlove_L")
+			node->m_Visible = (SelectHandL == HLBoomGlove);
+
 		/////Right Hands/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		//Default Glove
 		if (nodeName == "Sonic_500_Glove_R")
-			node->m_Visible = ((SelectHandR != HRRiders) && (SelectHandR != HRLinkGlove) && (SelectHandR != HRGauntlet) && (SelectHandR != HRArkCosmos));
+			node->m_Visible = ((SelectHandR != HRRiders) && (SelectHandR != HRLinkGlove) && (SelectHandR != HRRacingGlove) && (SelectHandR != HRGauntlet) && (SelectHandR != HRArkCosmos) && (SelectHandR != HRBoomGlove));
+		//Bounce Bracelet
+		if (nodeName == "Sonic_510_Bounce")
+			node->m_Visible = ((SelectHandR == HRBounceBracelet) || (SelectHandR == HRMagicHands));
+		if (nodeName == "Sonic_511_Magic")
+			node->m_Visible = (SelectHandR == HRMagicHands);
+		//Racing Glove
+		if (nodeName == "Sonic_520_RaceGlove_R")
+			node->m_Visible = (SelectHandR == HRRacingGlove);
 		//Riders Glove
 		if (nodeName == "Sonic_530_RiderGlove_R")
-			node->m_Visible = (SelectHandR == HRRiders);
+			node->m_Visible = ((SelectHandR == HRRiders) || (SelectHandR == HRArkCosmos));
+		if (nodeName == "Sonic_531_RiderArk")
+			node->m_Visible = (SelectHandR == HRArkCosmos);
+		//06 Homing Smash Bracelet
+		if (nodeName == "Sonic_540_06Smash")
+			node->m_Visible = (SelectHandR == HR06HomingSmash);
+		//Secret Ring
+		if (nodeName == "Sonic_550_SecretRing")
+			node->m_Visible = (SelectHandR == HRSecretRing);
+		//Gauntlet
+		if (nodeName == "Sonic_560_Gauntlet_R")
+			node->m_Visible = (SelectHandR == HRGauntlet);
+		//Link Glove
+		if (nodeName == "Sonic_570_LinkGlove_R")
+			node->m_Visible = (SelectHandR == HRLinkGlove);
+		//Boom Glove
+		if (nodeName == "Sonic_580_BoomGlove_R")
+			node->m_Visible = (SelectHandR == HRBoomGlove);
+
+		/////Eyelids/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		if (nodeName == "Sonic_002_Eyelid_Skin")
+			node->m_Visible = EyelidSkin;
+		if (nodeName == "Sonic_003_Eyelid_Blue")
+			node->m_Visible = !EyelidSkin;
 
 		//printf("%s\n", nodeName.c_str());
 
@@ -314,29 +555,97 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	auto sonic = This->GetContext();
 	auto input = Sonic::CInputState::GetInstance()->GetPadState();
 	bool PressedY = input.IsTapped(Sonic::eKeyState_Y);
+	bool IsModernSonic = (Sonic::Player::CSonicClassicContext::GetInstance() == nullptr) && (Sonic::Player::CSonicSpContext::GetInstance() == nullptr);
 
-	if (SelectBody == BdWildFire)
-		SpawnFireParticle(This);
-	if (SelectBody != BdWildFire)
-		KillFireParticle(This);
+	if (IsModernSonic)
+	{
+		if (SelectBody == BdWildFire)
+		{
+			SpawnFireParticle(This);
+			//sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_JumpShortReleaseTime] = 256.0f;
+		}
+		if (SelectBody != BdWildFire)
+		{
+			KillFireParticle(This);
+			//sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_JumpShortReleaseTime);
+		}
 
-	//if (PressedY)
-	//{
-	//	//model->m_NodeGroupModels[1]->m_Visible = 0;
-	//	//MessageBoxA(nullptr, "You Pressed Y", "Success", MB_OK);
-	//	if (ShoeType < 3)
-	//		ShoeType++;
-	//	else
-	//		ShoeType = 0;
-	//}
+		//if (SelectShoes == ShSUWallJmp)
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_JumpPower] = 22.0f;
+		//else if (SelectShoes == ShSUStomp)
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_JumpPower] = 12.3f;
+		//else
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_JumpPower);
 
-	//if (IsInMenu)
-	//	return;
+		//if (SelectShoes == ShSUAirboost)
+		//{
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_AirBoostTime] = 1000.0f;
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_BoostInAirKeepTime] = 1000.0f;
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_AirBoostGravityRate] = 0.5f;
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_AirBoostLevitationTime] = 0.25f;
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_AirBoostFirstDecrease] = 0.0f;
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_AirBoostEnableChaosEnergy] = 0.0f;
+		//}
+		//else
+		//{
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_AirBoostTime);
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_BoostInAirKeepTime);
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_AirBoostGravityRate);
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_AirBoostLevitationTime);
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_AirBoostFirstDecrease);
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_AirBoostEnableChaosEnergy);
+		//}
 
-	printf(This->m_StateMachine.GetCurrentState()->GetStateName().c_str());
-	printf("\n");
+		//if (SelectShoes == ShSA1LightSpd || SelectShoes == ShSoaps || SelectShoes == ShSoapsLightSpd || SelectShoes == ShSoapsRacing)
+		//{
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_RotationSpeedMax] = 5000.0f;
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_RotationSpeedMaxShoesSliding] = 5000.0f;
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_RotationForce0] = 100.0f;
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_RotationForce1] = 100.0f;
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_RotationForce2] = 100.0f;
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_VertVelocityBallToFall] = -1000.0f;
+		//}
+		//else
+		//{
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_RotationSpeedMax);
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_RotationSpeedMaxShoesSliding);
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_RotationForce0);
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_RotationForce1);
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_RotationForce2);
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_VertVelocityBallToFall);
+		//}
+
+		//if (SelectShoes == Sh06GemDefault ||
+		//	SelectShoes == Sh06GemRed ||
+		//	SelectShoes == Sh06GemYellow ||
+		//	SelectShoes == Sh06GemWhite ||
+		//	SelectShoes == Sh06GemGreen ||
+		//	SelectShoes == Sh06GemPurple ||
+		//	SelectShoes == Sh06GemSky ||
+		//	SelectShoes == Sh06GemBlue)
+		//{
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_MaxHorzVelocity] = 30.0f;
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::eSonicParameter_MotionRunToDash] = 48.0f;
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::eSonicParameter_MotionDashToJet] = 84.0f;
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::eSonicParameter_MotionJetToBoost] = 100.0f;
+		//	
+		//}
+		//else
+		//{
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_MaxHorzVelocity);
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::eSonicParameter_MotionRunToDash);
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::eSonicParameter_MotionDashToJet);
+		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::eSonicParameter_MotionJetToBoost);
+		//}
+	}
+
+	//printf(sonic->GetCurrentAnimationName().c_str());
+	//printf(This->m_StateMachine.GetCurrentState()->GetStateName().c_str());
+	//printf("\n");
 
 	originalCPlayerSpeedUpdate(This, _, updateInfo);
+
+	CustomParticleLight(0.0, 0.4, 2.0, 1.0, 4.2, This);
 }
 HOOK(void*, __fastcall, CMirageDatabaseWrapperGetModelData, hh::mr::fpCMirageDatabaseWrapperGetModelData, Hedgehog::Mirage::CMirageDatabaseWrapper* This, void* Edx, boost::shared_ptr<Hedgehog::Mirage::CModelData>& out_spModelData, const Hedgehog::Base::CSharedString& in_rName, size_t in_Unknown)
 {
@@ -353,6 +662,25 @@ HOOK(void*, __fastcall, CMirageDatabaseWrapperGetModelData, hh::mr::fpCMirageDat
 
 	return result;
 }
+HOOK(void, __fastcall, MsgLookAtStart, 0x00E3F420, void* This, void* notSonicContext)
+{
+	IsLookAt = true;
+
+	printf("LOOK AT START");
+	printf("\n");
+
+	originalMsgLookAtStart(This, notSonicContext);
+}
+HOOK(void, __fastcall, MsgLookAtEnd, 0x00E3F3B0, void* This, void* notSonicContext)
+{
+	IsLookAt = false;
+
+	printf("LOOK AT END");
+	printf("\n");
+
+	originalMsgLookAtEnd(This, notSonicContext);
+}
+
 
 //INI file Handling
 void writeINI(FILE* iniFile)
@@ -447,7 +775,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 	FUNCTION_PTR(void, __thiscall, changeState, 0x773250, void* This, boost::shared_ptr<void>&spState, const Hedgehog::Base::CSharedString name);
 	boost::shared_ptr<void> spState;
 
-	if (PressedSL && !IsInMenu && IsModernSonic && !ExternalControl && !Goal && !((getPackedID == pam000) && IsOutOfControl))
+	if (PressedSL && !IsInMenu && IsModernSonic && !ExternalControl && !Goal && !((getPackedID == pam000) && IsOutOfControl) && (IsLookAt == false))
 	{
 		switch (getPackedID)
 		{
@@ -471,18 +799,24 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 			{
 			case ShClassic:
 				ShDefaultVariant = ShoeClassic;
-				ShSoapVariant = false;
+				ShSA2Variant = SA2Soap;
 				Sh06Variant = GemDefault;
 				ShSUVariant = SUAirboost;
 				break;
 			case ShArchie:
 				ShDefaultVariant = ShoeArchie;
-				ShSoapVariant = false;
+				ShSA2Variant = SA2Soap;
 				Sh06Variant = GemDefault;
 				ShSUVariant = SUAirboost;
 				break;
 			case ShSoapsLightSpd:
-				ShSoapVariant = true;
+				ShSA2Variant = SA2LightSpd;
+				ShDefaultVariant = ShoeDefault;
+				Sh06Variant = GemDefault;
+				ShSUVariant = SUAirboost;
+				break;
+			case ShSoapsRacing:
+				ShSA2Variant = SA2Racing;
 				ShDefaultVariant = ShoeDefault;
 				Sh06Variant = GemDefault;
 				ShSUVariant = SUAirboost;
@@ -490,82 +824,114 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 			case Sh06GemRed:
 				Sh06Variant = GemRed;
 				ShDefaultVariant = ShoeDefault;
-				ShSoapVariant = false;
+				ShSA2Variant = SA2Soap;
 				ShSUVariant = SUAirboost;
 				break;
 			case Sh06GemBlue:
 				Sh06Variant = GemBlue;
 				ShDefaultVariant = ShoeDefault;
-				ShSoapVariant = false;
+				ShSA2Variant = SA2Soap;
 				ShSUVariant = SUAirboost;
 				break;
 			case Sh06GemGreen:
 				Sh06Variant = GemGreen;
 				ShDefaultVariant = ShoeDefault;
-				ShSoapVariant = false;
+				ShSA2Variant = SA2Soap;
 				ShSUVariant = SUAirboost;
 				break;
 			case Sh06GemPurple:
 				Sh06Variant = GemPurple;
 				ShDefaultVariant = ShoeDefault;
-				ShSoapVariant = false;
+				ShSA2Variant = SA2Soap;
 				ShSUVariant = SUAirboost;
 				break;
 			case Sh06GemSky:
 				Sh06Variant = GemSky;
 				ShDefaultVariant = ShoeDefault;
-				ShSoapVariant = false;
+				ShSA2Variant = SA2Soap;
 				ShSUVariant = SUAirboost;
 				break;
 			case Sh06GemWhite:
 				Sh06Variant = GemWhite;
 				ShDefaultVariant = ShoeDefault;
-				ShSoapVariant = false;
+				ShSA2Variant = SA2Soap;
 				ShSUVariant = SUAirboost;
 				break;
 			case Sh06GemYellow:
 				Sh06Variant = GemYellow;
 				ShDefaultVariant = ShoeDefault;
-				ShSoapVariant = false;
+				ShSA2Variant = SA2Soap;
 				ShSUVariant = SUAirboost;
 				break;
 			case ShSULightSpd:
 				ShSUVariant = SULightSpd;
 				ShDefaultVariant = ShoeDefault;
-				ShSoapVariant = false;
+				ShSA2Variant = SA2Soap;
 				Sh06Variant = GemDefault;
 				break;
 			case ShSUStomp:
 				ShSUVariant = SUStomp;
 				ShDefaultVariant = ShoeDefault;
-				ShSoapVariant = false;
+				ShSA2Variant = SA2Soap;
 				Sh06Variant = GemDefault;
 				break;
 			case ShSUWallJmp:
 				ShSUVariant = SUWallJmp;
 				ShDefaultVariant = ShoeDefault;
-				ShSoapVariant = false;
+				ShSA2Variant = SA2Soap;
 				Sh06Variant = GemDefault;
 				break;
 			case ShSUWerehog:
 				ShSUVariant = SUWerehog;
 				ShDefaultVariant = ShoeDefault;
-				ShSoapVariant = false;
+				ShSA2Variant = SA2Soap;
 				Sh06Variant = GemDefault;
 				break;
 			case ShSUZoney:
 				ShSUVariant = SUZoney;
 				ShDefaultVariant = ShoeDefault;
-				ShSoapVariant = false;
+				ShSA2Variant = SA2Soap;
 				Sh06Variant = GemDefault;
 				break;
 			default:
 				ShDefaultVariant = ShoeDefault;
-				ShSoapVariant = false;
+				ShSA2Variant = SA2Soap;
 				Sh06Variant = GemDefault;
 				ShSUVariant = SUAirboost;
 				break;
 			}
+			if (SelectHandR == HRMagicHands)
+				HRMagicVariant = true;
+			else
+				HRMagicVariant = false;
+			if (SelectHandR == HRArkCosmos)
+				HRRidersVariant = true;
+			else
+				HRRidersVariant = false;
+			switch (SelectBody)
+			{
+			case BdScarfArms:
+				BdBlueArmVariant = false;
+				BdScarfVariant = true;
+				BdMovieVariant = false;
+				break;
+			case BdBlueArms:
+				BdBlueArmVariant = true;
+				BdScarfVariant = false;
+				BdMovieVariant = false;
+				break;
+			case BdMovieSkinArms:
+				BdBlueArmVariant = false;
+				BdScarfVariant = false;
+				BdMovieVariant = true;
+				break;
+			default:
+				BdBlueArmVariant = false;
+				BdScarfVariant = false;
+				BdMovieVariant = false;
+				break;
+			}	
+
 			//Main UI
 			scChara = prFittingScreen->CreateScene("chara");
 			scChara->SetPosition(0, 0);
@@ -686,6 +1052,9 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 				case 5:
 					scIcon->GetNode("star")->SetPatternIndex(1);
 					break;
+				case 8:
+					//scIcon->GetNode("star")->SetText("1");
+					break;
 				default:
 					scIcon->GetNode("star")->SetPatternIndex(0);
 					break;
@@ -695,6 +1064,20 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 				switch (ItemOption)
 				{
 				case 1:
+				case 3:
+					scIcon->GetNode("star")->SetPatternIndex(1);
+					break;
+				default:
+					scIcon->GetNode("star")->SetPatternIndex(0);
+					break;
+				}
+				break;
+			case UIPartBody:
+				switch (ItemOption)
+				{
+				case 0:
+				case 4:
+				case 8:
 					scIcon->GetNode("star")->SetPatternIndex(1);
 					break;
 				default:
@@ -741,19 +1124,26 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 					else
 						scChara->GetNode("img_ch_1")->SetPatternIndex(1);
 					//Soap Shoes
-					if (ShSoapVariant)
+					switch (ShSA2Variant)
 					{
-						if (SelectShoes == ShSoapsLightSpd)
-							scChara->GetNode("img_ch_2")->SetPatternIndex(12);
-						else
-							scChara->GetNode("img_ch_2")->SetPatternIndex(11);
-					}
-					else
-					{
+					case SA2Soap:
 						if (SelectShoes == ShSoaps)
 							scChara->GetNode("img_ch_2")->SetPatternIndex(2);
 						else
 							scChara->GetNode("img_ch_2")->SetPatternIndex(1);
+						break;
+					case SA2LightSpd:
+						if (SelectShoes == ShSoapsLightSpd)
+							scChara->GetNode("img_ch_2")->SetPatternIndex(12);
+						else
+							scChara->GetNode("img_ch_2")->SetPatternIndex(11);
+						break;
+					case SA2Racing:
+						if (SelectShoes == ShSoapsRacing)
+							scChara->GetNode("img_ch_2")->SetPatternIndex(14);
+						else
+							scChara->GetNode("img_ch_2")->SetPatternIndex(13);
+						break;
 					}
 					//Riders Shoes
 					if (SelectShoes == ShRiders)
@@ -823,42 +1213,42 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 						break;
 					case SULightSpd:
 						if (SelectShoes == ShSULightSpd)
-							scChara->GetNode("img_ch_5")->SetPatternIndex(2);
+							scChara->GetNode("img_ch_5")->SetPatternIndex(12);
 						else
-							scChara->GetNode("img_ch_5")->SetPatternIndex(1);
+							scChara->GetNode("img_ch_5")->SetPatternIndex(11);
 						break;
 					case SUStomp:
 						if (SelectShoes == ShSUStomp)
-							scChara->GetNode("img_ch_5")->SetPatternIndex(2);
+							scChara->GetNode("img_ch_5")->SetPatternIndex(14);
 						else
-							scChara->GetNode("img_ch_5")->SetPatternIndex(1);
+							scChara->GetNode("img_ch_5")->SetPatternIndex(13);
 						break;
 					case SUWallJmp:
 						if (SelectShoes == ShSUWallJmp)
-							scChara->GetNode("img_ch_5")->SetPatternIndex(2);
+							scChara->GetNode("img_ch_5")->SetPatternIndex(16);
 						else
-							scChara->GetNode("img_ch_5")->SetPatternIndex(1);
+							scChara->GetNode("img_ch_5")->SetPatternIndex(15);
 						break;
 					case SUWerehog:
 						if (SelectShoes == ShSUWerehog)
-							scChara->GetNode("img_ch_5")->SetPatternIndex(2);
+							scChara->GetNode("img_ch_5")->SetPatternIndex(18);
 						else
-							scChara->GetNode("img_ch_5")->SetPatternIndex(1);
+							scChara->GetNode("img_ch_5")->SetPatternIndex(17);
 						break;
 					case SUZoney:
 						if (SelectShoes == ShSUZoney)
-							scChara->GetNode("img_ch_5")->SetPatternIndex(2);
+							scChara->GetNode("img_ch_5")->SetPatternIndex(20);
 						else
-							scChara->GetNode("img_ch_5")->SetPatternIndex(1);
+							scChara->GetNode("img_ch_5")->SetPatternIndex(19);
 						break;
 					}
 					//Link Boots
-					if (SelectShoes == ShPumas)
+					if (SelectShoes == ShLinkBoots)
 						scChara->GetNode("img_ch_6")->SetPatternIndex(2);
 					else
 						scChara->GetNode("img_ch_6")->SetPatternIndex(1);
 					//Boom Shoes
-					if (SelectShoes == ShPumas)
+					if (SelectShoes == ShBoom)
 						scChara->GetNode("img_ch_7")->SetPatternIndex(2);
 					else
 						scChara->GetNode("img_ch_7")->SetPatternIndex(1);
@@ -871,27 +1261,61 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 					break;
 				case UIPartBody: ////Body Icons////
 					//Default Body
-					if (SelectBody == BdDefault)
+					if (SelectBody == BdDefault || SelectBody == BdBlueArms)
 						scChara->GetNode("img_ch_0")->SetPatternIndex(4);
 					else
 						scChara->GetNode("img_ch_0")->SetPatternIndex(3);
+					//Racing Suit
+					if (SelectBody == BdRaceSuit)
+						scChara->GetNode("img_ch_1")->SetPatternIndex(4);
+					else
+						scChara->GetNode("img_ch_1")->SetPatternIndex(3);
 					//Wildfire
 					if (SelectBody == BdWildFire)
 						scChara->GetNode("img_ch_2")->SetPatternIndex(4);
 					else
 						scChara->GetNode("img_ch_2")->SetPatternIndex(3);
-					//Scarf
-					if (SelectBody == BdScarf)
-						scChara->GetNode("img_ch_4")->SetPatternIndex(4);
+					//Link Tunic
+					if (SelectBody == BdLinkCos)
+						scChara->GetNode("img_ch_3")->SetPatternIndex(4);
 					else
-						scChara->GetNode("img_ch_4")->SetPatternIndex(3);
+						scChara->GetNode("img_ch_3")->SetPatternIndex(3);
+					//Scarf
+					if (BdScarfVariant)
+					{
+						if (SelectBody == BdScarfArms)
+							scChara->GetNode("img_ch_4")->SetPatternIndex(26);
+						else
+							scChara->GetNode("img_ch_4")->SetPatternIndex(25);
+					}
+					else
+					{
+						if (SelectBody == BdScarf)
+							scChara->GetNode("img_ch_4")->SetPatternIndex(4);
+						else
+							scChara->GetNode("img_ch_4")->SetPatternIndex(3);
+					}
+					//Swim Vest
+					if (SelectBody == Bd2020SwimVest)
+						scChara->GetNode("img_ch_5")->SetPatternIndex(4);
+					else
+						scChara->GetNode("img_ch_5")->SetPatternIndex(3);
+					//Surf Suit
+					if (SelectBody == Bd2020SurfSuit)
+						scChara->GetNode("img_ch_6")->SetPatternIndex(4);
+					else
+						scChara->GetNode("img_ch_6")->SetPatternIndex(3);
+					//Horse Shirt
+					if (SelectBody == Bd2020HorseShirt)
+						scChara->GetNode("img_ch_7")->SetPatternIndex(4);
+					else
+						scChara->GetNode("img_ch_7")->SetPatternIndex(3);
+					//Movie Skin
+					if (SelectBody == BdMovieSkin || SelectBody == BdMovieSkinArms)
+						scChara->GetNode("img_ch_8")->SetPatternIndex(4);
+					else
+						scChara->GetNode("img_ch_8")->SetPatternIndex(3);
 					//Empty Placeholders
-					scChara->GetNode("img_ch_1")->SetPatternIndex(3);
-					scChara->GetNode("img_ch_3")->SetPatternIndex(3);
-					scChara->GetNode("img_ch_5")->SetPatternIndex(3);
-					scChara->GetNode("img_ch_6")->SetPatternIndex(3);
-					scChara->GetNode("img_ch_7")->SetPatternIndex(3);
-					scChara->GetNode("img_ch_8")->SetPatternIndex(3);
 					scTextArea->GetNode("textarea_textbox")->SetPatternIndex(1);
 					break;
 				case UIPartHead: ////Head Icons////
@@ -910,10 +1334,22 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 						scChara->GetNode("img_ch_2")->SetPatternIndex(6);
 					else
 						scChara->GetNode("img_ch_2")->SetPatternIndex(5);
+					//Headphones
+					if (SelectHead == HeHeadphones)
+						scChara->GetNode("img_ch_3")->SetPatternIndex(6);
+					else
+						scChara->GetNode("img_ch_3")->SetPatternIndex(5);
+					//Link Hat
+					if (SelectHead == HeLinkHat)
+						scChara->GetNode("img_ch_4")->SetPatternIndex(6);
+					else
+						scChara->GetNode("img_ch_4")->SetPatternIndex(5);
+					//Boom Spikes
+					if (SelectHead == HeBoomSpikes)
+						scChara->GetNode("img_ch_5")->SetPatternIndex(6);
+					else
+						scChara->GetNode("img_ch_5")->SetPatternIndex(5);
 					//Empty Placeholders
-					scChara->GetNode("img_ch_3")->SetPatternIndex(5);
-					scChara->GetNode("img_ch_4")->SetPatternIndex(5);
-					scChara->GetNode("img_ch_5")->SetPatternIndex(5);
 					scChara->GetNode("img_ch_6")->SetPatternIndex(5);
 					scChara->GetNode("img_ch_7")->SetPatternIndex(5);
 					scChara->GetNode("img_ch_8")->SetPatternIndex(5);
@@ -930,18 +1366,42 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 						scChara->GetNode("img_ch_1")->SetPatternIndex(8);
 					else
 						scChara->GetNode("img_ch_1")->SetPatternIndex(7);
-					//Riders Left Glove
-					if (SelectHandL == HLRiders)
+					//Flame Ring
+					if (SelectHandL == HLFlameRing)
+						scChara->GetNode("img_ch_2")->SetPatternIndex(8);
+					else
+						scChara->GetNode("img_ch_2")->SetPatternIndex(7);
+					//Racing Left Glove
+					if (SelectHandL == HLRacingGlove)
 						scChara->GetNode("img_ch_3")->SetPatternIndex(8);
 					else
 						scChara->GetNode("img_ch_3")->SetPatternIndex(7);
+					//Riders Left Glove
+					if (SelectHandL == HLRiders)
+						scChara->GetNode("img_ch_4")->SetPatternIndex(8);
+					else
+						scChara->GetNode("img_ch_4")->SetPatternIndex(7);
+					//06 Bounce Bracelet
+					if (SelectHandL == HL06Bounce)
+						scChara->GetNode("img_ch_5")->SetPatternIndex(8);
+					else
+						scChara->GetNode("img_ch_5")->SetPatternIndex(7);
+					//Chip Ring
+					if (SelectHandL == HLChipBracelet)
+						scChara->GetNode("img_ch_6")->SetPatternIndex(8);
+					else
+						scChara->GetNode("img_ch_6")->SetPatternIndex(7);
+					//Link Left Glove
+					if (SelectHandL == HLLinkGlove)
+						scChara->GetNode("img_ch_7")->SetPatternIndex(8);
+					else
+						scChara->GetNode("img_ch_7")->SetPatternIndex(7);
+					//Boom Left Glove
+					if (SelectHandL == HLBoomGlove)
+						scChara->GetNode("img_ch_8")->SetPatternIndex(8);
+					else
+						scChara->GetNode("img_ch_8")->SetPatternIndex(7);
 					//Empty Placeholders
-					scChara->GetNode("img_ch_2")->SetPatternIndex(7);
-					scChara->GetNode("img_ch_4")->SetPatternIndex(7);
-					scChara->GetNode("img_ch_5")->SetPatternIndex(7);
-					scChara->GetNode("img_ch_6")->SetPatternIndex(7);
-					scChara->GetNode("img_ch_7")->SetPatternIndex(7);
-					scChara->GetNode("img_ch_8")->SetPatternIndex(7);
 					scTextArea->GetNode("textarea_textbox")->SetPatternIndex(3);
 					break;
 				case UIPartHandR: ////Hand R Icons////
@@ -950,19 +1410,67 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 						scChara->GetNode("img_ch_0")->SetPatternIndex(10);
 					else
 						scChara->GetNode("img_ch_0")->SetPatternIndex(9);
-					//Riders Right Glove
-					if (SelectHandR == HRRiders)
+					//Bounce Bracelet
+					if (HRMagicVariant)
+					{
+						if (SelectHandR == HRMagicHands)
+							scChara->GetNode("img_ch_1")->SetPatternIndex(12);
+						else
+							scChara->GetNode("img_ch_1")->SetPatternIndex(11);
+					}
+					else
+					{
+						if (SelectHandR == HRBounceBracelet)
+							scChara->GetNode("img_ch_1")->SetPatternIndex(10);
+						else
+							scChara->GetNode("img_ch_1")->SetPatternIndex(9);
+					}
+					//Racing Right Glove
+					if (SelectHandR == HRRacingGlove)
 						scChara->GetNode("img_ch_2")->SetPatternIndex(10);
 					else
 						scChara->GetNode("img_ch_2")->SetPatternIndex(9);
+					//Riders Right Glove
+					if (HRRidersVariant)
+					{
+						if (SelectHandR == HRArkCosmos)
+							scChara->GetNode("img_ch_3")->SetPatternIndex(12);
+						else
+							scChara->GetNode("img_ch_3")->SetPatternIndex(11);
+					}
+					else
+					{
+						if (SelectHandR == HRRiders)
+							scChara->GetNode("img_ch_3")->SetPatternIndex(10);
+						else
+							scChara->GetNode("img_ch_3")->SetPatternIndex(9);
+					}
+					//06 Homing Smash Bracelet
+					if (SelectHandR == HR06HomingSmash)
+						scChara->GetNode("img_ch_4")->SetPatternIndex(10);
+					else
+						scChara->GetNode("img_ch_4")->SetPatternIndex(9);
+					//Secret Ring
+					if (SelectHandR == HRSecretRing)
+						scChara->GetNode("img_ch_5")->SetPatternIndex(10);
+					else
+						scChara->GetNode("img_ch_5")->SetPatternIndex(9);
+					//Gauntlet
+					if (SelectHandR == HRGauntlet)
+						scChara->GetNode("img_ch_6")->SetPatternIndex(10);
+					else
+						scChara->GetNode("img_ch_6")->SetPatternIndex(9);
+					//Link Right Glove
+					if (SelectHandR == HRLinkGlove)
+						scChara->GetNode("img_ch_7")->SetPatternIndex(10);
+					else
+						scChara->GetNode("img_ch_7")->SetPatternIndex(9);
+					//Boom Right Glove
+					if (SelectHandR == HRBoomGlove)
+						scChara->GetNode("img_ch_8")->SetPatternIndex(10);
+					else
+						scChara->GetNode("img_ch_8")->SetPatternIndex(9);
 					//Empty Placeholders
-					scChara->GetNode("img_ch_1")->SetPatternIndex(9);
-					scChara->GetNode("img_ch_3")->SetPatternIndex(9);
-					scChara->GetNode("img_ch_4")->SetPatternIndex(9);
-					scChara->GetNode("img_ch_5")->SetPatternIndex(9);
-					scChara->GetNode("img_ch_6")->SetPatternIndex(9);
-					scChara->GetNode("img_ch_7")->SetPatternIndex(9);
-					scChara->GetNode("img_ch_8")->SetPatternIndex(9);
 					scTextArea->GetNode("textarea_textbox")->SetPatternIndex(4);
 					break;
 				}
@@ -1001,10 +1509,18 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 					case 2:
 						Common::PlaySoundStatic(menuSoundHandle, 1000005);
 						PlayCursorAnim();
-						if (!ShSoapVariant)
+						switch (ShSA2Variant)
+						{
+						case SA2Soap:
 							SelectShoes = ShSoaps;
-						else
+							break;
+						case SA2LightSpd:
 							SelectShoes = ShSoapsLightSpd;
+							break;
+						case SA2Racing:
+							SelectShoes = ShSoapsRacing;
+							break;
+						}
 						break;
 					case 3:
 						Common::PlaySoundStatic(menuSoundHandle, 1000005);
@@ -1068,10 +1584,14 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 						}
 						break;
 					case 6:
-						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectShoes = ShLinkBoots;
 						break;
 					case 7:
-						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectShoes = ShBoom;
 						break;
 					case 8:
 						Common::PlaySoundStatic(menuSoundHandle, 1000005);
@@ -1087,10 +1607,15 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 					case 0:
 						Common::PlaySoundStatic(menuSoundHandle, 1000005);
 						PlayCursorAnim();
-						SelectBody = BdDefault;
+						if (!BdBlueArmVariant)
+							SelectBody = BdDefault;
+						else
+							SelectBody = BdBlueArms;
 						break;
 					case 1:
-						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectBody = BdRaceSuit;
 						break;
 					case 2:
 						Common::PlaySoundStatic(menuSoundHandle, 1000005);
@@ -1098,24 +1623,40 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 						SelectBody = BdWildFire;
 						break;
 					case 3:
-						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectBody = BdLinkCos;
 						break;
 					case 4:
 						Common::PlaySoundStatic(menuSoundHandle, 1000005);
 						PlayCursorAnim();
-						SelectBody = BdScarf;
+						if (!BdScarfVariant)
+							SelectBody = BdScarf;
+						else
+							SelectBody = BdScarfArms;
 						break;
 					case 5:
-						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectBody = Bd2020SwimVest;
 						break;
 					case 6:
-						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectBody = Bd2020SurfSuit;
 						break;
 					case 7:
-						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectBody = Bd2020HorseShirt;
 						break;
 					case 8:
-						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						if (!BdMovieVariant)
+							SelectBody = BdMovieSkin;
+						else
+							SelectBody = BdMovieSkinArms;
 						break;
 					}
 					return;
@@ -1139,13 +1680,19 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 						SelectHead = HeRiders;
 						break;
 					case 3:
-						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectHead = HeHeadphones;
 						break;
 					case 4:
-						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectHead = HeLinkHat;
 						break;
 					case 5:
-						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectHead = HeBoomSpikes;
 						break;
 					case 6:
 						Common::PlaySoundStatic(menuSoundHandle, 1000007);
@@ -1173,27 +1720,39 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 						SelectHandL = HLCrystalRing;
 						break;
 					case 2:
-						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectHandL = HLFlameRing;
 						break;
 					case 3:
 						Common::PlaySoundStatic(menuSoundHandle, 1000005);
 						PlayCursorAnim();
-						SelectHandL = HLRiders;
+						SelectHandL = HLRacingGlove;
 						break;
 					case 4:
-						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectHandL = HLRiders;
 						break;
 					case 5:
-						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectHandL = HL06Bounce;
 						break;
 					case 6:
-						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectHandL = HLChipBracelet;
 						break;
 					case 7:
-						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectHandL = HLLinkGlove;
 						break;
 					case 8:
-						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectHandL = HLBoomGlove;
 						break;
 					}
 					return;
@@ -1207,30 +1766,50 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 						SelectHandR = HRDefault;
 						break;
 					case 1:
-						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						if (!HRMagicVariant)
+							SelectHandR = HRBounceBracelet;
+						else
+							SelectHandR = HRMagicHands;
 						break;
 					case 2:
 						Common::PlaySoundStatic(menuSoundHandle, 1000005);
 						PlayCursorAnim();
-						SelectHandR = HRRiders;
+						SelectHandR = HRRacingGlove;
 						break;
 					case 3:
-						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						if (!HRRidersVariant)
+							SelectHandR = HRRiders;
+						else
+							SelectHandR = HRArkCosmos;
 						break;
 					case 4:
-						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectHandR = HR06HomingSmash;
 						break;
 					case 5:
-						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectHandR = HRSecretRing;
 						break;
 					case 6:
-						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectHandR = HRGauntlet;
 						break;
 					case 7:
-						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectHandR = HRLinkGlove;
 						break;
 					case 8:
-						Common::PlaySoundStatic(menuSoundHandle, 1000007);
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						SelectHandR = HRBoomGlove;
 						break;
 					}
 					return;
@@ -1306,17 +1885,23 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 						PlayCursorAnim();
 						break;
 					case 2:
-						if (ShSoapVariant)
+						switch (ShSA2Variant)
 						{
-							ShSoapVariant = false;
-							if (SelectShoes == ShSoapsLightSpd)
-								SelectShoes = ShSoaps;
-						}
-						else
-						{
-							ShSoapVariant = true;
+						case SA2Soap:
 							if (SelectShoes == ShSoaps)
 								SelectShoes = ShSoapsLightSpd;
+							ShSA2Variant = SA2LightSpd;
+							break;
+						case SA2LightSpd:
+							if (SelectShoes == ShSoapsLightSpd)
+								SelectShoes = ShSoapsRacing;
+							ShSA2Variant = SA2Racing;
+							break;
+						case SA2Racing:
+							if (SelectShoes == ShSoapsRacing)
+								SelectShoes = ShSoaps;
+							ShSA2Variant = SA2Soap;
+							break;
 						}
 						Common::PlaySoundStatic(menuSoundHandle, 1000005);
 						PlayCursorAnim();
@@ -1426,6 +2011,77 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 							HRMagicVariant = true;
 							if (SelectHandR == HRBounceBracelet)
 								SelectHandR = HRMagicHands;
+						}
+						break;
+					case 3:
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						if (HRRidersVariant)
+						{
+							HRRidersVariant = false;
+							if (SelectHandR == HRArkCosmos)
+								SelectHandR = HRRiders;
+						}
+						else
+						{
+							HRRidersVariant = true;
+							if (SelectHandR == HRRiders)
+								SelectHandR = HRArkCosmos;
+						}
+						break;
+					}
+					return;
+				}
+				if (MenuOption == UIPartBody)
+				{
+					switch (ItemOption)
+					{
+					case 0:
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						if (BdBlueArmVariant)
+						{
+							BdBlueArmVariant = false;
+							if (SelectBody == BdBlueArms)
+								SelectBody = BdDefault;
+						}
+						else
+						{
+							BdBlueArmVariant = true;
+							if (SelectBody == BdDefault)
+								SelectBody = BdBlueArms;
+						}
+						break;
+					case 4:
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						if (BdScarfVariant)
+						{
+							BdScarfVariant = false;
+							if (SelectBody == BdScarfArms)
+								SelectBody = BdScarf;
+						}
+						else
+						{
+							BdScarfVariant = true;
+							if (SelectBody == BdScarf)
+								SelectBody = BdScarfArms;
+						}
+						break;
+					case 8:
+						Common::PlaySoundStatic(menuSoundHandle, 1000005);
+						PlayCursorAnim();
+						if (BdMovieVariant)
+						{
+							BdMovieVariant = false;
+							if (SelectBody == BdMovieSkinArms)
+								SelectBody = BdMovieSkin;
+						}
+						else
+						{
+							BdMovieVariant = true;
+							if (SelectBody == BdMovieSkin)
+								SelectBody = BdMovieSkinArms;
 						}
 						break;
 					}
@@ -1743,15 +2399,6 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 				return;
 			}
 
-			//printf("%d", ShSoapVariant);
-			//printf(" - ");
-			//printf("%d", HRMagicVariant);
-			//printf(" - ");
-			//printf("%d", ShSUVariant);
-			//printf(" - ");
-			//printf("%d", Sh06Variant);
-			//printf(" - ");
-			//printf("%f", scIcon->m_MotionFrame);
 			//printf("\n");
 			break;
 		}
@@ -1789,6 +2436,9 @@ HOOK(void, __fastcall, CHUDPauseUpdate, 0x0042A520, hh::fnd::CStateMachineBase::
 	IsInMenu = false;
 	MenuOption = UIPartShoes;
 	ItemOption = 0;
+	FILE* pFile = fopen("CustomSelect.ini", "wb");
+	writeINI(pFile);
+	fclose(pFile);
 	if (scChara)
 		Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scChara);
 	if (scIcon)
@@ -1808,31 +2458,41 @@ void __fastcall CHudSonicStageRemoveCallback(Sonic::CGameObject* This, void*, So
 	IsInMenu = false;
 	MenuOption = UIPartShoes;
 	ItemOption = 0;
+	FILE* pFile = fopen("CustomSelect.ini", "wb");
+	writeINI(pFile);
+	fclose(pFile);
 	if (scChara)
-	{
 		Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scChara);
-		scChara = nullptr;
-	}
 	if (scIcon)
-	{
 		Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scIcon);
-		scIcon = nullptr;
-	}
 	if (scTextArea)
-	{
 		Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scTextArea);
-		scTextArea = nullptr;
-	}
 	if (scLRMove)
-	{
 		Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scLRMove);
-		scLRMove = nullptr;
-	}
 	if (scDeco)
-	{
 		Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scDeco);
-		scDeco = nullptr;
-	}
+}
+HOOK(void, __fastcall, CHudResultStart, 0x010B6840, hh::fnd::CStateMachineBase::CStateBase* This)
+{
+	KillScreen();
+	IsInMenuExit = false;
+	IsInMenu = false;
+	MenuOption = UIPartShoes;
+	ItemOption = 0;
+	FILE* pFile = fopen("CustomSelect.ini", "wb");
+	writeINI(pFile);
+	fclose(pFile);
+	if (scChara)
+		Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scChara);
+	if (scIcon)
+		Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scIcon);
+	if (scTextArea)
+		Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scTextArea);
+	if (scLRMove)
+		Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scLRMove);
+	if (scDeco)
+		Chao::CSD::CProject::DestroyScene(prFittingScreen.Get(), scDeco);
+	originalCHudResultStart(This);
 }
 
 //Handle Pausing
@@ -1888,68 +2548,8 @@ HOOK(void, __cdecl, InitializeApplicationParams, 0x00D65180, Sonic::CParameterFi
 	//cat_Bounce->CreateParamBool(&someBool, "Bool");
 	//cat_Bounce->CreateParamFloat(&someFloat, "Float");
 
-	cat_Bounce->CreateParamTypeList((uint32_t*)&SelectShoes, "Shoe Selection", "Select what Sonic should wear.",
-		{
-			{ "Default Shoes", ShDefault},
-			{ "Classic Shoes", ShClassic},
-			{ "Lightspeed Shoes", ShSA1LightSpd},
-			{ "Soap Shoes", ShSoaps},
-			{ "Soaps + Lightspeed", ShSoapsLightSpd},
-			{ "Riders Shoes", ShRiders},
-			{ "Gem Shoes", Sh06GemDefault},
-			{ "Airboost Shoes", ShSUAirboost},
-			{ "Lightspeed Dash Shoes", ShSULightSpd},
-			{ "Stomp Shoes", ShSUStomp},
-			{ "Wall Jump Shoes", ShSUWallJmp},
-			{ "Werehog Shoes", ShSUWerehog},
-			{ "Thicc Soles", ShSUZoney},
-			{ "Link Boots", ShLinkBoots},
-			{ "Boom Shoes", ShBoom},
-			{ "Puma Shoes", ShPumas},
-		});
-	cat_Bounce->CreateParamTypeList((uint32_t*)&SelectBody, "Body Selection", "Select what Sonic should wear.",
-		{
-			{ "Default Body", BdDefault},
-			{ "SA2 Racing Suit", BdSA2RaceSuit},
-			{ "WildFire", BdWildFire},
-			{ "Link Tunic", BdLinkCos},
-			{ "Scarf", BdScarf},
-			{ "Surf Shirt", BdSurfShirt},
-			{ "Swim Vest", BdSwimVest},
-			{ "Horse Shirt", BdHorseShirt},
-			{ "Movie Quills", BdMovieSkin},
-		});
-	cat_Bounce->CreateParamTypeList((uint32_t*)&SelectHead, "Head Selection", "Select what Sonic should wear.",
-		{
-			{ "Default Head", HeDefault},
-			{ "SA1 Sunlasses", HeSA1Sunglass},
-			{ "Riders Glasses", HeRiders},
-			{ "Headphones", HeHeadphones},
-			{ "Link Hat", HeLinkHat},
-		});
-	cat_Bounce->CreateParamTypeList((uint32_t*)&SelectHandL, "Hand Left Selection", "Select what Sonic should wear.",
-		{
-			{ "Default Glove", HLDefault},
-			{ "Crystal Ring", HLCrystalRing},
-			{ "Flame Ring", HLFlameRing},
-			{ "Riders Glove", HLRiders},
-			{ "Bounce Bracelet '06", HL06Bounce},
-			{ "Chip's Bracelet", HLChipBracelet},
-			{ "Link Glove", HLLinkGlove},
-		});
-	cat_Bounce->CreateParamTypeList((uint32_t*)&SelectHandR, "Hand Right Selection", "Select what Sonic should wear.",
-		{
-			{ "Default Glove", HRDefault},
-			{ "Bounce Bracelet", HRBounceBracelet},
-			{ "Magic Hands", HRMagicHands},
-			{ "Riders Glove", HRRiders},
-			{ "Ark Of The Cosmos", HRArkCosmos},
-			{ "Antigravity Ring", HR06AntiGrav},
-			{ "Shara's Ring", HRSecretRing},
-			{ "Gauntlet", HRGauntlet},
-			{ "Link Glove", HRLinkGlove},
-		});
-	//cat_Bounce->CreateParamBool(&Scarf, "Choose if Sonic should wear his scarf.");
+	cat_Bounce->CreateParamBool(&ConfigDecoEnable, "Show the fitting room UI decorations.");
+	cat_Bounce->CreateParamBool(&EyelidSkin, "Use skin eyelids.");
 
 	parameterGroup->Flush();
 
@@ -1964,7 +2564,32 @@ HOOK(bool, __stdcall, ParseArchiveTree, 0xD4C8E0, void* A1, char* data, const si
 		std::stringstream stream;
 
 		stream << "  <DefAppend>\n";
+		stream << "    <Name>Sonic</Name>\n";
+		stream << "    <Archive>SonicWildFire</Archive>\n";
+		stream << "  </DefAppend>\n";
+
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>pam_cmn</Name>\n";
+		stream << "    <Archive>SystemCommon</Archive>\n";
+		stream << "  </DefAppend>\n";
+
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>pam000</Name>\n";
+		stream << "    <Archive>SystemCommon</Archive>\n";
+		stream << "  </DefAppend>\n";
+
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>pam001</Name>\n";
+		stream << "    <Archive>SystemCommon</Archive>\n";
+		stream << "  </DefAppend>\n";
+
+		stream << "  <DefAppend>\n";
 		stream << "    <Name>SonicSp</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>pam000</Name>\n";
 		stream << "    <Archive>evSonic</Archive>\n";
 		stream << "  </DefAppend>\n";
 
@@ -1974,33 +2599,172 @@ HOOK(bool, __stdcall, ParseArchiveTree, 0xD4C8E0, void* A1, char* data, const si
 		stream << "  </DefAppend>\n";
 
 		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev021</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
 		stream << "    <Name>ev031</Name>\n";
 		stream << "    <Archive>evSonic</Archive>\n";
 		stream << "  </DefAppend>\n";
-
 		stream << "  <DefAppend>\n";
 		stream << "    <Name>ev041</Name>\n";
 		stream << "    <Archive>evSonic</Archive>\n";
 		stream << "  </DefAppend>\n";
-
 		stream << "  <DefAppend>\n";
 		stream << "    <Name>ev042</Name>\n";
 		stream << "    <Archive>evSonic</Archive>\n";
 		stream << "  </DefAppend>\n";
-
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev051</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev053</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev061</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev062</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev071</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev081</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev082</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
 		stream << "  <DefAppend>\n";
 		stream << "    <Name>ev091</Name>\n";
 		stream << "    <Archive>evSonic</Archive>\n";
 		stream << "  </DefAppend>\n";
-
 		stream << "  <DefAppend>\n";
-		stream << "    <Name>Sonic</Name>\n";
-		stream << "    <Archive>SonicWildFire</Archive>\n";
+		stream << "    <Name>ev121</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
 		stream << "  </DefAppend>\n";
-
 		stream << "  <DefAppend>\n";
-		stream << "    <Name>pam_cmn</Name>\n";
-		stream << "    <Archive>SystemCommon</Archive>\n";
+		stream << "    <Name>ev210</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev220</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev221</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev230</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev240</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev241</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev250</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev251</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev260</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev261</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev270</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev271</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev280</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev281</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev290</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev291</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev310</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev311</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev320</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev321</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev330</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev331</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev340</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev341</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev410</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev411</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev420</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>ev430</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
+		stream << "  </DefAppend>\n";
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>evt150</Name>\n";
+		stream << "    <Archive>evSonic</Archive>\n";
 		stream << "  </DefAppend>\n";
 
 		str = stream.str();
@@ -2040,6 +2804,7 @@ HOOK(void, __fastcall, LoadArchiveList, 0x69C270, void* This, void* Edx, void* A
 //OnFrame
 EXPORT void OnFrame()
 {
+	////Model Visibility////
 	std::lock_guard lock(mutex);
 
 	for (auto it = models.begin(); it != models.end();)
@@ -2047,7 +2812,7 @@ EXPORT void OnFrame()
 		if (it->first.unique())
 		{
 			it = models.erase(it);
-			printf("SONIC IS DEAD!!!!!!!!!!!!\n");
+			printf("SONIC MODEL DESTROYED\n");
 		}
 		else
 		{
@@ -2061,10 +2826,16 @@ EXPORT void OnFrame()
 EXPORT void Init()
 {
 	readINI();
+	INIReader reader("Config.ini");
+	ConfigDecoEnable = reader.GetBoolean("Mod", "ConfigDecoEnable", ConfigDecoEnable);
+	EyelidSkin = reader.GetBoolean("Mod", "EyelidSkin", EyelidSkin);
 	INSTALL_HOOK(CPlayerSpeedUpdate);
+	INSTALL_HOOK(MsgLookAtStart);
+	INSTALL_HOOK(MsgLookAtEnd);
 	INSTALL_HOOK(CHudSonicStageUpdate);
 	INSTALL_HOOK(CHudPlayableMenuUpdate);
 	INSTALL_HOOK(CHUDPauseUpdate);
+	INSTALL_HOOK(CHudResultStart);
 	INSTALL_HOOK(InitializeApplicationParams);
 	INSTALL_HOOK(ParseArchiveTree);
 	INSTALL_HOOK(LoadArchive);
@@ -2077,7 +2848,4 @@ EXPORT void Init()
 	WRITE_MEMORY(0x16D4B4C, void*, CSonicRemoveCallback);
 	WRITE_MEMORY(0x16A467C, void*, CHudSonicStageRemoveCallback);
 	WRITE_MEMORY(0x16A5598, void*, CHudSonicStageRemoveCallback);
-	//WRITE_NOP(0x0042AB50, 5); //idk i forgor
-	//WRITE_JUMP(0x42A82C, (void*)0x42A9E5); //Jumps over entire state if
-	//WRITE_JUMP(0x42A83D, (void*)0x42A843); //Jumps over stage switch
 }

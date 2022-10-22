@@ -41,12 +41,13 @@ inline uint32_t GetCurrentStageID()
 }
 
 int DoubleVOFix = 0;
-int DoubleTornadoVOFix = 0;
+int DoubleEventVOFix = 420;
 float EnemyVOCountdown = 0.0f;
 int EnemyComboCount = 0;
 float PatheticTimer = 30;
 bool HasSaidIntro = false;
 bool IsEnemyCombo = false;
+bool IsInEvent = false;
 //Mod Compatibility Checks
 bool IsUnleashedProject = false;
 bool IsShiveryMountain = false;
@@ -61,13 +62,16 @@ bool IsPAMStageMod = false;
 bool IsTransTails = false;
 //Config Option
 bool IsSWAMDL = false;
+bool IsParticleLights = true;
 bool IsIdleChatVO = true;
 bool IsRankChatVO = true;
+bool IsBossStartVO = true;
 bool IsBossTauntVO = true;
 bool IsTransRankVO = false;
 bool IsSuperYellVO = true;
 bool IsQuickstepVO = true;
 bool IsTrickFinishVO = true;
+bool IsEnemyComboVO = true;
 bool IsCheckpointVO = true;
 bool IsTornadoVO = true;
 bool IsFootTapSFX = true;
@@ -82,6 +86,79 @@ int TrailFlag = 0;
 5 - Pan
 */
 
+//Dynamic Omnis
+// Original code by Skyth: https://github.com/blueskythlikesclouds
+hh::base::CRefPtr<Sonic::CLocalLight> genericPLight;
+hh::base::CRefPtr<Sonic::CLocalLight> superPLight;
+hh::base::CRefPtr<Sonic::CLocalLight> grindPLight;
+void ParticleLight(float ColorR, float ColorG, float ColorB, float ColorA, float LightRange)
+{
+	auto gameDocument = Sonic::CGameDocument::GetInstance();
+	if (!gameDocument.get().get() || !gameDocument->m_pMember->m_spLightManager)
+		return;
+
+	auto playerContext = Sonic::Player::CPlayerSpeedContext::GetInstance();
+	if (!playerContext)
+		return;
+
+	const auto& stateName = playerContext->m_pPlayer->m_StateMachine.GetCurrentState()->GetStateName();
+	const auto& animName = playerContext->GetCurrentAnimationName();
+
+	if ((animName == "SpinAttack" && stateName == "Jump") || stateName == "Stomping" || stateName == "Sliding" || stateName == "SquatKick" || playerContext->StateFlag(eStateFlag_Boost))
+	{
+		auto position = playerContext->m_spMatrixNode->m_Transform.m_Position;
+
+		const auto& up = playerContext->m_ModelUpDirection;
+		const auto fwd = playerContext->m_spMatrixNode->m_Transform.m_Rotation * hh::math::CVector::UnitZ();
+
+		if (stateName == "Sliding" || playerContext->StateFlag(eStateFlag_Boost))
+			position += fwd * 0.5f + up * 0.25f;
+
+		if (!genericPLight)
+			if (playerContext->StateFlag(eStateFlag_InvokeSuperSonic))
+				superPLight = gameDocument->m_pMember->m_spLightManager->AddLocalLight(position, { 1.0f, 0.7f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 5.0f });
+			else
+				genericPLight = gameDocument->m_pMember->m_spLightManager->AddLocalLight(position, { ColorR, ColorG, ColorB, ColorA }, { 0.0f, 0.0f, 0.0f, LightRange });
+		else
+			genericPLight->SetPosition(position);
+	}
+	else
+		genericPLight = nullptr;
+
+	if (stateName == "Grind" || stateName == "GrindSquat" || stateName == "GrindLandJumpShort")
+	{
+		auto position = playerContext->m_spMatrixNode->m_Transform.m_Position;
+
+		const auto& up = playerContext->m_ModelUpDirection;
+		const auto fwd = playerContext->m_spMatrixNode->m_Transform.m_Rotation * hh::math::CVector::UnitZ();
+
+		if (!grindPLight)
+			grindPLight = gameDocument->m_pMember->m_spLightManager->AddLocalLight(position, { 2.0f, 0.666f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 1.5f });
+		else
+			grindPLight->SetPosition(position);
+	}
+	else
+		grindPLight = nullptr;
+
+	if (playerContext->StateFlag(eStateFlag_InvokeSuperSonic))
+	{
+		auto position = playerContext->m_spMatrixNode->m_Transform.m_Position;
+
+		const auto& up = playerContext->m_ModelUpDirection;
+		const auto fwd = playerContext->m_spMatrixNode->m_Transform.m_Rotation * hh::math::CVector::UnitZ();
+
+		if (stateName == "Sliding" || playerContext->StateFlag(eStateFlag_Boost))
+			position += fwd * 0.5f + up * 0.25f;
+
+		if (!superPLight)
+			superPLight = gameDocument->m_pMember->m_spLightManager->AddLocalLight(position, { 1.0f, 0.7f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 5.0f });
+		else
+			superPLight->SetPosition(position);
+	}
+	else
+		superPLight = nullptr;
+}
+
 //Gameplay
 HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed* This, void* _, const hh::fnd::SUpdateInfo& updateInfo)
 {
@@ -92,8 +169,9 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	bool IsIdleAnim = GetAnim == "IdleA" || GetAnim == "IdleB" || GetAnim == "IdleC" || GetAnim == "IdleD" || GetAnim == "IdleE";     //idle Anim
 	bool IsFinishAnim = GetAnim == "Trick_FinishF" || GetAnim == "Trick_FinishB" || GetAnim == "Trick_FinishSV";     //Trick Finish Anim
 	bool IsRankAnim = GetAnim == "ResultRankS" || GetAnim == "ResultRankA" || GetAnim == "ResultRankB" || GetAnim == "ResultRankC" || GetAnim == "ResultRankD";		//Result Start Anim
-	bool IsPatheticAnim = GetAnim == "ResultRankS_LinkL" || GetAnim == "IdleSleepLoopSVRev" || GetAnim == "IdleSleepLoopSV" || GetAnim == "IdleSleepShakeSVRev" || GetAnim == "IdleSleepShakeSV" || GetAnim == "IdleSleepLoop" || GetAnim == "IdleSleepShake";		//Laying down anims
-	bool IsTransformAnim = GetAnim == "TrnsStSp";		//Transform Start Anim
+	bool IsPatheticAnim = GetAnim == "IdleSleepLoopSVRev" || GetAnim == "IdleSleepLoopSV" || GetAnim == "IdleSleepShakeSVRev" || GetAnim == "IdleSleepShakeSV" || GetAnim == "IdleSleepLoop" || GetAnim == "IdleSleepShake";	//Laying down anims
+	bool IsSRankAnim = GetAnim == "ResultRankS_LinkL";	//S Rank laying down anim
+	bool IsTransformAnim = GetAnim == "TrnsStSp";	//Transform Start Anim
 	auto Flags = sonic->m_pStateFlag;
 	bool IsOutOfControl = Flags->m_Flags[sonic->eStateFlag_OutOfControl];
 	auto input = Sonic::CInputState::GetInstance()->GetPadState();
@@ -102,6 +180,7 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	//sonic->m_pPlayer->SendMessageImm(sonic->m_pPlayer->m_ActorID, GetAnimInfo);
 	auto sonicpos = sonic->m_spMatrixNode->m_Transform;
 	int rand1to5 = std::rand() % 5;
+	uint8_t getBossID = GetCurrentStageID();
 
 	if (Sonic::Player::CSonicSpContext::GetInstance() == nullptr)
 	{
@@ -133,6 +212,11 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 			WRITE_MEMORY(0x00E5FE61, char*, "homing_pan"); //Normal Trail
 			WRITE_MEMORY(0x00E8E0AF, char*, "homing_pan"); //Normal Trail
 			WRITE_MEMORY(0x00E5FE01, char*, "homing_pan"); //Super Trail
+			break;
+		case 6:
+			WRITE_MEMORY(0x00E5FE61, char*, "homing_nb"); //Normal Trail
+			WRITE_MEMORY(0x00E8E0AF, char*, "homing_nb"); //Normal Trail
+			WRITE_MEMORY(0x00E5FE01, char*, "homing_nb"); //Super Trail
 			break;
 		default:
 			WRITE_MEMORY(0x00E5FE61, char*, "homing_generic"); //Normal Trail
@@ -452,10 +536,10 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 		DoubleVOFix = 5;
 	}
 
-	//Boos Intro voice line
-	if (!IsOutOfControl && !HasSaidIntro)
+	//Boss Intro voice line
+	if (!IsOutOfControl && !HasSaidIntro && IsBossStartVO && !IsInEvent)
 	{
-		switch (GetCurrentStageID())
+		switch (getBossID)
 		{
 		case bsd:
 			Common::PlaySoundStatic(bossVoiceHandle, 3002052);
@@ -473,15 +557,25 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 			Common::PlaySoundStatic(bossVoiceHandle, 3002050);
 			HasSaidIntro = true;
 			break;
-		case blb:
-			Common::PlaySoundStatic(bossVoiceHandle, 3002054);
-			HasSaidIntro = true;
-			break;
+		//case blb:
+		//	Common::PlaySoundStatic(bossVoiceHandle, 3002054);
+		//	HasSaidIntro = true;
+		//	break;
 		}
+	}
+	switch (getBossID)
+	{
+		case blb:
+			if (!IsOutOfControl && !HasSaidIntro && IsBossStartVO && !IsInEvent && (DoubleEventVOFix <= 0))
+			{
+				Common::PlaySoundStatic(bossVoiceHandle, 3002054);
+				HasSaidIntro = true;
+			}
+			break;
 	}
 
 	//Alone on a Friday night? god you're pathetic
-	if (IsPatheticAnim && (PatheticTimer >= 0))
+	if ((IsPatheticAnim || (IsSRankAnim && !IsSWAMDL)) && (PatheticTimer >= 0))
 		PatheticTimer -= updateInfo.DeltaTime;
 	if ((PatheticTimer <= 0) && (DoubleVOFix <= 0))
 	{
@@ -494,7 +588,7 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	//Enemy Combo Voicelines
 	if (EnemyVOCountdown > 0)
 		EnemyVOCountdown -= updateInfo.DeltaTime;
-	if ((EnemyVOCountdown <= 0) && IsEnemyCombo && sonic->m_Grounded)
+	if ((EnemyVOCountdown <= 0) && IsEnemyCombo && sonic->m_Grounded && IsEnemyComboVO)
 	{
 		if (EnemyComboCount >= 7)
 			sonic->PlaySound(3002013, false); //Play voiceline
@@ -505,12 +599,13 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	}
 
 	//Timer Fixes
-	if (DoubleVOFix > 0)
+	if ((DoubleVOFix > 0) && !IsInEvent)
 		DoubleVOFix--;
-	if (DoubleTornadoVOFix > 0)
-		DoubleTornadoVOFix--;
+	if ((DoubleEventVOFix > 0) && !IsInEvent)
+		DoubleEventVOFix--;
 
 	//printf(sonic->GetCurrentAnimationName().c_str());
+	//printf(This->m_StateMachine.GetCurrentState()->GetStateName().c_str());
 	//printf(" - ");
 	//printf("%f", GetAnimInfo->m_Frame);
 	//printf(" - ");
@@ -625,6 +720,10 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	//printf("\n");
 
 	originalCPlayerSpeedUpdate(This, _, updateInfo);
+
+	if (IsParticleLights)
+		ParticleLight(0.0, 0.2, 1.0, 1.0, 4.2);
+		//ParticleLight(10000, 10000, 10000, 10000, 1000000000); //Flashbang mode
 }
 HOOK(void, __fastcall, EnterRunQuickStep, 0x01231360, hh::fnd::CStateMachineBase::CStateBase* This)
 {
@@ -640,13 +739,37 @@ HOOK(void, __fastcall, ProcMsgNotifyLapTimeHud, 0x1097640, Sonic::CGameObject* T
 		sonic->PlaySound(3002001, false); //Play voiceline
 
 	//printf("CHECKPOINT???"); printf("\n");
-	//printf("CHECKPOINT???"); printf("\n");
-	//printf("CHECKPOINT???"); printf("\n");
-	//printf("CHECKPOINT???"); printf("\n");
-	//printf("CHECKPOINT???"); printf("\n");
-	//printf("CHECKPOINT???"); printf("\n");
-	//printf("CHECKPOINT???"); printf("\n");
 	originalProcMsgNotifyLapTimeHud(This, Edx, in_rMsg);
+}
+
+//Checkpoint Voicelines
+HOOK(void, __fastcall, CObjPointMarker, 0x010328B0, Sonic::CGameObject* This, void* edx, int* a1, int* a2)
+{
+	auto sonic = Sonic::Player::CPlayerSpeedContext::GetInstance();
+	if (sonic->m_HorizontalVelocity.norm() >= 15.0f && IsCheckpointVO && (DoubleEventVOFix <= 0))
+	{
+		sonic->PlaySound(3002001, false); //Play voiceline
+		DoubleEventVOFix = 420;
+	}
+
+	//printf("CHECKPOINT???"); printf("\n");
+	originalCObjPointMarker(This, edx, a1, a2);
+}
+
+//Event Fixes
+HOOK(void, __fastcall, EventUpdate, 0x00B217A0, Sonic::CGameObject* This, void* edx, int* updateInfo)
+{
+	//printf("EVENT"); printf("\n");
+	DoubleEventVOFix = 30;
+	IsInEvent = true;
+	originalEventUpdate(This, edx, updateInfo);
+}
+HOOK(void, __fastcall, EventEnd, 0x00B1EA80, Sonic::CGameObject* This, void* edx, int* a2)
+{
+	//printf("EVENT END"); printf("\n");
+	DoubleEventVOFix = 30;
+	IsInEvent = false;
+	originalEventEnd(This, edx, a2);
 }
 
 //Handle Restart/Stage switch
@@ -654,8 +777,8 @@ void NewStage(Sonic::Player::CPlayer* player)
 {
 	HasSaidIntro = false;
 	IsEnemyCombo = false;
-	DoubleVOFix = 0;
-	DoubleTornadoVOFix = 0;
+	DoubleVOFix = 5;
+	DoubleEventVOFix = 420;
 	EnemyVOCountdown = 0;
 	EnemyComboCount = 0;
 	PatheticTimer = 30;
@@ -804,10 +927,10 @@ __declspec(naked) void Enemy_MidAsmHook()
 //Tornado Voiceline
 void CscGenericTornadoNull()
 {
-	if (DoubleTornadoVOFix <= 0 && IsTornadoVO)
+	if (DoubleEventVOFix <= 0 && IsTornadoVO)
 	{
 		Common::PlaySoundStatic(bossVoiceHandle, 3002048);
-		DoubleTornadoVOFix = 420;
+		DoubleEventVOFix = 420;
 	}
 	//printf("TORNADO SPAWNED"); printf("\n");
 }
@@ -918,7 +1041,18 @@ HOOK(void, __cdecl, InitializeApplicationParams, 0x00D65180, Sonic::CParameterFi
 	//cat_Bounce->CreateParamBool(&someBool, "Bool");
 	//cat_Bounce->CreateParamFloat(&someFloat, "Float");
 
-	cat_Bounce->CreateParamInt(&TrailFlag, "Homing Trail Flag");
+	cat_Bounce->CreateParamBool(&IsParticleLights, "Particle Lights");
+	//cat_Bounce->CreateParamInt(&TrailFlag, "Homing Trail Flag");
+	cat_Bounce->CreateParamTypeList((uint32_t*)&TrailFlag, "Homing Trail Flag", "Choose what homing trail",
+		{
+			{ "Normal", 0},
+			{ "Trans", 1},
+			{ "Lesbian", 2},
+			{ "Gay", 3},
+			{ "Bi", 4},
+			{ "Pan", 5},
+			{ "Non-Binary", 6},
+		});
 	cat_Bounce->CreateParamBool(&IsIdleChatVO, "Idle Chatter");
 	cat_Bounce->CreateParamBool(&IsRankChatVO, "Rank Quotes");
 	cat_Bounce->CreateParamBool(&IsBossTauntVO, "Boss Taunts");
@@ -926,6 +1060,7 @@ HOOK(void, __cdecl, InitializeApplicationParams, 0x00D65180, Sonic::CParameterFi
 	cat_Bounce->CreateParamBool(&IsSuperYellVO, "Super Transform Yell");
 	cat_Bounce->CreateParamBool(&IsQuickstepVO, "Quickstep Grunts");
 	cat_Bounce->CreateParamBool(&IsTrickFinishVO, "Trick Finisher Voicelines");
+	cat_Bounce->CreateParamBool(&IsEnemyComboVO, "Enemy Combo Voicelines");
 	cat_Bounce->CreateParamBool(&IsCheckpointVO, "Checkpoint Voicelines");
 	cat_Bounce->CreateParamBool(&IsTornadoVO, "Crisis City Tornado");
 	cat_Bounce->CreateParamBool(&IsFootTapSFX, "Foot Tapping SFX");
@@ -940,16 +1075,22 @@ EXPORT void Init()
 	INIReader reader("mod.ini");
 	std::string SelectModel = reader.Get("Main", "IncludeDir1", "disk_swa");
 	IsSWAMDL = SelectModel == "disk_swa";
+	IsParticleLights = reader.GetBoolean("Main", "IsParticleLights", IsParticleLights);
+	TrailFlag = reader.GetInteger("Main", "TrailFlag", TrailFlag);
 	IsIdleChatVO = reader.GetBoolean("Option", "IsIdleChatVO", IsIdleChatVO);
 	IsRankChatVO = reader.GetBoolean("Option", "IsRankChatVO", IsRankChatVO);
+	IsBossStartVO = reader.GetBoolean("Option", "IsBossStartVO", IsBossStartVO);
 	IsBossTauntVO = reader.GetBoolean("Option", "IsBossTauntVO", IsBossTauntVO);
 	IsTransRankVO = reader.GetBoolean("Option", "IsTransRankVO", IsTransRankVO);
 	IsSuperYellVO = reader.GetBoolean("Option", "IsSuperYellVO", IsSuperYellVO);
 	IsQuickstepVO = reader.GetBoolean("Option", "IsQuickstepVO", IsQuickstepVO);
 	IsTrickFinishVO = reader.GetBoolean("Option", "IsTrickFinishVO", IsTrickFinishVO);
+	IsEnemyComboVO = reader.GetBoolean("Option", "IsEnemyComboVO", IsEnemyComboVO);
+	IsCheckpointVO = reader.GetBoolean("Option", "IsCheckpointVO", IsCheckpointVO);
 	IsTornadoVO = reader.GetBoolean("Option", "IsTornadoVO", IsTornadoVO);
 	IsFootTapSFX = reader.GetBoolean("Option", "IsFootTapSFX", IsFootTapSFX);
-	if (IsSWAMDL) //Fix stray polys on unleashed skeleton
+	//Fix stray polys on unleashed skeleton
+	if (IsSWAMDL)
 	{
 		//Right Mouth
 		WRITE_MEMORY(0x015E8FB4, const char*, "Jaw_LT");
@@ -964,8 +1105,11 @@ EXPORT void Init()
 	}
 	INSTALL_HOOK(CPlayerSpeedUpdate);
 	INSTALL_HOOK(EnterRunQuickStep);
-	INSTALL_HOOK(ProcMsgNotifyLapTimeHud);
+	//INSTALL_HOOK(ProcMsgNotifyLapTimeHud);
+	INSTALL_HOOK(CObjPointMarker);
 	INSTALL_HOOK(MsgRestartStage);
+	INSTALL_HOOK(EventUpdate);
+	INSTALL_HOOK(EventEnd);
 	WRITE_MEMORY(0x16D4B4C, void*, CSonicRemoveCallback);
 	INSTALL_HOOK(CHudResultStart);
 	INSTALL_HOOK(RankQuote_CStateGoalFadeBeforeBegin);
@@ -981,7 +1125,7 @@ EXPORT void Init()
 	if (Common::IsModEnabled("Unleashed Project") || Common::IsModEnabled("Unleashed Project Encore"))
 		IsUnleashedProject = true;
 
-	if (Common::IsModEnabled("Shivery Mountainsides"))
+	if (Common::IsModEnabled("Shivery Mountainsides") || Common::IsModEnabled("Frozen Hill"))
 		IsShiveryMountain = true;
 
 	if (Common::IsModEnabled("Water Palace") || Common::IsModEnabled("Water Palace Revamped"))

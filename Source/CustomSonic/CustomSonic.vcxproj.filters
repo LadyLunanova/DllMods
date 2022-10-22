@@ -5,9 +5,15 @@
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="Mod.cpp" />
     <ClCompile Include="UpdateDirector.cpp" />
+    <ClCompile Include="CustomUI.cpp" />
+    <ClCompile Include="WildFireVFX.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
     <ClInclude Include="UpdateDirector.h" />
+    <ClInclude Include="InstallCustomUI.h" />
+    <ClInclude Include="CustomSonicItems.h" />
+    <ClInclude Include="CustomUI.h" />
+    <ClInclude Include="WildFireVFX.h" />
   </ItemGroup>
 </Project>

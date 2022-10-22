@@ -176,6 +176,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CustomUI.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="Mod.cpp" />
     <ClCompile Include="Pch.cpp">
@@ -189,10 +190,15 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="UpdateDirector.cpp" />
+    <ClCompile Include="WildFireVFX.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="InstallCustomUI.h" />
+    <ClInclude Include="CustomSonicItems.h" />
+    <ClInclude Include="CustomUI.h" />
     <ClInclude Include="Pch.h" />
     <ClInclude Include="UpdateDirector.h" />
+    <ClInclude Include="WildFireVFX.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

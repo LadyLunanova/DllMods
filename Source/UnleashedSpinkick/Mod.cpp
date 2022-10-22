@@ -5,8 +5,54 @@ float KickTimer = 0.0f;
 
 // Original code by Brianuuu: https://github.com/brianuuu
 using SharedPtrTypeless = boost::shared_ptr<void>;
+enum SonicCollision : uint32_t
+{
+	TypeNoAttack = 0x1E61B5C,
+	TypeRagdoll = 0x1E61B60,
+	TypeSonicSpinCharge = 0x1E61B64,
+	TypeSonicSpin = 0x1E61B68,
+	TypeSonicUnbeaten = 0x1E61B6C,
+	TypeSuperSonic = 0x1E61B70,
+	TypeSonicSliding = 0x1E61B74,
+	TypeSonicHoming = 0x1E61B78,
+	TypeSonicSelectJump = 0x1E61B7C,
+	TypeSonicDrift = 0x1E61B80,
+	TypeSonicBoost = 0x1E61B84,
+	TypeSonicStomping = 0x1E61B88,
+	TypeSonicTrickAttack = 0x1E61B8C,
+	TypeSonicSquatKick = 0x1E61B90,
+	TypeSonicClassicSpin = 0x1E61B94,
+	TypeExplosion = 0x1E61B98,
+	TypeBossAttack = 0x1E61B9C,
+	TypeGunTruckAttack = 0x1E61BA0,
+	TypeRagdollEnemyAttack = 0x1E61BA4,
+};
 namespace Common
 {
+	static void* SonicContextSetCollision(SonicCollision collisionType, bool enabled, Sonic::Player::CPlayerSpeedContext* sonic)
+	{
+		static void* const pEnableFunc = (void*)0xE65610;
+		static void* const pDisableFunc = (void*)0xE655C0;
+		__asm
+		{
+			mov		edi, sonic
+
+			mov		ecx, collisionType
+			mov		ecx, [ecx]
+			push	ecx
+
+			cmp		enabled, 0
+			je		jump
+
+			call[pEnableFunc]
+			jmp		end
+
+			jump :
+			call[pDisableFunc]
+
+				end :
+		}
+	}
 	static void* fCGlitterCreate
 	(
 		void* pContext,
@@ -123,12 +169,14 @@ HOOK(void, __fastcall, SquatKickBegin, 0x012526D0, hh::fnd::CStateMachineBase::C
 		break;
 	}
 	originalSquatKickBegin(This);
+	//Common::SonicContextSetCollision(TypeRagdollEnemyAttack, true, sonic); //Set sonic's collision type to stomping
 }
 HOOK(void, __fastcall, SquatKickEnd, 0x012527B0, hh::fnd::CStateMachineBase::CStateBase* This)
 {
 	auto sonic = (Sonic::Player::CPlayerSpeedContext*)This->m_pContext;
 	Common::fCGlitterEnd(sonic, KickVfxHandle, false); //Kill particle effect
 	originalSquatKickEnd(This);
+	//Common::SonicContextSetCollision(TypeRagdollEnemyAttack, false, sonic); //Set sonic's collision type to stomping
 }
 
 //Archive Stuff

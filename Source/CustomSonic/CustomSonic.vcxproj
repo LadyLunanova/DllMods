@@ -178,6 +178,7 @@
   <ItemGroup>
     <ClCompile Include="CustomUI.cpp" />
     <ClCompile Include="DllMain.cpp" />
+    <ClCompile Include="InstallSetup.cpp" />
     <ClCompile Include="Mod.cpp" />
     <ClCompile Include="Pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -196,6 +197,7 @@
     <ClInclude Include="InstallCustomUI.h" />
     <ClInclude Include="CustomSonicItems.h" />
     <ClInclude Include="CustomUI.h" />
+    <ClInclude Include="InstallSetup.h" />
     <ClInclude Include="Pch.h" />
     <ClInclude Include="UpdateDirector.h" />
     <ClInclude Include="WildFireVFX.h" />

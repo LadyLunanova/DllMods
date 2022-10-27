@@ -24,13 +24,23 @@ inline uint32_t GetCurrentStageID()
 }
 
 //Menu setup
-Chao::CSD::RCPtr<Chao::CSD::CProject> prFittingScreen;
-Chao::CSD::RCPtr<Chao::CSD::CScene> scChara;
-Chao::CSD::RCPtr<Chao::CSD::CScene> scIcon;
-Chao::CSD::RCPtr<Chao::CSD::CScene> scLRMove;
-Chao::CSD::RCPtr<Chao::CSD::CScene> scTextArea;
-Chao::CSD::RCPtr<Chao::CSD::CScene> scDeco;
-boost::shared_ptr<Sonic::CGameObjectCSD> obCustomUI;
+Chao::CSD::RCPtr<Chao::CSD::CProject> prFittingScreenBB;
+Chao::CSD::RCPtr<Chao::CSD::CProject> prFittingScreenSWA;
+Chao::CSD::RCPtr<Chao::CSD::CScene> scBBGui;
+Chao::CSD::RCPtr<Chao::CSD::CScene> scBBIcon;
+Chao::CSD::RCPtr<Chao::CSD::CScene> scBBLRMove;
+Chao::CSD::RCPtr<Chao::CSD::CScene> scBBTextArea;
+Chao::CSD::RCPtr<Chao::CSD::CScene> scBBDeco;
+Chao::CSD::RCPtr<Chao::CSD::CScene> scSWABG1;
+Chao::CSD::RCPtr<Chao::CSD::CScene> scSWATag;
+Chao::CSD::RCPtr<Chao::CSD::CScene> scSWATagTxt;
+Chao::CSD::RCPtr<Chao::CSD::CScene> scSWAFooter;
+Chao::CSD::RCPtr<Chao::CSD::CScene> scSWASelect;
+Chao::CSD::RCPtr<Chao::CSD::CScene> scSWAPress;
+Chao::CSD::RCPtr<Chao::CSD::CScene> scSWAArrow;
+Chao::CSD::RCPtr<Chao::CSD::CScene> scSWAAlt;
+boost::shared_ptr<Sonic::CGameObjectCSD> obBBCustomUI;
+boost::shared_ptr<Sonic::CGameObjectCSD> obSWACustomUI;
 static SharedPtrTypeless menuSoundHandle;
 enum MenuOptionType
 {
@@ -60,34 +70,161 @@ struct MsgLookAtStruct
 	__declspec(align(16)) Hedgehog::Math::CVector TargetPosition[4];
 };
 bool IsLookAt = false;
+bool IsUnleashedHUD = false;
+int SWAOpenTimer = 15;
+int MemoryOpenTimer = 1800;
+int ActivateButton = 0;
+/*
+{
+	Select = 0,
+	LStick = 1,
+	RStick = 2,
+	Triggers = 3,
+	Shoulders = 4,
+	Dup = 5,
+	Ddown = 6,
+	Dleft = 7,
+	Dright = 8,
+};
+ActivateButtonType ActivateButton = ActivateButtonType::Select; */
 
 //Menu Functions
-void PlayCursorAnim()
+void CHudUICursorAnim()
 {
-	scIcon->SetMotion("ON_Anim");
-	scIcon->SetMotionFrame(0.0f);
-	scIcon->m_MotionDisableFlag = false;
-	scIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-	scIcon->m_MotionSpeed = 1.0f;
-	scIcon->Update();
+	scBBIcon->SetMotion("ON_Anim");
+	scBBIcon->SetMotionFrame(0.0f);
+	scBBIcon->m_MotionDisableFlag = false;
+	scBBIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+	scBBIcon->m_MotionSpeed = 1.0f;
+	scBBIcon->Update();
+}
+
+void CHudUISceneDestroy()
+{
+	if (scBBGui)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenBB.Get(), scBBGui);
+	if (scBBIcon)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenBB.Get(), scBBIcon);
+	if (scBBTextArea)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenBB.Get(), scBBTextArea);
+	if (scBBLRMove)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenBB.Get(), scBBLRMove);
+	if (scBBDeco)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenBB.Get(), scBBDeco);
+	if (scSWABG1)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenSWA.Get(), scSWABG1);
+	if (scSWATag)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenSWA.Get(), scSWATag);
+	if (scSWATagTxt)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenSWA.Get(), scSWATagTxt);
+	if (scSWAPress)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenSWA.Get(), scSWAPress);
+	if (scSWAFooter)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenSWA.Get(), scSWAFooter);
+	if (scSWAArrow)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenSWA.Get(), scSWAArrow);
+	if (scSWAAlt)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenSWA.Get(), scSWAAlt);
+	if (scSWASelect)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenSWA.Get(), scSWASelect);
 }
 
 void CreateFittingUI(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo& in_rUpdateInfo)
 {
 	Sonic::CCsdDatabaseWrapper wrapper(This->m_pMember->m_pGameDocument->m_pMember->m_spDatabase.get());
-	auto spCsdProject = wrapper.GetCsdProject("ui_fitting");
-	prFittingScreen = spCsdProject->m_rcProject;
-	obCustomUI = boost::make_shared<Sonic::CGameObjectCSD>(prFittingScreen, 0.5f, "HUD_Pause", true);
-	Sonic::CGameDocument::GetInstance()->AddGameObject(obCustomUI, "main", This);
+
+	if (!IsUnleashedHUD)
+	{
+		auto spCsdProject = wrapper.GetCsdProject("ui_fitting");
+		prFittingScreenBB = spCsdProject->m_rcProject;
+		obBBCustomUI = boost::make_shared<Sonic::CGameObjectCSD>(prFittingScreenBB, 0.5f, "HUD_Pause", true);
+		Sonic::CGameDocument::GetInstance()->AddGameObject(obBBCustomUI, "main", This);
+	}
+	else
+	{
+		auto spCsdProject = wrapper.GetCsdProject("ui_fitting_bb");
+		prFittingScreenBB = spCsdProject->m_rcProject;
+		obBBCustomUI = boost::make_shared<Sonic::CGameObjectCSD>(prFittingScreenBB, 0.5f, "HUD_Pause", true);
+		Sonic::CGameDocument::GetInstance()->AddGameObject(obBBCustomUI, "main", This);
+
+		auto spCsdProjectSWA = wrapper.GetCsdProject("ui_fitting_swa");
+		prFittingScreenSWA = spCsdProjectSWA->m_rcProject;
+		obSWACustomUI = boost::make_shared<Sonic::CGameObjectCSD>(prFittingScreenSWA, 0.4f, "HUD_Pause", true);
+		Sonic::CGameDocument::GetInstance()->AddGameObject(obSWACustomUI, "main", This);
+	}
 }
 
 void KillScreen()
 {
-	if (obCustomUI)
+	if (obBBCustomUI)
 	{
-		obCustomUI->SendMessage(obCustomUI->m_ActorID, boost::make_shared<Sonic::Message::MsgKill>());
-		obCustomUI = nullptr;
+		obBBCustomUI->SendMessage(obBBCustomUI->m_ActorID, boost::make_shared<Sonic::Message::MsgKill>());
+		obBBCustomUI = nullptr;
 	}
+	if (obSWACustomUI)
+	{
+		obSWACustomUI->SendMessage(obSWACustomUI->m_ActorID, boost::make_shared<Sonic::Message::MsgKill>());
+		obSWACustomUI = nullptr;
+	}
+}
+
+//Menu SFX
+void CHudUISFXOpen()
+{
+	if (IsUnleashedHUD)
+		Common::PlaySoundStatic(menuSoundHandle, 1000019);
+	else
+		Common::PlaySoundStatic(menuSoundHandle, 1000002);
+}
+
+void CHudUISFXSelect(bool Accept)
+{
+	if (IsUnleashedHUD)
+	{
+		if (Accept)
+			Common::PlaySoundStatic(menuSoundHandle, 1000023);
+		else
+			Common::PlaySoundStatic(menuSoundHandle, 1000031);
+	}
+	else
+	{
+		if (Accept)
+			Common::PlaySoundStatic(menuSoundHandle, 1000005);
+		else
+			Common::PlaySoundStatic(menuSoundHandle, 1000007);
+	}
+}
+
+void CHudUISFXMove()
+{
+	if (IsUnleashedHUD)
+		Common::PlaySoundStatic(menuSoundHandle, 1000022);
+	else
+		Common::PlaySoundStatic(menuSoundHandle, 1000004);
+}
+
+void CHudUISFXAlt()
+{
+	if (IsUnleashedHUD)
+		Common::PlaySoundStatic(menuSoundHandle, 1000028);
+	else
+		Common::PlaySoundStatic(menuSoundHandle, 1000005);
+}
+
+void CHudUISFXSwitch()
+{
+	if (IsUnleashedHUD)
+		Common::PlaySoundStatic(menuSoundHandle, 1000029);
+	else
+		Common::PlaySoundStatic(menuSoundHandle, 1000006);
+}
+
+void CHudUISFXExit()
+{
+	if (IsUnleashedHUD)
+		Common::PlaySoundStatic(menuSoundHandle, 1000024);
+	else
+		Common::PlaySoundStatic(menuSoundHandle, 1000003);
 }
 
 //INI file Handling
@@ -122,4 +259,14 @@ void ReadINI()
 	SelectHead = (SelectHeadType)reader->GetInteger("Select", "SelectHead", SelectHead);
 	SelectHandL = (SelectHandLType)reader->GetInteger("Select", "SelectHandL", SelectHandL);
 	SelectHandR = (SelectHandRType)reader->GetInteger("Select", "SelectHandR", SelectHandR);
+}
+
+void ReadConfig()
+{
+	INIReader reader("CustomSonic.ini");
+	ConfigDecoEnable = reader.GetBoolean("Mod", "ConfigDecoEnable", ConfigDecoEnable);
+	ActivateButton = reader.GetInteger("Mod", "ActivateButton", ActivateButton);
+
+	if (Common::IsModEnabled("Sonic Unleashed HUD"))
+		IsUnleashedHUD = true;
 }

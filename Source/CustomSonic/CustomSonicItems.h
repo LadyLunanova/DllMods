@@ -3,64 +3,59 @@
 //Items
 enum SelectShoeType
 {
-	ShDefault = 00,
-	ShClassic = 001,
-	ShArchie = 02,
-	ShSA1LightSpd = 10,
-	ShSoaps = 20,
-	ShSoapsLightSpd = 21,
-	ShSoapsRacing = 22,
-	ShRiders = 30,
-	Sh06GemDefault = 40,
-	Sh06GemRed = 41,
-	Sh06GemBlue = 42,
-	Sh06GemGreen = 43,
-	Sh06GemPurple = 44,
-	Sh06GemSky = 45,
-	Sh06GemWhite = 46,
-	Sh06GemYellow = 47,
-	ShSUAirboost = 50,
-	ShSULightSpd = 51,
-	ShSUStomp = 52,
-	ShSUWallJmp = 53,
-	ShSUWerehog = 54,
-	ShSUZoney = 55,
-	ShLinkBoots = 60,
-	ShBoom = 70,
-	ShPumas = 80,
-	/*
-
-	ShSimulator = xx,
-	Sh2020Running = xx,
-	Sh2020HorseShoe = xx,
-
-	*/
+	ShDefault = 0,
+	ShClassic = 1,
+	ShArchie = 2,
+	ShSA1LightSpd = 3,
+	ShSoaps = 4,
+	ShSoapsLightSpd = 5,
+	ShSoapsRacing = 6,
+	ShRiders = 7,
+	Sh06GemDefault = 8,
+	Sh06GemRed = 9,
+	Sh06GemBlue = 10,
+	Sh06GemGreen = 11,
+	Sh06GemPurple = 12,
+	Sh06GemSky = 13,
+	Sh06GemWhite = 14,
+	Sh06GemYellow = 15,
+	ShSUAirboost = 16,
+	ShSULightSpd = 17,
+	ShSUStomp = 18,
+	ShSUWallJmp = 19,
+	ShSUWerehog = 20,
+	ShSUZoney = 21,
+	ShSimulator = 22, //TBA
+	ShLinkBoots = 22,
+	ShBoom = 23,
+	Sh2020Running = 24, //TBA
+	Sh2020HorseShoe = 25, //TBA
+	Sh2020Karate = 26, //TBA
+	ShPumas = 27,
+	ShKorone = 28, //TBA
+	ShMonsterHunter = 29, //TBA
+	ShDeluxe = 30, //TBA
 };
-SelectShoeType SelectShoes = SelectShoeType::ShDefault;
 enum SelectBodyType
 {
-	BdDefault = 00,
-	BdBlueArms = 01,
-	BdRaceSuit = 10,
-	BdWildFire = 20,
-	BdLinkCos = 30,
-	BdScarf = 40,
-	BdScarfArms = 41,
-	Bd2020SwimVest = 50,
-	Bd2020SurfSuit = 60,
-	Bd2020HorseShirt = 70,
-	BdMovieSkin = 80,
-	BdMovieSkinArms = 81,
-	/*
-
-	BdSimulator = xx,
-	Bd2020Running = xx,
-	BdSpeedSlugger = xx,
-	BdSpeedPirate = xx,
-
-	*/
+	BdDefault = 0,
+	BdBlueArms = 1,
+	BdRaceSuit = 2,
+	BdWildFire = 3,
+	BdSimulator = 4, //TBA
+	BdLinkCos = 5,
+	BdScarf = 6,
+	BdScarfArms = 7,
+	Bd2020SwimVest = 8,
+	Bd2020SurfSuit = 9,
+	Bd2020HorseShirt = 10,
+	Bd2020Running = 11, //TBA
+	Bd2020Fence = 12, //TBA
+	BdMovieSkin = 13,
+	BdMovieSkinArms = 14,
+	BdSpeedSlugger = 15,//TBA
+	BdSpeedPirate = 16, //TBA
 };
-SelectBodyType SelectBody = SelectBodyType::BdDefault;
 enum SelectHeadType
 {
 	HeDefault = 00,
@@ -77,7 +72,6 @@ enum SelectHeadType
 
 	*/
 };
-SelectHeadType SelectHead = SelectHeadType::HeDefault;
 enum SelectHandLType
 {
 	HLDefault = 00,
@@ -90,7 +84,6 @@ enum SelectHandLType
 	HLLinkGlove = 70,
 	HLBoomGlove = 80,
 };
-SelectHandLType SelectHandL = SelectHandLType::HLDefault;
 enum SelectHandRType
 {
 	HRDefault = 00,
@@ -105,28 +98,18 @@ enum SelectHandRType
 	HRLinkGlove = 70,
 	HRBoomGlove = 80,
 };
-SelectHandRType SelectHandR = SelectHandRType::HRDefault;
-bool EyelidSkin = false;
-bool NoBallJump = true;
-bool BdBlueArmVariant = false;
-bool BdScarfVariant = false;
-bool BdMovieVariant = false;
-bool HRMagicVariant = false;
-bool HRRidersVariant = false;
 enum ShDefaultVariantType
 {
 	ShoeDefault = 0,
 	ShoeClassic = 1,
 	ShoeArchie = 2,
 };
-ShDefaultVariantType ShDefaultVariant = ShDefaultVariantType::ShoeDefault;
 enum ShSA2VariantType
 {
 	SA2Soap = 0,
 	SA2LightSpd = 1,
 	SA2Racing = 2,
 };
-ShSA2VariantType ShSA2Variant = ShSA2VariantType::SA2Soap;
 enum Sh06VariantType
 {
 	GemDefault = 0,
@@ -138,7 +121,6 @@ enum Sh06VariantType
 	GemWhite = 6,
 	GemYellow = 7,
 };
-Sh06VariantType Sh06Variant = Sh06VariantType::GemDefault;
 enum ShSUVariantType
 {
 	SUAirboost = 0,
@@ -148,9 +130,34 @@ enum ShSUVariantType
 	SUWerehog = 4,
 	SUZoney = 5,
 };
+
+SelectShoeType SelectShoes = SelectShoeType::ShDefault;
+SelectBodyType SelectBody = SelectBodyType::BdDefault;
+SelectHeadType SelectHead = SelectHeadType::HeDefault;
+SelectHandLType SelectHandL = SelectHandLType::HLDefault;
+SelectHandRType SelectHandR = SelectHandRType::HRDefault;
+ShDefaultVariantType ShDefaultVariant = ShDefaultVariantType::ShoeDefault;
+ShSA2VariantType ShSA2Variant = ShSA2VariantType::SA2Soap;
+Sh06VariantType Sh06Variant = Sh06VariantType::GemDefault;
 ShSUVariantType ShSUVariant = ShSUVariantType::SUAirboost;
 
+bool EyelidSkin = false;
+bool NoBallJump = true;
+bool BdBlueArmVariant = false;
+bool BdScarfVariant = false;
+bool BdMovieVariant = false;
+bool HRMagicVariant = false;
+bool HRRidersVariant = false;
+
 void WildFireEnable(int Enabled);
+
+void EyelidStatusGet(int Eyelid)
+{
+	if (Eyelid == 0)
+		EyelidSkin = false;
+	else
+		EyelidSkin = true;
+}
 
 void ItemVisibilityHandler(const boost::shared_ptr<hh::mr::CModelData>& model, std::vector<boost::shared_ptr<hh::mr::CNodeGroupModelData>>& nodeGroupModels)
 {

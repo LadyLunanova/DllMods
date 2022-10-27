@@ -7,6 +7,7 @@
     <ClCompile Include="UpdateDirector.cpp" />
     <ClCompile Include="CustomUI.cpp" />
     <ClCompile Include="WildFireVFX.cpp" />
+    <ClCompile Include="InstallSetup.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -15,5 +16,6 @@
     <ClInclude Include="CustomSonicItems.h" />
     <ClInclude Include="CustomUI.h" />
     <ClInclude Include="WildFireVFX.h" />
+    <ClInclude Include="InstallSetup.h" />
   </ItemGroup>
 </Project>

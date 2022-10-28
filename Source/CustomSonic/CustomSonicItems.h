@@ -371,3 +371,27 @@ void ItemVisibilityHandler(const boost::shared_ptr<hh::mr::CModelData>& model, s
 
 	model->m_NodeGroupModelNum = model->m_NodeGroupModels.size();
 }
+
+void MaterialSelectionHandler(const boost::shared_ptr<hh::mr::CModelData>& model, std::vector<boost::shared_ptr<hh::mr::CMeshData>>& spMaterial)
+{
+	if (!model || !(model->m_Flags & hh::db::eDatabaseDataFlags_IsMadeOne))
+		return;
+
+	if (spMaterial.empty())
+		spMaterial.assign(model->m_OpaqueMeshes.begin(), model->m_OpaqueMeshes.end());
+
+	//model->m_OpaqueMeshes.clear();
+
+	for (auto& mat : spMaterial)
+	{
+		auto matName = mat->m_MaterialName;
+
+		if (matName == "sonic_gm_body")
+			mat->m_MaterialName = "sonic_gm_body00";
+
+		//if (matName != "sonic_gm_body")
+		//	model->m_OpaqueMeshes.push_back(mat);
+	}
+
+	//model->m_NodeGroupModelNum = model->m_OpaqueMeshes.size();
+}

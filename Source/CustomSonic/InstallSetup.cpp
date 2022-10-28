@@ -3,7 +3,9 @@
 //Setup
 std::mutex mutex;
 std::map<boost::shared_ptr<hh::mr::CModelData>, std::vector<boost::shared_ptr<hh::mr::CNodeGroupModelData>>> models;
+std::map<boost::shared_ptr<hh::mr::CModelData>, std::vector<boost::shared_ptr<hh::mr::CMeshData>>> meshes;
 void ItemVisibilityHandler(const boost::shared_ptr<hh::mr::CModelData>& model, std::vector<boost::shared_ptr<hh::mr::CNodeGroupModelData>>& nodeGroupModels);
+void MaterialSelectionHandler(const boost::shared_ptr<hh::mr::CModelData>& model, std::vector<boost::shared_ptr<hh::mr::CMeshData>>& spMaterial);
 void EyelidStatusGet(int Eyelid);
 int ConfigSonicMats = 0;
 int ConfigSonicEyelids = 0;
@@ -19,6 +21,11 @@ HOOK(void*, __fastcall, CMirageDatabaseWrapperGetModelData, hh::mr::fpCMirageDat
 		const auto pair = models.find(out_spModelData);
 		if (pair == models.end())
 			models[out_spModelData] = {};
+
+		const auto pair2 = meshes.find(out_spModelData);
+		if (pair2 == meshes.end())
+			meshes[out_spModelData] = {};
+		
 	}
 
 	return result;
@@ -295,40 +302,54 @@ EXPORT void OnFrame()
 		}
 	}
 
-	FUNCTION_PTR(bool*, __thiscall, CSingleElementChangeMaterial, 0x701CC0, Hedgehog::Mirage::CSingleElement* singleElement, hh::mr::CMaterialData* from, boost::shared_ptr<hh::mr::CMaterialData>&to);
-	FUNCTION_PTR(bool*, __thiscall, CSingleElementResetMaterial, 0x701830, Hedgehog::Mirage::CSingleElement* singleElement, hh::mr::CMaterialData* mat);
-	if (Sonic::Player::CPlayerSpeedContext::GetInstance() != nullptr)
+	for (auto it2 = meshes.begin(); it2 != meshes.end();)
 	{
-		auto const& model = Sonic::Player::CPlayerSpeedContext::GetInstance()->m_pPlayer->m_spCharacterModel;
-		//auto const& modelHH = Hedgehog::Mirage::;
-
-		hh::mr::CMirageDatabaseWrapper wrapper(Sonic::CGameDocument::GetInstance()->m_pMember->m_spDatabase.get());
-		//hh::mr::CMirageDatabaseWrapper wrapper(Hedgehog::Mirage::CSingleElement::GetNode());
-		//boost::shared_ptr<hh::mr::CSingleElement> modelSonic = Hedgehog::Mirage::CSingleElement::GetNode("");
-		boost::shared_ptr<hh::mr::CMaterialData> matBody00 = wrapper.GetMaterialData("sonic_gm_body");
-		boost::shared_ptr<hh::mr::CMaterialData> matBody01 = wrapper.GetMaterialData("sonic_gm_body00");
-		boost::shared_ptr<hh::mr::CMaterialData> matBody02 = wrapper.GetMaterialData("sonic_gm_body01");
-		boost::shared_ptr<hh::mr::CMaterialData> matMouth00 = wrapper.GetMaterialData("sonic_gm_mouth");
-		boost::shared_ptr<hh::mr::CMaterialData> matMouth01 = wrapper.GetMaterialData("sonic_gm_mouth00");
-		boost::shared_ptr<hh::mr::CMaterialData> matMouth02 = wrapper.GetMaterialData("sonic_gm_mouth01");
-
-		if (ConfigSonicMats == 0)
+		if (it2->first.unique())
 		{
-			CSingleElementChangeMaterial(model.get(), matBody00.get(), matBody00);
-			CSingleElementChangeMaterial(model.get(), matMouth00.get(), matMouth00);
+			it2 = meshes.erase(it2);
+			printf("NO MATERIALS FOUND\n");
 		}
-		if (ConfigSonicMats == 1)
+		else
 		{
-			CSingleElementChangeMaterial(model.get(), matBody00.get(), matBody01);
-			CSingleElementChangeMaterial(model.get(), matMouth00.get(), matMouth01);
+			MaterialSelectionHandler(it2->first, it2->second);
+			++it2;
 		}
-		if (ConfigSonicMats == 2)
-		{
-			CSingleElementChangeMaterial(model.get(), matBody00.get(), matBody02);
-			CSingleElementChangeMaterial(model.get(), matMouth00.get(), matMouth02);
-		}
-			
 	}
+
+	//FUNCTION_PTR(bool*, __thiscall, CSingleElementChangeMaterial, 0x701CC0, Hedgehog::Mirage::CSingleElement* singleElement, hh::mr::CMaterialData* from, boost::shared_ptr<hh::mr::CMaterialData>&to);
+	//FUNCTION_PTR(bool*, __thiscall, CSingleElementResetMaterial, 0x701830, Hedgehog::Mirage::CSingleElement* singleElement, hh::mr::CMaterialData* mat);
+	//if (Sonic::Player::CPlayerSpeedContext::GetInstance() != nullptr)
+	//{
+	//	auto const& model = Sonic::Player::CPlayerSpeedContext::GetInstance()->m_pPlayer->m_spCharacterModel;
+	//	//auto const& modelHH = Hedgehog::Mirage::;
+
+	//	hh::mr::CMirageDatabaseWrapper wrapper(Sonic::CGameDocument::GetInstance()->m_pMember->m_spDatabase.get());
+	//	//hh::mr::CMirageDatabaseWrapper wrapper(Hedgehog::Mirage::CSingleElement::GetNode());
+	//	//boost::shared_ptr<hh::mr::CSingleElement> modelSonic = Hedgehog::Mirage::CSingleElement::GetNode("");
+	//	boost::shared_ptr<hh::mr::CMaterialData> matBody00 = wrapper.GetMaterialData("sonic_gm_body");
+	//	boost::shared_ptr<hh::mr::CMaterialData> matBody01 = wrapper.GetMaterialData("sonic_gm_body00");
+	//	boost::shared_ptr<hh::mr::CMaterialData> matBody02 = wrapper.GetMaterialData("sonic_gm_body01");
+	//	boost::shared_ptr<hh::mr::CMaterialData> matMouth00 = wrapper.GetMaterialData("sonic_gm_mouth");
+	//	boost::shared_ptr<hh::mr::CMaterialData> matMouth01 = wrapper.GetMaterialData("sonic_gm_mouth00");
+	//	boost::shared_ptr<hh::mr::CMaterialData> matMouth02 = wrapper.GetMaterialData("sonic_gm_mouth01");
+
+	//	if (ConfigSonicMats == 0)
+	//	{
+	//		CSingleElementChangeMaterial(model.get(), matBody00.get(), matBody00);
+	//		CSingleElementChangeMaterial(model.get(), matMouth00.get(), matMouth00);
+	//	}
+	//	if (ConfigSonicMats == 1)
+	//	{
+	//		CSingleElementChangeMaterial(model.get(), matBody00.get(), matBody01);
+	//		CSingleElementChangeMaterial(model.get(), matMouth00.get(), matMouth01);
+	//	}
+	//	if (ConfigSonicMats == 2)
+	//	{
+	//		CSingleElementChangeMaterial(model.get(), matBody00.get(), matBody02);
+	//		CSingleElementChangeMaterial(model.get(), matMouth00.get(), matMouth02);
+	//	}
+	//		
+	//}
 	
 }
 

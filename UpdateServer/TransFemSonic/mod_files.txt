@@ -77,6 +77,7 @@ add disk_swa/bb3/PBRSonic.ar.02
 add disk_swa/bb3/PBRSonic.ar.03
 add disk_swa/bb3/PBRSonic.ar.04
 add disk_swa/bb3/PBRSonic.ar.05
+add disk_swa/bb3/PBRSonic.ar.06
 add disk_swa/bb3/PBRSonic.arl
 add disk_swa/bb3/Sonic.ar.00
 add disk_swa/bb3/Sonic.ar.01
@@ -84,9 +85,13 @@ add disk_swa/bb3/Sonic.ar.02
 add disk_swa/bb3/Sonic.ar.03
 add disk_swa/bb3/Sonic.ar.04
 add disk_swa/bb3/Sonic.ar.05
+add disk_swa/bb3/Sonic.ar.06
+add disk_swa/bb3/Sonic.ar.07
 add disk_swa/bb3/Sonic.arl
 add disk_swa/bb3/SonicSp.ar.00
 add disk_swa/bb3/SonicSp.ar.01
+add disk_swa/bb3/SonicSp.ar.02
+add disk_swa/bb3/SonicSp.ar.03
 add disk_swa/bb3/SonicSp.arl
 add disk_swa/bb3/SonicBatabata.ar.00
 add disk_swa/bb3/SonicBatabata.arl
@@ -140,7 +145,11 @@ add disk_cmn/bb2/FEMpam.ar.01
 add disk_cmn/bb2/FEMpam.ar.02
 add disk_cmn/bb2/FEMpam.ar.03
 add disk_cmn/bb2/FEMpam.ar.04
-add disk_cmn/bb2/FEMpam.arl
+add disk_cmn/bb3/FEMpam.arl
+add disk_cmn/bb3/voices/English/SonicVoice.ar.00
+add disk_cmn/bb3/voices/English/SonicVoice.arl
+add disk_cmn/bb3/SonicGlitter.ar.00
+add disk_cmn/bb3/SonicGlitter.arl
 add Sound/30VCE_BLB_NP_EN.csb
 add TransFemSonic.dll
 add TransFemSonic.json

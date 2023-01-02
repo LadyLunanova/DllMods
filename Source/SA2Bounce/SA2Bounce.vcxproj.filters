@@ -3,6 +3,7 @@
   <ItemGroup>
     <ClCompile Include="Pch.cpp" />
     <ClCompile Include="DllMain.cpp" />
+    <ClCompile Include="Mod.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />

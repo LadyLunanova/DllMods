@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32228.343
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LunarPlayground", "LunarPlayground.vcxproj", "{7824EF9D-B05F-43EF-86BF-EFF49CCCA3F6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{391B4E09-AA00-4CD7-985E-3CF8FBA01F1E} = {391B4E09-AA00-4CD7-985E-3CF8FBA01F1E}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LunarSharpPlayground", "..\LunarSharpPlayground\LunarSharpPlayground.csproj", "{391B4E09-AA00-4CD7-985E-3CF8FBA01F1E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7824EF9D-B05F-43EF-86BF-EFF49CCCA3F6}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{7824EF9D-B05F-43EF-86BF-EFF49CCCA3F6}.Debug|x64.ActiveCfg = Debug|x64
+		{7824EF9D-B05F-43EF-86BF-EFF49CCCA3F6}.Debug|x64.Build.0 = Debug|x64
+		{7824EF9D-B05F-43EF-86BF-EFF49CCCA3F6}.Debug|x86.ActiveCfg = Debug|Win32
+		{7824EF9D-B05F-43EF-86BF-EFF49CCCA3F6}.Debug|x86.Build.0 = Debug|Win32
+		{7824EF9D-B05F-43EF-86BF-EFF49CCCA3F6}.Release|Any CPU.ActiveCfg = Release|Win32
+		{7824EF9D-B05F-43EF-86BF-EFF49CCCA3F6}.Release|x64.ActiveCfg = Release|x64
+		{7824EF9D-B05F-43EF-86BF-EFF49CCCA3F6}.Release|x64.Build.0 = Release|x64
+		{7824EF9D-B05F-43EF-86BF-EFF49CCCA3F6}.Release|x86.ActiveCfg = Release|Win32
+		{7824EF9D-B05F-43EF-86BF-EFF49CCCA3F6}.Release|x86.Build.0 = Release|Win32
+		{391B4E09-AA00-4CD7-985E-3CF8FBA01F1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{391B4E09-AA00-4CD7-985E-3CF8FBA01F1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{391B4E09-AA00-4CD7-985E-3CF8FBA01F1E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{391B4E09-AA00-4CD7-985E-3CF8FBA01F1E}.Debug|x64.Build.0 = Debug|Any CPU
+		{391B4E09-AA00-4CD7-985E-3CF8FBA01F1E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{391B4E09-AA00-4CD7-985E-3CF8FBA01F1E}.Debug|x86.Build.0 = Debug|Any CPU
+		{391B4E09-AA00-4CD7-985E-3CF8FBA01F1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{391B4E09-AA00-4CD7-985E-3CF8FBA01F1E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{391B4E09-AA00-4CD7-985E-3CF8FBA01F1E}.Release|x64.ActiveCfg = Release|Any CPU
+		{391B4E09-AA00-4CD7-985E-3CF8FBA01F1E}.Release|x64.Build.0 = Release|Any CPU
+		{391B4E09-AA00-4CD7-985E-3CF8FBA01F1E}.Release|x86.ActiveCfg = Release|Any CPU
+		{391B4E09-AA00-4CD7-985E-3CF8FBA01F1E}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CC2D9A69-3455-42DC-B99D-C6FD4FE17867}
+	EndGlobalSection
+EndGlobal

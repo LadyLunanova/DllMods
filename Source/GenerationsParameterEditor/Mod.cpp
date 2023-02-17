@@ -77,6 +77,7 @@ extern "C" __declspec(dllexport) void Init(ModInfo* modInfo)
     std::atexit(Configuration::save);
 
     INSTALL_HOOK(WndProc);
+    MaterialEditor::init();
 
     if (Configuration::loadDebugShaders)
     {

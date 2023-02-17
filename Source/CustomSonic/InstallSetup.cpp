@@ -3,6 +3,7 @@
 //Setup
 std::mutex mutex;
 std::map<boost::shared_ptr<hh::mr::CModelData>, std::vector<boost::shared_ptr<hh::mr::CNodeGroupModelData>>> models;
+<<<<<<< HEAD
 void ItemVisibilityHandler(const boost::shared_ptr<hh::mr::CModelData>& model, std::vector<boost::shared_ptr<hh::mr::CNodeGroupModelData>>& nodeGroupModels);
 void traverse(hh::mr::CRenderable* renderable);
 bool IsGensRT = false;
@@ -22,6 +23,14 @@ static void loadArchiveDatabase()
 	loader->LoadArchiveList(database, arl.c_str());
 	loader->LoadArchive(database, ar.c_str(), { -10, 5 }, false, false);
 }
+=======
+std::map<boost::shared_ptr<hh::mr::CModelData>, std::vector<boost::shared_ptr<hh::mr::CMeshData>>> meshes;
+void ItemVisibilityHandler(const boost::shared_ptr<hh::mr::CModelData>& model, std::vector<boost::shared_ptr<hh::mr::CNodeGroupModelData>>& nodeGroupModels);
+void MaterialSelectionHandler(const boost::shared_ptr<hh::mr::CModelData>& model, std::vector<boost::shared_ptr<hh::mr::CMeshData>>& spMaterial);
+void EyelidStatusGet(int Eyelid);
+int ConfigSonicMats = 0;
+int ConfigSonicEyelids = 0;
+>>>>>>> e139a2e196ae21cfc27f2a98d570497a3ee761d9
 
 HOOK(void*, __fastcall, CMirageDatabaseWrapperGetModelData, hh::mr::fpCMirageDatabaseWrapperGetModelData, Hedgehog::Mirage::CMirageDatabaseWrapper* This, void* Edx, boost::shared_ptr<Hedgehog::Mirage::CModelData>& out_spModelData, const Hedgehog::Base::CSharedString& in_rName, size_t in_Unknown)
 {
@@ -35,9 +44,15 @@ HOOK(void*, __fastcall, CMirageDatabaseWrapperGetModelData, hh::mr::fpCMirageDat
 		if (pair == models.end())
 			models[out_spModelData] = {};
 
+<<<<<<< HEAD
 		//const auto pair2 = meshes.find(out_spModelData);
 		//if (pair2 == meshes.end())
 		//	meshes[out_spModelData] = {};
+=======
+		const auto pair2 = meshes.find(out_spModelData);
+		if (pair2 == meshes.end())
+			meshes[out_spModelData] = {};
+>>>>>>> e139a2e196ae21cfc27f2a98d570497a3ee761d9
 		
 	}
 
@@ -45,7 +60,11 @@ HOOK(void*, __fastcall, CMirageDatabaseWrapperGetModelData, hh::mr::fpCMirageDat
 }
 
 //Handle Files
+<<<<<<< HEAD
 HOOK(bool, __stdcall, ParseSonicArchiveTree, 0xD4C8E0, void* A1, char* data, const size_t size, void* database)
+=======
+HOOK(bool, __stdcall, ParseArchiveTree, 0xD4C8E0, void* A1, char* data, const size_t size, void* database)
+>>>>>>> e139a2e196ae21cfc27f2a98d570497a3ee761d9
 {
 	std::string str;
 	{
@@ -53,6 +72,7 @@ HOOK(bool, __stdcall, ParseSonicArchiveTree, 0xD4C8E0, void* A1, char* data, con
 
 		stream << "  <DefAppend>\n";
 		stream << "    <Name>Sonic</Name>\n";
+<<<<<<< HEAD
 		stream << "    <Archive>SonicVFX</Archive>\n";
 		stream << "  </DefAppend>\n";
 
@@ -75,6 +95,30 @@ HOOK(bool, __stdcall, ParseSonicArchiveTree, 0xD4C8E0, void* A1, char* data, con
 		//stream << "    <Name>pam001</Name>\n";
 		//stream << "    <Archive>FittingRoom</Archive>\n";
 		//stream << "  </DefAppend>\n";
+=======
+		stream << "    <Archive>SonicWildFire</Archive>\n";
+		stream << "  </DefAppend>\n";
+
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>SonicActionCommonHud</Name>\n";
+		stream << "    <Archive>FittingRoom</Archive>\n";
+		stream << "  </DefAppend>\n";
+
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>pam_cmn</Name>\n";
+		stream << "    <Archive>FittingRoom</Archive>\n";
+		stream << "  </DefAppend>\n";
+
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>pam000</Name>\n";
+		stream << "    <Archive>FittingRoom</Archive>\n";
+		stream << "  </DefAppend>\n";
+
+		stream << "  <DefAppend>\n";
+		stream << "    <Name>pam001</Name>\n";
+		stream << "    <Archive>FittingRoom</Archive>\n";
+		stream << "  </DefAppend>\n";
+>>>>>>> e139a2e196ae21cfc27f2a98d570497a3ee761d9
 
 		stream << "  <DefAppend>\n";
 		stream << "    <Name>SonicSp</Name>\n";
@@ -260,6 +304,7 @@ HOOK(bool, __stdcall, ParseSonicArchiveTree, 0xD4C8E0, void* A1, char* data, con
 		stream << "    <Archive>evSonic</Archive>\n";
 		stream << "  </DefAppend>\n";
 
+<<<<<<< HEAD
 		//if (IsGensRT == true)
 		//{
 		//	stream << "  <DefAppend>\n";
@@ -268,6 +313,8 @@ HOOK(bool, __stdcall, ParseSonicArchiveTree, 0xD4C8E0, void* A1, char* data, con
 		//	stream << "  </DefAppend>\n";
 		//}
 
+=======
+>>>>>>> e139a2e196ae21cfc27f2a98d570497a3ee761d9
 		str = stream.str();
 	}
 
@@ -282,21 +329,33 @@ HOOK(bool, __stdcall, ParseSonicArchiveTree, 0xD4C8E0, void* A1, char* data, con
 
 	bool result;
 	{
+<<<<<<< HEAD
 		result = originalParseSonicArchiveTree(A1, buffer.get(), newSize, database);
+=======
+		result = originalParseArchiveTree(A1, buffer.get(), newSize, database);
+>>>>>>> e139a2e196ae21cfc27f2a98d570497a3ee761d9
 	}
 
 	return result;
 }
 HOOK(void, __fastcall, LoadArchive, 0x69AB10, void* This, void* Edx, void* A3, void* A4, const hh::base::CSharedString& name, void* archiveInfo, void* A7, void* A8)
 {
+<<<<<<< HEAD
 	if (strstr(name.c_str(), "RTX") != nullptr)
+=======
+	if (strstr(name.c_str(), "evSonic") != nullptr)
+>>>>>>> e139a2e196ae21cfc27f2a98d570497a3ee761d9
 		(*(int32_t*)archiveInfo) += 0x0BADF00D; // Priority
 
 	return originalLoadArchive(This, Edx, A3, A4, name, archiveInfo, A7, A8);
 }
 HOOK(void, __fastcall, LoadArchiveList, 0x69C270, void* This, void* Edx, void* A3, void* A4, const hh::base::CSharedString& name, void* archiveInfo)
 {
+<<<<<<< HEAD
 	if (strstr(name.c_str(), "RTX") != nullptr)
+=======
+	if (strstr(name.c_str(), "evSonic") != nullptr)
+>>>>>>> e139a2e196ae21cfc27f2a98d570497a3ee761d9
 		(*(int32_t*)archiveInfo) += 0x0BADF00D; // Priority
 
 	return originalLoadArchiveList(This, Edx, A3, A4, name, archiveInfo);
@@ -306,6 +365,7 @@ HOOK(void, __fastcall, LoadArchiveList, 0x69C270, void* This, void* Edx, void* A
 EXPORT void OnFrame()
 {
 	////Model Visibility////
+<<<<<<< HEAD
 
 	if (Sonic::CApplicationDocument::GetInstance() && database != nullptr)
 		loadArchiveDatabase();
@@ -316,6 +376,9 @@ EXPORT void OnFrame()
 			traverse(renderable.get());
 	}
 
+=======
+	EyelidStatusGet(ConfigSonicEyelids);
+>>>>>>> e139a2e196ae21cfc27f2a98d570497a3ee761d9
 	std::lock_guard lock(mutex);
 
 	for (auto it = models.begin(); it != models.end();)
@@ -331,11 +394,64 @@ EXPORT void OnFrame()
 			++it;
 		}
 	}
+<<<<<<< HEAD
+=======
+
+	for (auto it2 = meshes.begin(); it2 != meshes.end();)
+	{
+		if (it2->first.unique())
+		{
+			it2 = meshes.erase(it2);
+			printf("NO MATERIALS FOUND\n");
+		}
+		else
+		{
+			MaterialSelectionHandler(it2->first, it2->second);
+			++it2;
+		}
+	}
+
+	//FUNCTION_PTR(bool*, __thiscall, CSingleElementChangeMaterial, 0x701CC0, Hedgehog::Mirage::CSingleElement* singleElement, hh::mr::CMaterialData* from, boost::shared_ptr<hh::mr::CMaterialData>&to);
+	//FUNCTION_PTR(bool*, __thiscall, CSingleElementResetMaterial, 0x701830, Hedgehog::Mirage::CSingleElement* singleElement, hh::mr::CMaterialData* mat);
+	//if (Sonic::Player::CPlayerSpeedContext::GetInstance() != nullptr)
+	//{
+	//	auto const& model = Sonic::Player::CPlayerSpeedContext::GetInstance()->m_pPlayer->m_spCharacterModel;
+	//	//auto const& modelHH = Hedgehog::Mirage::;
+
+	//	hh::mr::CMirageDatabaseWrapper wrapper(Sonic::CGameDocument::GetInstance()->m_pMember->m_spDatabase.get());
+	//	//hh::mr::CMirageDatabaseWrapper wrapper(Hedgehog::Mirage::CSingleElement::GetNode());
+	//	//boost::shared_ptr<hh::mr::CSingleElement> modelSonic = Hedgehog::Mirage::CSingleElement::GetNode("");
+	//	boost::shared_ptr<hh::mr::CMaterialData> matBody00 = wrapper.GetMaterialData("sonic_gm_body");
+	//	boost::shared_ptr<hh::mr::CMaterialData> matBody01 = wrapper.GetMaterialData("sonic_gm_body00");
+	//	boost::shared_ptr<hh::mr::CMaterialData> matBody02 = wrapper.GetMaterialData("sonic_gm_body01");
+	//	boost::shared_ptr<hh::mr::CMaterialData> matMouth00 = wrapper.GetMaterialData("sonic_gm_mouth");
+	//	boost::shared_ptr<hh::mr::CMaterialData> matMouth01 = wrapper.GetMaterialData("sonic_gm_mouth00");
+	//	boost::shared_ptr<hh::mr::CMaterialData> matMouth02 = wrapper.GetMaterialData("sonic_gm_mouth01");
+
+	//	if (ConfigSonicMats == 0)
+	//	{
+	//		CSingleElementChangeMaterial(model.get(), matBody00.get(), matBody00);
+	//		CSingleElementChangeMaterial(model.get(), matMouth00.get(), matMouth00);
+	//	}
+	//	if (ConfigSonicMats == 1)
+	//	{
+	//		CSingleElementChangeMaterial(model.get(), matBody00.get(), matBody01);
+	//		CSingleElementChangeMaterial(model.get(), matMouth00.get(), matMouth01);
+	//	}
+	//	if (ConfigSonicMats == 2)
+	//	{
+	//		CSingleElementChangeMaterial(model.get(), matBody00.get(), matBody02);
+	//		CSingleElementChangeMaterial(model.get(), matMouth00.get(), matMouth02);
+	//	}
+	//		
+	//}
+>>>>>>> e139a2e196ae21cfc27f2a98d570497a3ee761d9
 	
 }
 
 void InstallSetup::applyPatches()
 {
+<<<<<<< HEAD
 	//INIReader reader("CustomizeSetting.ini");
 	WRITE_MEMORY(0x01271FD1, char*, "ef_null"); // Disable original game's jumpball creation
 	WRITE_MEMORY(0x01271DC1, char*, "ef_null"); // Disable original game's super jumpball creation
@@ -349,4 +465,15 @@ void InstallSetup::applyPostPatches()
 	INSTALL_HOOK(ParseSonicArchiveTree);
 	//INSTALL_HOOK(LoadArchive);
 	//INSTALL_HOOK(LoadArchiveList);
+=======
+	INIReader reader("CustomSonic.ini");
+	ConfigSonicMats = reader.GetInteger("Mod", "ConfigSonicMats", ConfigSonicMats);
+	ConfigSonicEyelids = reader.GetInteger("Mod", "ConfigSonicEyelids", ConfigSonicEyelids);
+	INSTALL_HOOK(CMirageDatabaseWrapperGetModelData);
+	INSTALL_HOOK(ParseArchiveTree);
+	INSTALL_HOOK(LoadArchive);
+	INSTALL_HOOK(LoadArchiveList);
+	// Ignore D-pad input for Sonic's control
+	WRITE_JUMP(0xD97B56, (void*)0xD97B9E);
+>>>>>>> e139a2e196ae21cfc27f2a98d570497a3ee761d9
 }

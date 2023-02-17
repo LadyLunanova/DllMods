@@ -100,13 +100,23 @@ void ParameterEditor::update()
                     PlayerInfo::visible ^= true;
 
                 if (ImGui::MenuItem("Global light editor"))
-                    GlobalLightEditor::visible ^= true;
+                    GlobalLightEditor::visible ^= true;                   
+
+                if (ImGui::MenuItem("Material editor"))
+                {
+                    MaterialEditor::visible ^= true;
+                }
+
 
                 ImGui::EndMenu();
             }
 
             ImGui::EndMenuBar();
         }
+
+        
+        MaterialEditor::update();
+        
     }
 
     for (auto& parameter : staticParameters)
@@ -114,6 +124,8 @@ void ParameterEditor::update()
 
     for (auto& parameter : dynamicParameters)
         updateLazyAbstractParameter(parameter, false);
+
+    
 
     if (end)
         ImGui::End();

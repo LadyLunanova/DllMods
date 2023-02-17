@@ -1,0 +1,281 @@
+{
+	"Groups": [
+		{
+			"Name": "Main",
+			"DisplayName": "Model Options",
+			"Elements": [
+				{
+					"Name": "IncludeDir2",
+					"Description": [
+						"Make Sonic use Generations' or Unleashed's animations."
+					],
+					"DisplayName": "Animation Style",
+					"Type": "MDLType",
+					"MinValue": null,
+					"MaxValue": null,
+					"DefaultValue": false
+				},
+				{
+					"Name": "IncludeDir1",
+					"Description": [
+						"Make Sonic use the bobsleigh or snowboard in Cool Edge.",
+						"(Unleashed Project)"
+					],
+					"DisplayName": "Cool Edge Vehicle",
+					"Type": "SNOWType",
+					"MinValue": null,
+					"MaxValue": null,
+					"DefaultValue": false
+				},
+				{
+					"Name": "IsParticleLights",
+					"Description": [
+						"Makes some particles emit light."
+					],
+					"DisplayName": "Particle Lights",
+					"Type": "bool",
+					"MinValue": null,
+					"MaxValue": null,
+					"DefaultValue": true
+				},
+				{
+					"Name": "TrailFlag",
+					"Description": [
+						"Choose what type of blue trail you want."
+					],
+					"DisplayName": "Blue Trail",
+					"Type": "TrailType",
+					"MinValue": null,
+					"MaxValue": null,
+					"DefaultValue": true
+				}
+			]
+		},
+		{
+			"Name": "Option",
+			"DisplayName": "Voice Options",
+			"Elements": [
+				{
+					"Name": "IsIdleChatVO",
+					"Description": [
+						"Make Sonic talk during idle animations."
+					],
+					"DisplayName": "Idle Chatter",
+					"Type": "bool",
+					"MinValue": null,
+					"MaxValue": null,
+					"DefaultValue": true
+				},
+				{
+					"Name": "IsRankChatVO",
+					"Description": [
+						"Make Sonic comment on the rank you get."
+					],
+					"DisplayName": "Rank Quotes",
+					"Type": "bool",
+					"MinValue": null,
+					"MaxValue": null,
+					"DefaultValue": true
+				},
+				{
+					"Name": "IsBossStartVO",
+					"Description": [
+						"Make Sonic taunt the boss/rival when the fight starts."
+					],
+					"DisplayName": "Boss Start Taunts",
+					"Type": "bool",
+					"MinValue": null,
+					"MaxValue": null,
+					"DefaultValue": true
+				},
+				{
+					"Name": "IsBossTauntVO",
+					"Description": [
+						"Make Sonic taunt the boss/rival when beating them."
+					],
+					"DisplayName": "Boss Finisher Taunts",
+					"Type": "bool",
+					"MinValue": null,
+					"MaxValue": null,
+					"DefaultValue": true
+				},
+				{
+					"Name": "IsTransRankVO",
+					"Description": [
+						"Always use the 'Trans rights!' voiceline for S-Ranks."
+					],
+					"DisplayName": "Trans rights on S-Rank",
+					"Type": "bool",
+					"MinValue": null,
+					"MaxValue": null,
+					"DefaultValue": false
+				},
+				{
+					"Name": "IsSuperYellVO",
+					"Description": [
+						"Make Sonic yell when transforming into Super Sonic."
+					],
+					"DisplayName": "Super Transform Yell",
+					"Type": "bool",
+					"MinValue": null,
+					"MaxValue": null,
+					"DefaultValue": true
+				},
+				{
+					"Name": "IsQuickstepVO",
+					"Description": [
+						"Make Sonic grunt when quickstepping."
+					],
+					"DisplayName": "Quickstep Grunts",
+					"Type": "bool",
+					"MinValue": null,
+					"MaxValue": null,
+					"DefaultValue": true
+				},
+				{
+					"Name": "IsTrickFinishVO",
+					"Description": [
+						"Make Sonic cheer when doing a trick finisher."
+					],
+					"DisplayName": "Trick Finisher Voicelines",
+					"Type": "bool",
+					"MinValue": null,
+					"MaxValue": null,
+					"DefaultValue": true
+				},
+				{
+					"Name": "IsEnemyComboVO",
+					"Description": [
+						"Make Sonic cheer when destroying enemies on the ground."
+					],
+					"DisplayName": "Enemy Combo Voicelines",
+					"Type": "bool",
+					"MinValue": null,
+					"MaxValue": null,
+					"DefaultValue": true
+				},
+				{
+					"Name": "IsCheckpointVO",
+					"Description": [
+						"Make Sonic cheer when doing a trick finisher."
+					],
+					"DisplayName": "Checkpoint Voicelines",
+					"Type": "bool",
+					"MinValue": null,
+					"MaxValue": null,
+					"DefaultValue": true
+				},
+				{
+					"Name": "IsTornadoVO",
+					"Description": [
+						"Play Sonic's 'That tornado's carrying a car!' voiceline."
+					],
+					"DisplayName": "Crisis City Tornado",
+					"Type": "bool",
+					"MinValue": null,
+					"MaxValue": null,
+					"DefaultValue": true
+				},
+				{
+					"Name": "IsFootTapSFX",
+					"Description": [
+						"Makes Sonic's foot tapping idle animation play SFX.",
+						"(Generations Model Only)"
+					],
+					"DisplayName": "Foot Tapping SFX",
+					"Type": "bool",
+					"MinValue": null,
+					"MaxValue": null,
+					"DefaultValue": true
+				}
+			]
+		}
+	],
+   "Enums":{
+      "MDLType":[
+         {
+            "DisplayName":"Generations",
+            "Value":"disk_bb",
+            "Description":[
+               "Use Generations' default animations."
+            ]
+         },
+		 {
+            "DisplayName":"Unleashed",
+            "Value":"disk_swa",
+            "Description":[
+               "Use Unleashed's animations.",
+			   "(Note: Cutscenes are bugged)"
+            ]
+         }
+      ],
+      "SNOWType":[
+         {
+            "DisplayName":"Bobsleigh",
+            "Value":"disk_dummy",
+            "Description":[
+               "Use the bobsleigh model."
+            ]
+         },
+		 {
+            "DisplayName":"Snowboard",
+            "Value":"disk_snowboard",
+            "Description":[
+               "Use the original snowboard model."
+            ]
+         }
+      ],
+      "TrailType":[
+         {
+            "DisplayName":"Default",
+            "Value":"0",
+            "Description":[
+               "Use Generations' default trail colors.",
+            ]
+         },
+		 {
+            "DisplayName":"Trans",
+            "Value":"1",
+            "Description":[
+               "Use the trans flag as trail color.",
+            ]
+         },
+		 {
+            "DisplayName":"Lesbian",
+            "Value":"2",
+            "Description":[
+               "Use the lesbian flag as trail color.",
+            ]
+         },
+		 {
+            "DisplayName":"Gay",
+            "Value":"3",
+            "Description":[
+               "Use the gay/rainbow flag as trail color.",
+            ]
+         },
+		 {
+            "DisplayName":"Bi",
+            "Value":"4",
+            "Description":[
+               "Use the bi flag as trail color.",
+            ]
+         },
+		 {
+            "DisplayName":"Pan",
+            "Value":"5",
+            "Description":[
+               "Use the pan flag as trail color.",
+            ]
+         },
+		 {
+            "DisplayName":"Non-Binary",
+            "Value":"6",
+            "Description":[
+               "Use the non-binary flag as trail color.",
+            ]
+         }
+      ]
+   },
+   "IniFile":"mod.ini"
+}

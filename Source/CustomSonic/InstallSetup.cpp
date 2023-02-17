@@ -21,6 +21,8 @@ static void loadArchiveDatabase()
 
 	loader->LoadArchiveList(database, arl.c_str());
 	loader->LoadArchive(database, ar.c_str(), { -10, 5 }, false, false);
+
+
 }
 
 HOOK(void*, __fastcall, CMirageDatabaseWrapperGetModelData, hh::mr::fpCMirageDatabaseWrapperGetModelData, Hedgehog::Mirage::CMirageDatabaseWrapper* This, void* Edx, boost::shared_ptr<Hedgehog::Mirage::CModelData>& out_spModelData, const Hedgehog::Base::CSharedString& in_rName, size_t in_Unknown)
@@ -307,8 +309,13 @@ EXPORT void OnFrame()
 {
 	////Model Visibility////
 
-	if (Sonic::CApplicationDocument::GetInstance() && database != nullptr)
+	if (Sonic::CApplicationDocument::GetInstance() && !database)
+	{
 		loadArchiveDatabase();
+		printf("NO DATABASE --- IF COMPLETED\n");
+	}
+	else
+		printf("DATABASE FOUND --- CONTINUEING\n");
 
 	if (Sonic::CGameDocument::GetInstance())
 	{

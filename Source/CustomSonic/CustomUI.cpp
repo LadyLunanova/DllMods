@@ -87,9 +87,9 @@ void CreateFittingUI(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 	if (!IsUnleashedHUD)
 	{
 		auto spCsdProject = wrapper.GetCsdProject("ui_fitting");
-		prFittingScreenBB = spCsdProject->m_rcProject;
 		if (spCsdProject->IsMadeAll())
 		{
+			prFittingScreenBB = spCsdProject->m_rcProject;
 			obBBCustomUI = boost::make_shared<Sonic::CGameObjectCSD>(prFittingScreenBB, 0.5f, "HUD_Pause", true);
 			Sonic::CGameDocument::GetInstance()->AddGameObject(obBBCustomUI, "main", This);
 		}
@@ -97,17 +97,17 @@ void CreateFittingUI(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 	else
 	{
 		auto spCsdProject = wrapper.GetCsdProject("ui_fitting_bb");
-		prFittingScreenBB = spCsdProject->m_rcProject;
 		if (spCsdProject->IsMadeAll())
 		{
+			prFittingScreenBB = spCsdProject->m_rcProject;
 			obBBCustomUI = boost::make_shared<Sonic::CGameObjectCSD>(prFittingScreenBB, 0.5f, "HUD_Pause", true);
 			Sonic::CGameDocument::GetInstance()->AddGameObject(obBBCustomUI, "main", This);
 		}
 
 		auto spCsdProjectSWA = wrapper.GetCsdProject("ui_fitting_swa");
-		prFittingScreenSWA = spCsdProjectSWA->m_rcProject;
 		if (spCsdProjectSWA->IsMadeAll())
 		{
+			prFittingScreenSWA = spCsdProjectSWA->m_rcProject;
 			obSWACustomUI = boost::make_shared<Sonic::CGameObjectCSD>(prFittingScreenSWA, 0.4f, "HUD_Pause", true);
 			Sonic::CGameDocument::GetInstance()->AddGameObject(obSWACustomUI, "main", This);
 		}

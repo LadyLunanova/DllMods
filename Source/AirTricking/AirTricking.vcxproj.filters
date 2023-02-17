@@ -3,10 +3,6 @@
   <ItemGroup>
     <ClCompile Include="Pch.cpp" />
     <ClCompile Include="DllMain.cpp" />
-<<<<<<<< HEAD:Source/UnleashedProjectAlternativeLighting/UnleashedProjectAlternativeLighting.vcxproj.filters
-    <ClCompile Include="Mod.cpp" />
-========
->>>>>>>> e139a2e196ae21cfc27f2a98d570497a3ee761d9:Source/AirTricking/AirTricking.vcxproj.filters
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />

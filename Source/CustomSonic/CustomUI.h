@@ -26,19 +26,13 @@ inline uint32_t GetCurrentStageID()
 //Menu setup
 Chao::CSD::RCPtr<Chao::CSD::CProject> prFittingScreenBB;
 Chao::CSD::RCPtr<Chao::CSD::CProject> prFittingScreenSWA;
-<<<<<<< HEAD
 Chao::CSD::RCPtr<Chao::CSD::CProject> prFittingScreenTXT;
-=======
->>>>>>> e139a2e196ae21cfc27f2a98d570497a3ee761d9
 Chao::CSD::RCPtr<Chao::CSD::CScene> scBBGui;
 Chao::CSD::RCPtr<Chao::CSD::CScene> scBBIcon;
 Chao::CSD::RCPtr<Chao::CSD::CScene> scBBLRMove;
 Chao::CSD::RCPtr<Chao::CSD::CScene> scBBTextArea;
 Chao::CSD::RCPtr<Chao::CSD::CScene> scBBDeco;
-<<<<<<< HEAD
 Chao::CSD::RCPtr<Chao::CSD::CScene> scBBScroll;
-=======
->>>>>>> e139a2e196ae21cfc27f2a98d570497a3ee761d9
 Chao::CSD::RCPtr<Chao::CSD::CScene> scSWABG1;
 Chao::CSD::RCPtr<Chao::CSD::CScene> scSWATag;
 Chao::CSD::RCPtr<Chao::CSD::CScene> scSWATagTxt;
@@ -47,7 +41,6 @@ Chao::CSD::RCPtr<Chao::CSD::CScene> scSWASelect;
 Chao::CSD::RCPtr<Chao::CSD::CScene> scSWAPress;
 Chao::CSD::RCPtr<Chao::CSD::CScene> scSWAArrow;
 Chao::CSD::RCPtr<Chao::CSD::CScene> scSWAAlt;
-<<<<<<< HEAD
 Chao::CSD::RCPtr<Chao::CSD::CScene> scSWAScroll;
 Chao::CSD::RCPtr<Chao::CSD::CScene> scSWAScrollBG;
 Chao::CSD::RCPtr<Chao::CSD::CScene> scTXT;
@@ -67,31 +60,13 @@ enum MenuOptionType
 	UIEffBoost,
 };
 MenuOptionType CHudTabSel = MenuOptionType::UIPartShoes;
-=======
-boost::shared_ptr<Sonic::CGameObjectCSD> obBBCustomUI;
-boost::shared_ptr<Sonic::CGameObjectCSD> obSWACustomUI;
-static SharedPtrTypeless menuSoundHandle;
-enum MenuOptionType
-{
-	UIPartShoes = 0,
-	UIPartBody = 1,
-	UIPartHead = 2,
-	UIPartHandL = 3,
-	UIPartHandR = 4,
-};
-MenuOptionType MenuOption = MenuOptionType::UIPartShoes;
-int ItemOption = 0;
->>>>>>> e139a2e196ae21cfc27f2a98d570497a3ee761d9
 bool prevblur = false;
 bool IsInMenu = false;
 bool IsInMenuChange = false;
 bool IsInMenuChangeL = false;
 bool IsInMenuChangeR = false;
 bool IsInMenuExit = false;
-<<<<<<< HEAD
 bool IsInScrollOpen = false;
-=======
->>>>>>> e139a2e196ae21cfc27f2a98d570497a3ee761d9
 bool ConfigDecoEnable = true;
 bool* const ENABLE_BLUR = (bool*)0x1A43103;
 struct MsgLookAtStruct
@@ -108,7 +83,6 @@ bool IsUnleashedHUD = false;
 int SWAOpenTimer = 15;
 int MemoryOpenTimer = 1800;
 int ActivateButton = 0;
-<<<<<<< HEAD
 float CHudVarScrollBarStarSpinFlt = 0.0f;
 
 int CHudVarVisSel = 0;
@@ -121,21 +95,6 @@ int CHudVarHeMaxScroll = 2;
 int CHudVarHLMaxScroll = 4;
 int CHudVarHRMaxScroll = 5;
 
-=======
-/*
-{
-	Select = 0,
-	LStick = 1,
-	RStick = 2,
-	Triggers = 3,
-	Shoulders = 4,
-	Dup = 5,
-	Ddown = 6,
-	Dleft = 7,
-	Dright = 8,
-};
-ActivateButtonType ActivateButton = ActivateButtonType::Select; */
->>>>>>> e139a2e196ae21cfc27f2a98d570497a3ee761d9
 
 //Menu Functions
 void CHudUICursorAnim()
@@ -160,11 +119,8 @@ void CHudUISceneDestroy()
 		Chao::CSD::CProject::DestroyScene(prFittingScreenBB.Get(), scBBLRMove);
 	if (scBBDeco)
 		Chao::CSD::CProject::DestroyScene(prFittingScreenBB.Get(), scBBDeco);
-<<<<<<< HEAD
 	if (scBBScroll)
 		Chao::CSD::CProject::DestroyScene(prFittingScreenBB.Get(), scBBScroll);
-=======
->>>>>>> e139a2e196ae21cfc27f2a98d570497a3ee761d9
 	if (scSWABG1)
 		Chao::CSD::CProject::DestroyScene(prFittingScreenSWA.Get(), scSWABG1);
 	if (scSWATag)
@@ -179,45 +135,14 @@ void CHudUISceneDestroy()
 		Chao::CSD::CProject::DestroyScene(prFittingScreenSWA.Get(), scSWAArrow);
 	if (scSWAAlt)
 		Chao::CSD::CProject::DestroyScene(prFittingScreenSWA.Get(), scSWAAlt);
-<<<<<<< HEAD
 	if (scSWAScroll)
 		Chao::CSD::CProject::DestroyScene(prFittingScreenSWA.Get(), scSWAScroll);
 	if (scSWAScrollBG)
 		Chao::CSD::CProject::DestroyScene(prFittingScreenSWA.Get(), scSWAScrollBG);
-=======
->>>>>>> e139a2e196ae21cfc27f2a98d570497a3ee761d9
 	if (scSWASelect)
 		Chao::CSD::CProject::DestroyScene(prFittingScreenSWA.Get(), scSWASelect);
 }
 
-<<<<<<< HEAD
-=======
-void CreateFittingUI(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo& in_rUpdateInfo)
-{
-	Sonic::CCsdDatabaseWrapper wrapper(This->m_pMember->m_pGameDocument->m_pMember->m_spDatabase.get());
-
-	if (!IsUnleashedHUD)
-	{
-		auto spCsdProject = wrapper.GetCsdProject("ui_fitting");
-		prFittingScreenBB = spCsdProject->m_rcProject;
-		obBBCustomUI = boost::make_shared<Sonic::CGameObjectCSD>(prFittingScreenBB, 0.5f, "HUD_Pause", true);
-		Sonic::CGameDocument::GetInstance()->AddGameObject(obBBCustomUI, "main", This);
-	}
-	else
-	{
-		auto spCsdProject = wrapper.GetCsdProject("ui_fitting_bb");
-		prFittingScreenBB = spCsdProject->m_rcProject;
-		obBBCustomUI = boost::make_shared<Sonic::CGameObjectCSD>(prFittingScreenBB, 0.5f, "HUD_Pause", true);
-		Sonic::CGameDocument::GetInstance()->AddGameObject(obBBCustomUI, "main", This);
-
-		auto spCsdProjectSWA = wrapper.GetCsdProject("ui_fitting_swa");
-		prFittingScreenSWA = spCsdProjectSWA->m_rcProject;
-		obSWACustomUI = boost::make_shared<Sonic::CGameObjectCSD>(prFittingScreenSWA, 0.4f, "HUD_Pause", true);
-		Sonic::CGameDocument::GetInstance()->AddGameObject(obSWACustomUI, "main", This);
-	}
-}
-
->>>>>>> e139a2e196ae21cfc27f2a98d570497a3ee761d9
 void KillScreen()
 {
 	if (obBBCustomUI)
@@ -296,7 +221,6 @@ void WriteINI(FILE* iniFile)
 {
 	if (!iniFile)
 		return;
-<<<<<<< HEAD
 	fprintf(iniFile,
 		"%s\n%s%d\n%s%d\n%s%d\n%s%d\n%s%d\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%d\n%s%d\n%s%d\n%s%d\n%s%d\n%s%d\n%s%d\n",
 		"[Select]",
@@ -318,23 +242,10 @@ void WriteINI(FILE* iniFile)
 		"SelectSnSonMat=", SelectSnSonMat,
 		"SelectEyelid=", SelectEyelid,
 		"SelectEffJump=", SelectEffJump);
-=======
-	char buffer[256]{};
-	snprintf(buffer, 256,
-		"%s\n%s%d\n%s%d\n%s%d\n%s%d\n%s%d\n",
-		"[Select]",
-		"SelectShoes=", SelectShoes,
-		"SelectBody=", SelectBody,
-		"SelectHead=", SelectHead,
-		"SelectHandL=", SelectHandL,
-		"SelectHandR=", SelectHandR);
-	fputs(buffer, iniFile);
->>>>>>> e139a2e196ae21cfc27f2a98d570497a3ee761d9
 }
 
 void ReadINI()
 {
-<<<<<<< HEAD
 	INIReader* reader = new INIReader("CustomizeSave.ini");
 	if (reader->ParseError() != 0)
 	{
@@ -354,36 +265,18 @@ void ReadINI()
 	BdMovieVariant = reader->GetBoolean("Select", "BdMovieVariant", BdMovieVariant);
 	HeSimulatorVariant = reader->GetBoolean("Select", "HeSimulatorVariant", HeSimulatorVariant);
 	HRSA2BounceVariant = reader->GetBoolean("Select", "HRSA2BounceVariant", HRSA2BounceVariant);
-=======
-	INIReader* reader = new INIReader("CustomSelect.ini");
-	if (reader->ParseError() != 0)
-	{
-		FILE* pFile = fopen("CustomSelect.ini", "wb");
-		WriteINI(pFile);
-		fclose(pFile);
-		reader = new INIReader("CustomSelect.ini");
-	}
-	SelectShoes = (SelectShoeType)reader->GetInteger("Select", "SelectShoes", SelectShoes);
->>>>>>> e139a2e196ae21cfc27f2a98d570497a3ee761d9
 	SelectBody = (SelectBodyType)reader->GetInteger("Select", "SelectBody", SelectBody);
 	SelectHead = (SelectHeadType)reader->GetInteger("Select", "SelectHead", SelectHead);
 	SelectHandL = (SelectHandLType)reader->GetInteger("Select", "SelectHandL", SelectHandL);
 	SelectHandR = (SelectHandRType)reader->GetInteger("Select", "SelectHandR", SelectHandR);
-<<<<<<< HEAD
 	//SelectSnSonMat = (SelectSnSonMatType)reader->GetInteger("Select", "SelectSnSonMat", SelectSnSonMat);
 	SelectEyelid = (SelectEyelidType)reader->GetInteger("Select", "SelectEyelid", SelectEyelid);
 	SelectEffJump = (SelectEffJumpType)reader->GetInteger("Select", "SelectEffJump", SelectEffJump);
-=======
->>>>>>> e139a2e196ae21cfc27f2a98d570497a3ee761d9
 }
 
 void ReadConfig()
 {
-<<<<<<< HEAD
 	INIReader reader("CustomizeSetting.ini");
-=======
-	INIReader reader("CustomSonic.ini");
->>>>>>> e139a2e196ae21cfc27f2a98d570497a3ee761d9
 	ConfigDecoEnable = reader.GetBoolean("Mod", "ConfigDecoEnable", ConfigDecoEnable);
 	ActivateButton = reader.GetInteger("Mod", "ActivateButton", ActivateButton);
 

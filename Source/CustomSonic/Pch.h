@@ -12,10 +12,7 @@
 #include <cstdint>
 #include <cstdio>
 
-<<<<<<< HEAD
 #include <filesystem>
-=======
->>>>>>> e139a2e196ae21cfc27f2a98d570497a3ee761d9
 #include <mutex>
 
 #include <INIReader.h>

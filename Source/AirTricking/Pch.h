@@ -16,5 +16,7 @@
 
 #include <Helpers.h>
 
+#include <boost\algorithm\string\predicate.hpp>
+
 #define EXPORT extern "C" __declspec(dllexport)
 #define ASMHOOK __declspec(naked)

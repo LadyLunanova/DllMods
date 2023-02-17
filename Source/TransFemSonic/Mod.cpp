@@ -86,6 +86,8 @@ int TrailFlag = 0;
 5 - Pan
 */
 
+
+
 //Dynamic Omnis
 // Original code by Skyth: https://github.com/blueskythlikesclouds
 hh::base::CRefPtr<Sonic::CLocalLight> genericPLight;

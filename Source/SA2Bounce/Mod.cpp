@@ -135,6 +135,8 @@ int   ModernSoundType = 0;
 bool  ModernBounceVO = false;
 int   ModernBallType = 0;
 bool  ModernLWBounce = false;
+bool  ModernRangersBounce = false;
+int   ModernRangersBounceTimer = 39;
 bool  ModernBounceHorCnl = false;
 bool  ModernNoBounceEnemy = false;
 int   ModernGroundActionType = 0;
@@ -165,6 +167,7 @@ float ClassicBounceMulti = 1.0f;
 HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed* This, void* _, const hh::fnd::SUpdateInfo& updateInfo)
 {
 	auto sonic = This->GetContext();
+	auto localVelocity = sonic->m_spMatrixNode->m_Transform.m_Rotation.inverse() * sonic->m_Velocity;
 	auto IsGrounded = This->GetContext()->m_Grounded;
 	auto IsOutOfControl = sonic->m_pStateFlag->m_Flags[sonic->eStateFlag_OutOfControl];
 	auto IsDisableStomping = sonic->m_pStateFlag->m_Flags[sonic->eStateFlag_DisableStomping];
@@ -178,6 +181,7 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	bool PressedRT = input.IsTapped(Sonic::eKeyState_RightTrigger);
 	bool PressedLT = input.IsTapped(Sonic::eKeyState_LeftTrigger);
 	bool PressedTrigger = PressedRT || PressedLT;
+	bool HoldB = input.IsDown(Sonic::eKeyState_B);
 
 	if (IsGrounded && !IsStomping && !IsJumping && !IsFalling)
 	{
@@ -206,6 +210,28 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 			if (PressedTrigger && ModernBounceTrigger)
 				sonic->ChangeState("Stomping");
 		}
+
+		if (IsJumping && BounceCount >= 1 && HoldB && ModernRangersBounce)
+		{
+			if (ModernRangersBounceTimer >= 1)
+			{
+				ModernRangersBounceTimer--;
+				if (ModernBounceHorCnl)
+				{
+					localVelocity.z() = 0.0f;
+					localVelocity.x() = 0.0f;
+					sonic->m_Velocity = sonic->m_spMatrixNode->m_Transform.m_Rotation * localVelocity; //Determine sonic's local velocity
+				}
+			}
+			else
+			{
+				sonic->ChangeState("Stomping");
+				ModernRangersBounceTimer = 39;
+			}
+		}
+		else
+			ModernRangersBounceTimer = 39;
+		
 	}
 
 	//printf(This->m_StateMachine.GetCurrentState()->GetStateName().c_str());
@@ -218,6 +244,7 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	//printf("%f",sonic->m_ChaosEnergy);
 	//printf("%d",sonic->m_Is2DMode);
 	//printf("%d",BounceCount);
+	//printf("%d", ModernRangersBounceTimer);
 	//printf("\n");
 
 	originalCPlayerSpeedUpdate(This, _, updateInfo);
@@ -341,23 +368,7 @@ HOOK(void, __fastcall, StompBounce, 0x012548C0, hh::fnd::CStateMachineBase::CSta
 	{
 		Common::fCGlitterEnd(sonic, BounceBallVfxHandle, true); //Destroy Ball VFX
 
-		if ((ModernGroundActionType == 1 && !HoldB) || (ModernGroundActionType == 2 && HoldB) || (ModernGroundActionType == 3)) //Check ground type and if holding B
-		{
-			sonic->PlaySound(2002043, true); //Play stomp land SFX
-			Common::fCGlitterCreate(sonic, BounceLandVfxHandle, groundmatrixNode, "ef_ch_sng_yh1_stomping2", 1);  //Create Stomp Land VFX
-
-			if (localVelocity.z() > 15.0f) //Check forward speed
-			{
-				player->m_StateMachine.ChangeState("Sliding"); //Change state to slide state
-			}
-			else
-			{
-				localVelocity.z() > 0.0f;
-				localVelocity.x() > 0.0f;
-				player->m_StateMachine.ChangeState("StompingLand"); //Change state to stomping land state
-			}
-		}
-		else
+		if (ModernRangersBounce)
 		{
 			switch (ModernSoundType)
 			{
@@ -403,41 +414,164 @@ HOOK(void, __fastcall, StompBounce, 0x012548C0, hh::fnd::CStateMachineBase::CSta
 					Common::fCGlitterCreate(sonic, BounceLandVfxHandle, groundmatrixNode, "ef_ch_sng_yh1_bounceland", 1);  //Create Normal Stomp Land VFX
 			}
 
-			if (IsInWater || ModernBounceTricking || (ModernLWBounce && BounceCount >= 2)) //Check for tricking option
-			{
-				player->m_StateMachine.ChangeState("HomingAttackAfter"); //Change state to homing attack tricking state
-			}
-			else
-			{
-				player->m_StateMachine.ChangeState("Jump"); //Change state to jump state
-			}
-
 			switch (BounceCount) //Check how many times sonic has bounced
 			{
 			case 0:
-				localVelocity.y() = ModernBounce01; //Config First bounce height
+				if (HoldB)
+				{
+					if (IsInWater || ModernBounceTricking || (ModernLWBounce && BounceCount >= 2)) //Check for tricking option
+					{
+						player->m_StateMachine.ChangeState("HomingAttackAfter"); //Change state to homing attack tricking state
+					}
+					else
+					{
+						player->m_StateMachine.ChangeState("Jump"); //Change state to jump state
+					}
+					localVelocity.y() = ModernBounce04; //Config First bounce height
+				}
+				else
+				{
+					localVelocity.z() = 0.0f;
+					localVelocity.x() = 0.0f;
+					player->m_StateMachine.ChangeState("StompingLand"); //Change state to stomping land state
+				}
 				break;
 			case 1:
-				localVelocity.y() = ModernBounce02; //Config Second bounce height
-				break;
-			case 2:
-				localVelocity.y() = ModernBounce03; //Config Third bounce height
-				break;
-			case 3:
-				localVelocity.y() = ModernBounce04; //Config Fourth bounce height
+				if (HoldB)
+				{
+					if (IsInWater || ModernBounceTricking || (ModernLWBounce && BounceCount >= 2)) //Check for tricking option
+					{
+						player->m_StateMachine.ChangeState("HomingAttackAfter"); //Change state to homing attack tricking state
+					}
+					else
+					{
+						player->m_StateMachine.ChangeState("Jump"); //Change state to jump state
+					}
+					localVelocity.y() = ModernBounce05; //Config Second bounce height
+				}
+				else
+				{
+					localVelocity.z() = 0.0f;
+					localVelocity.x() = 0.0f;
+					player->m_StateMachine.ChangeState("StompingLand"); //Change state to stomping land state
+				}
 				break;
 			default:
-				localVelocity.y() = ModernBounce05; //Config Final bounce height
+				localVelocity.z() = 0.0f;
+				localVelocity.x() = 0.0f;
+				player->m_StateMachine.ChangeState("StompingLand"); //Change state to stomping land state
+				//Common::SonicContextSetCollision(TypeSonicStomping, true, sonic); //Set sonic's collision type to stomping
 				break;
 			}
-
-			//player->m_StateMachine.ChangeState("Jump"); //Change state to jump state
-			//player->m_StateMachine.ChangeState("Fall"); //Change state to jump state
 
 			sonic->m_pStateFlag->m_Flags[sonic->eStateFlag_EnableHomingAttack] = 1; //Set allow homing attack flag
 			BounceCount++; //Add to bounce int after bouncing
 		}
+		else
+		{
+			if ((ModernGroundActionType == 1 && !HoldB) || (ModernGroundActionType == 2 && HoldB) || (ModernGroundActionType == 3)) //Check ground type and if holding B
+			{
+				sonic->PlaySound(2002043, true); //Play stomp land SFX
+				Common::fCGlitterCreate(sonic, BounceLandVfxHandle, groundmatrixNode, "ef_ch_sng_yh1_stomping2", 1);  //Create Stomp Land VFX
 
+				if (localVelocity.z() > 25.0f) //Check forward speed
+				{
+					player->m_StateMachine.ChangeState("Sliding"); //Change state to slide state
+				}
+				else
+				{
+					localVelocity.z() = 0.0f;
+					localVelocity.x() = 0.0f;
+					player->m_StateMachine.ChangeState("StompingLand"); //Change state to stomping land state
+					//originalStompBounce(This);
+				}
+			}
+			else
+			{
+				switch (ModernSoundType)
+				{
+				case 0:
+					sonic->PlaySound(2002420, true); //Play bounce SFX
+					break;
+				case 1:
+					sonic->PlaySound(2002421, true); //Play bounce SFX
+					break;
+				case 2:
+					sonic->PlaySound(2002422, true); //Play bounce SFX
+					break;
+				case 3:
+					sonic->PlaySound(2002027, true); //Play bounce SFX
+					break;
+				case 4:
+					sonic->PlaySound(2002043, true); //Play bounce SFX
+					break;
+				}
+
+				if (ModernBounceVO)
+				{
+					//sonic->PlaySound(3002008, false); //Play voiceline
+					switch (rand)
+					{
+					case 0:
+						sonic->PlaySound(3002008, false); //Play voiceline
+						break;
+					case 1:
+						sonic->PlaySound(3002008, false); //Play voiceline
+						break;
+					}
+				}
+
+				if (IsSuper)
+				{
+					if (ModernBallType != 2)
+						Common::fCGlitterCreate(sonic, BounceLandVfxHandle, groundmatrixNode, "ef_ch_sps_yh1_bounceland", 1);  //Create Super Stomp Land VFX
+				}
+				else
+				{
+					if (ModernBallType != 2)
+						Common::fCGlitterCreate(sonic, BounceLandVfxHandle, groundmatrixNode, "ef_ch_sng_yh1_bounceland", 1);  //Create Normal Stomp Land VFX
+				}
+
+				if (IsInWater || ModernBounceTricking || (ModernLWBounce && BounceCount >= 2)) //Check for tricking option
+				{
+					player->m_StateMachine.ChangeState("HomingAttackAfter"); //Change state to homing attack tricking state
+				}
+				else
+				{
+					player->m_StateMachine.ChangeState("Jump"); //Change state to jump state
+				}
+
+				switch (BounceCount) //Check how many times sonic has bounced
+				{
+				case 0:
+					localVelocity.y() = ModernBounce01; //Config First bounce height
+					break;
+				case 1:
+					localVelocity.y() = ModernBounce02; //Config Second bounce height
+					break;
+				case 2:
+					localVelocity.y() = ModernBounce03; //Config Third bounce height
+					break;
+				case 3:
+					localVelocity.y() = ModernBounce04; //Config Fourth bounce height
+					break;
+				default:
+					localVelocity.y() = ModernBounce05; //Config Final bounce height
+					break;
+				}
+
+				//player->m_StateMachine.ChangeState("Jump"); //Change state to jump state
+				//player->m_StateMachine.ChangeState("Fall"); //Change state to jump state
+
+				sonic->m_pStateFlag->m_Flags[sonic->eStateFlag_EnableHomingAttack] = 1; //Set allow homing attack flag
+				BounceCount++; //Add to bounce int after bouncing
+			}
+		}
+	}
+	else if (ModernBounceHorCnl)
+	{
+		localVelocity.z() = 0.0f;
+		localVelocity.x() = 0.0f;
 	}
 
 	localVelocity.y() += (-1.022 * ModernBounceMulti); //Add downward acceleration
@@ -453,8 +587,8 @@ HOOK(void, __fastcall, ExitStompBounce, 0x01254B80, hh::fnd::CStateMachineBase::
 	bool HoldB = input.IsDown(Sonic::eKeyState_B);
 	if ((ModernGroundActionType == 1 && !HoldB) || (ModernGroundActionType == 2 && HoldB) || (ModernGroundActionType == 3) || ModernBounceHorCnl)
 	{
-		localVelocity.z() > 0.0f;
-		localVelocity.x() > 0.0f;
+		localVelocity.z() = 0.0f;
+		localVelocity.x() = 0.0f;
 	}
 	Common::fCGlitterEnd(sonic, BounceBallVfxHandle, true); //Destroy Ball VFX
 	sonic->m_Velocity = sonic->m_spMatrixNode->m_Transform.m_Rotation * localVelocity; //Determine sonic's local velocity
@@ -713,7 +847,7 @@ HOOK(void, __cdecl, InitializeApplicationParams_BOUNCE, 0x00D65180, Sonic::CPara
 EXPORT void Init()
 {
 	//MessageBoxA(nullptr, "Hook Now", "Window", MB_OK);
-	INIReader reader("SA2Bounce.ini");
+	INIReader reader("BAPBounce.ini");
 	//Modern Sonic
 	ModernBounceEnable = reader.GetBoolean("Modern", "ModernBounceEnable", ModernBounceEnable);
 	ModernBounceTrigger = reader.GetBoolean("Modern", "ModernBounceTrigger", ModernBounceTrigger);
@@ -721,6 +855,7 @@ EXPORT void Init()
 	ModernBounceVO = reader.GetBoolean("Modern", "ModernBounceVO", ModernBounceVO);
 	ModernBallType = reader.GetInteger("Modern", "ModernBallType", ModernBallType);
 	ModernLWBounce = reader.GetBoolean("Modern", "ModernLWBounce", ModernLWBounce);
+	ModernRangersBounce = reader.GetBoolean("Modern", "ModernRangersBounce", ModernRangersBounce);
 	ModernBounceHorCnl = reader.GetBoolean("Modern", "ModernBounceHorCnl", ModernBounceHorCnl);
 	ModernNoBounceEnemy = reader.GetBoolean("Modern", "ModernNoBounceEnemy", ModernNoBounceEnemy);
 	ModernGroundActionType = reader.GetInteger("Modern", "ModernGroundActionType", ModernGroundActionType);

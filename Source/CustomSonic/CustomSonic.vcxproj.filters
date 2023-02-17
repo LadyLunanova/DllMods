@@ -6,15 +6,10 @@
     <ClCompile Include="Mod.cpp" />
     <ClCompile Include="UpdateDirector.cpp" />
     <ClCompile Include="CustomUI.cpp" />
-<<<<<<< HEAD
     <ClCompile Include="SonicVFX.cpp" />
     <ClCompile Include="InstallSetup.cpp" />
     <ClCompile Include="CpkBinder.cpp" />
     <ClCompile Include="ArchiveTree.cpp" />
-=======
-    <ClCompile Include="WildFireVFX.cpp" />
-    <ClCompile Include="InstallSetup.cpp" />
->>>>>>> e139a2e196ae21cfc27f2a98d570497a3ee761d9
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -22,15 +17,10 @@
     <ClInclude Include="InstallCustomUI.h" />
     <ClInclude Include="CustomSonicItems.h" />
     <ClInclude Include="CustomUI.h" />
-<<<<<<< HEAD
     <ClInclude Include="SonicVFX.h" />
     <ClInclude Include="InstallSetup.h" />
     <ClInclude Include="CpkBinder.h" />
     <ClInclude Include="Path.h" />
     <ClInclude Include="ArchiveTree.h" />
-=======
-    <ClInclude Include="WildFireVFX.h" />
-    <ClInclude Include="InstallSetup.h" />
->>>>>>> e139a2e196ae21cfc27f2a98d570497a3ee761d9
   </ItemGroup>
 </Project>

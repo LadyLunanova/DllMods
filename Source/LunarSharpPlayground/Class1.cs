@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Permissions;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Buttplug.Client;
 using Buttplug.Core;
@@ -31,29 +32,45 @@ namespace LunarSharpPlayground
 		[DllExport(CallingConvention.Cdecl)]
 		public static void Main()
 		{
-			// Try restarting in another AppDomain if possible.
-			try
-			{
-				// Give the new AppDomain full permissions.
-				PermissionSet permissionSet = new PermissionSet(PermissionState.Unrestricted);
-				permissionSet.AddPermission(new SecurityPermission(SecurityPermissionFlag.AllFlags));
+            //// Try restarting in another AppDomain if possible.
+            //try
+            //{
+            //	// Give the new AppDomain full permissions.
+            //	PermissionSet permissionSet = new PermissionSet(PermissionState.Unrestricted);
+            //	permissionSet.AddPermission(new SecurityPermission(SecurityPermissionFlag.AllFlags));
 
-				// The ApplicationBase of the new domain should be the directory containing the current DLL.
-				AppDomainSetup appDomainSetup = new AppDomainSetup() { ApplicationBase = Path.GetDirectoryName(typeof(InitProxy).Assembly.Location) };
-				_childDomain = AppDomain.CreateDomain("LunarSharpPlayground", null, appDomainSetup, permissionSet);
+            //	// The ApplicationBase of the new domain should be the directory containing the current DLL.
+            //	AppDomainSetup appDomainSetup = new AppDomainSetup() { ApplicationBase = Path.GetDirectoryName(typeof(InitProxy).Assembly.Location) };
+            //	_childDomain = AppDomain.CreateDomain("LunarSharpPlayground", null, appDomainSetup, permissionSet);
 
-				// Now make the new AppDomain load our code using our proxy.
-				Type proxyType = typeof(InitProxy);
-				dynamic initProxy = _childDomain.CreateInstanceFrom(proxyType.Assembly.Location, proxyType.FullName).Unwrap(); // Our AssemblyResolve will pick the missing DLL out.
-				initProxy.Run();
-			}
-			catch
-			{
-				Init();
-			}
-		}
+            //	// Now make the new AppDomain load our code using our proxy.
+            //	Type proxyType = typeof(InitProxy);
+            //	dynamic initProxy = _childDomain.CreateInstanceFrom(proxyType.Assembly.Location, proxyType.FullName).Unwrap(); // Our AssemblyResolve will pick the missing DLL out.
+            //	initProxy.Run();
+            //}
+            //catch
+            //{
+            //             //Init();
+            //             //Thread ButtThread = new Thread(Init());
+            //             //ButtThread.Start();
 
-		[DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+            //             //var thread = new Thread(Init());
+
+            //             new Thread(() =>
+            //             {
+            //                 Init();
+            //             }).Start();
+            //         }
+
+            //Init();
+
+            new Thread(() =>
+            {
+                Init();
+            }).Start();
+        }
+
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
 		public static extern int MessageBox(IntPtr hWnd, String text, String caption, uint type);
 
 		//[DllExport(CallingConvention.Cdecl)]
@@ -80,11 +97,17 @@ namespace LunarSharpPlayground
 
         public static void Init()
         {
-			//Console.WriteLine("It couldn't");
-			//MessageBox(IntPtr.Zero, "It couldn't", "Error", 0);
+            //Console.WriteLine("It couldn't");
+            //MessageBox(IntPtr.Zero, "It couldn't", "Error", 0);
 
-			RunButtplug().Wait();
-		}
+            //new Thread(() => RunButtplug().Wait()).Start();
+
+            var thread = new Thread(() => RunButtplug().Wait());
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+
+            //RunButtplug().Wait();
+        }
 
         private static async Task WaitForKey()
         {

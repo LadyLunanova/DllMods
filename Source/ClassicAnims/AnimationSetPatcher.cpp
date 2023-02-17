@@ -13,7 +13,7 @@ HOOK(bool, __fastcall, CAnimationControlSingle_Debug, 0x6D84F0, uint32_t** This,
     return originalCAnimationControlSingle_Debug(This, Edx, a2, a3);
 }
 
-HOOK(int*, __fastcall, CSonic_AnimationBlending, 0xE14A90, void* This, void* Edx, int a2, float a3)
+HOOK(int*, __fastcall, CSonicC_AnimationBlending, 0xE14A90, void* This, void* Edx, int a2, float a3)
 {
     return nullptr;
 }
@@ -191,7 +191,7 @@ const char* volatile const AnimationSetPatcher::ExtraFall = "ExtraFall";
 
 void AnimationSetPatcher::applyPatches()
 {
-    m_newAnimationDataClassic.emplace_back(ExtraFall, "sc_fall_loop", 1.0f, true, nullptr);
+    m_newAnimationDataClassic.emplace_back(ExtraFall, "sc_jump_d_loop", 1.0f, true, nullptr);
     //m_newAnimationDataSuper.emplace_back(ExtraFall, "sc_balloon_loop", 1.0f, true, nullptr);
 
     if (!m_newAnimationData.empty())

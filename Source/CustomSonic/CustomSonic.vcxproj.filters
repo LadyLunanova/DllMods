@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Pch.cpp" />
+    <ClCompile Include="DllMain.cpp" />
+    <ClCompile Include="Mod.cpp" />
+    <ClCompile Include="UpdateDirector.cpp" />
+    <ClCompile Include="CustomUI.cpp" />
+    <ClCompile Include="SonicVFX.cpp" />
+    <ClCompile Include="InstallSetup.cpp" />
+    <ClCompile Include="CpkBinder.cpp" />
+    <ClCompile Include="ArchiveTree.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Pch.h" />
+    <ClInclude Include="UpdateDirector.h" />
+    <ClInclude Include="InstallCustomUI.h" />
+    <ClInclude Include="CustomSonicItems.h" />
+    <ClInclude Include="CustomUI.h" />
+    <ClInclude Include="SonicVFX.h" />
+    <ClInclude Include="InstallSetup.h" />
+    <ClInclude Include="CpkBinder.h" />
+    <ClInclude Include="Path.h" />
+    <ClInclude Include="ArchiveTree.h" />
+  </ItemGroup>
+</Project>

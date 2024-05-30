@@ -421,6 +421,15 @@ bool NoBallJump = true;
 int HyperFrameCycle = 0;
 int SA1JumpballFrameCycle = 0;
 
+bool m_spIsModelHide = false;
+void MsgModelHide(int Enabled)
+{
+	if (Enabled == 1)
+		m_spIsModelHide = true;
+	else
+		m_spIsModelHide = false;
+}
+
 void MsgWildFire(int Enabled);
 void MsgJumpBall(int BallType);
 
@@ -442,342 +451,342 @@ void ItemVisibilityHandler(const boost::shared_ptr<hh::mr::CModelData>& model, s
 		/////Shoes//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		//Default Shoes
 		if (nodeName == "ShDefault_00")
-			node->m_Visible = (SelectShoes == ShDefault && (ShDefaultVariant == DefaultDefault) && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == ShDefault && (ShDefaultVariant == DefaultDefault) && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 		if (nodeName == "ShDefault_01")
-			node->m_Visible = (SelectShoes == ShDefault && (ShDefaultVariant == DefaultLightS) && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == ShDefault && (ShDefaultVariant == DefaultLightS) && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Classic Shoes
 		if (nodeName == "ShClassic")
-			node->m_Visible = (SelectShoes == ShClassic && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == ShClassic && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//SA1 Lightspeed Shoes
 		if (nodeName == "ShSA1LightS")
-			node->m_Visible = (SelectShoes == ShSA1LightS && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == ShSA1LightS && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//SA2 Soap Shoes
 		if (nodeName == "ShSA2Soap_00")
-			node->m_Visible = (SelectShoes == ShSA2Soap && (ShSA2SoapVariant != SA2SoapRacing) && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == ShSA2Soap && (ShSA2SoapVariant != SA2SoapRacing) && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 		if (nodeName == "ShSA2Soap_01")
-			node->m_Visible = (SelectShoes == ShSA2Soap && (ShSA2SoapVariant == SA2SoapLightS) && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == ShSA2Soap && (ShSA2SoapVariant == SA2SoapLightS) && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 		if (nodeName == "ShSA2Soap_02")
-			node->m_Visible = (SelectShoes == ShSA2Soap && (ShSA2SoapVariant == SA2SoapRacing) && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == ShSA2Soap && (ShSA2SoapVariant == SA2SoapRacing) && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Riders Shoes
 		if (nodeName == "ShRiders")
-			node->m_Visible = (SelectShoes == ShRiders && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == ShRiders && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//06 Gem Shoes
 		if (nodeName == "Sh06Gem_Default")
-			node->m_Visible = (SelectShoes == Sh06Gem && Sh06GemVariant == GemDefault && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == Sh06Gem && Sh06GemVariant == GemDefault && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 		if (nodeName == "Sh06Gem_Red")
-			node->m_Visible = (SelectShoes == Sh06Gem && Sh06GemVariant == GemRed && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == Sh06Gem && Sh06GemVariant == GemRed && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 		if (nodeName == "Sh06Gem_Blue")
-			node->m_Visible = (SelectShoes == Sh06Gem && Sh06GemVariant == GemBlue && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == Sh06Gem && Sh06GemVariant == GemBlue && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 		if (nodeName == "Sh06Gem_Green")
-			node->m_Visible = (SelectShoes == Sh06Gem && Sh06GemVariant == GemGreen && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == Sh06Gem && Sh06GemVariant == GemGreen && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 		if (nodeName == "Sh06Gem_Purple")
-			node->m_Visible = (SelectShoes == Sh06Gem && Sh06GemVariant == GemPurple && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == Sh06Gem && Sh06GemVariant == GemPurple && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 		if (nodeName == "Sh06Gem_Sky")
-			node->m_Visible = (SelectShoes == Sh06Gem && Sh06GemVariant == GemSky && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == Sh06Gem && Sh06GemVariant == GemSky && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 		if (nodeName == "Sh06Gem_White")
-			node->m_Visible = (SelectShoes == Sh06Gem && Sh06GemVariant == GemWhite && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == Sh06Gem && Sh06GemVariant == GemWhite && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 		if (nodeName == "Sh06Gem_Yellow")
-			node->m_Visible = (SelectShoes == Sh06Gem && Sh06GemVariant == GemYellow && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == Sh06Gem && Sh06GemVariant == GemYellow && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Archie Shoes
 		if (nodeName == "ShArchie")
-			node->m_Visible = (SelectShoes == ShArchie && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == ShArchie && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Unleashed Shoes
 		if (nodeName == "ShSUAirboost")
-			node->m_Visible = (SelectShoes == ShSUAirboost && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == ShSUAirboost && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 		if (nodeName == "ShSULightS")
-			node->m_Visible = (SelectShoes == ShSULightS && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == ShSULightS && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 		if (nodeName == "ShSUStomp")
-			node->m_Visible = (SelectShoes == ShSUStomp && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == ShSUStomp && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 		if (nodeName == "ShSUWallJmp")
-			node->m_Visible = (SelectShoes == ShSUWallJmp && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == ShSUWallJmp && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 		if (nodeName == "ShSUWerehog")
-			node->m_Visible = (SelectShoes == ShSUWerehog && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == ShSUWerehog && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 		if (nodeName == "ShSUZoney")
-			node->m_Visible = (SelectShoes == ShSUZoney && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == ShSUZoney && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Simulator Shoes
 		if (nodeName == "ShSimulator")
-			node->m_Visible = (SelectShoes == ShSimulator && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == ShSimulator && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Link Boots
 		if (nodeName == "ShLink")
-			node->m_Visible = (SelectShoes == ShLink && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == ShLink && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Boom Shoes
 		if (nodeName == "ShBoom")
-			node->m_Visible = (SelectShoes == ShBoom && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == ShBoom && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Puma Shoes
 		if (nodeName == "ShPumas")
-			node->m_Visible = (SelectShoes == ShPumas && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == ShPumas && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Prime New Yoke Shoes
 		if (nodeName == "ShPrmNewYoke")
-			node->m_Visible = (SelectShoes == ShPrmNewYoke && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == ShPrmNewYoke && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Frontiers Deluxe Shoes
 		if (nodeName == "ShSFDeluxe")
-			node->m_Visible = (SelectShoes == ShSFDeluxe && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == ShSFDeluxe && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Frontiers Korone Shoes
 		if (nodeName == "ShSFKorone")
-			node->m_Visible = (SelectShoes == ShSFKorone && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == ShSFKorone && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Frontiers Monster Hunter
 		if (nodeName == "ShSFMonsterHunter")
-			node->m_Visible = (SelectShoes == ShSFMonsterHunter || SelectBody == BdSFMonsterHunter);
+			node->m_Visible = ((SelectShoes == ShSFMonsterHunter || SelectBody == BdSFMonsterHunter) && !m_spIsModelHide);
 
 		/////Bodies//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		//Base Body
 		if (nodeName == "BdDefault_00")
-			node->m_Visible = ((SelectBody == BdDefault && BdDefaultVariant == false) ||
+			node->m_Visible = (((SelectBody == BdDefault && BdDefaultVariant == false) ||
 				(SelectBody == BdWildFire && BdWildFireVariant == false) ||
 				(SelectBody == BdScarf && BdScarfVariant == false) ||
-				(SelectBody == BdMovieSkin && BdMovieVariant == false));
+				(SelectBody == BdMovieSkin && BdMovieVariant == false)) && !m_spIsModelHide);
 		if (nodeName == "BdDefault_01")
-			node->m_Visible = ((SelectBody == BdDefault && BdDefaultVariant == true) ||
+			node->m_Visible = (((SelectBody == BdDefault && BdDefaultVariant == true) ||
 				(SelectBody == BdWildFire && BdWildFireVariant == true) ||
 				(SelectBody == BdScarf && BdScarfVariant == true) ||
-				(SelectBody == BdMovieSkin && BdMovieVariant == true));
+				(SelectBody == BdMovieSkin && BdMovieVariant == true)) && !m_spIsModelHide);
 
 		//Racing Suit
 		if (nodeName == "BdSA2Racing")
-			node->m_Visible = (SelectBody == BdSA2Racing);
+			node->m_Visible = ((SelectBody == BdSA2Racing) && !m_spIsModelHide);
 
 		//Simulator
 		if (nodeName == "BdSimulator")
-			node->m_Visible = (SelectBody == BdSimulator);
+			node->m_Visible = ((SelectBody == BdSimulator) && !m_spIsModelHide);
 
 		//Link Tunic
 		if (nodeName == "BdLink")
-			node->m_Visible = (SelectBody == BdLink);
+			node->m_Visible = ((SelectBody == BdLink) && !m_spIsModelHide);
 
 		//Scarf
 		if (nodeName == "BdScarf")
-			node->m_Visible = (SelectBody == BdScarf);
+			node->m_Visible = ((SelectBody == BdScarf) && !m_spIsModelHide);
 
 		//2020 Swim Vest
 		if (nodeName == "Bd2020SwimVest")
-			node->m_Visible = (SelectBody == Bd2020SwimVest);
+			node->m_Visible = ((SelectBody == Bd2020SwimVest) && !m_spIsModelHide);
 
 		//2020 Surf Suit
 		if (nodeName == "Bd2020SurfSuit")
-			node->m_Visible = (SelectBody == Bd2020SurfSuit);
+			node->m_Visible = ((SelectBody == Bd2020SurfSuit) && !m_spIsModelHide);
 
 		//2020 Horse Shirt
 		if (nodeName == "Bd2020Horse")
-			node->m_Visible = (SelectBody == Bd2020Horse);
+			node->m_Visible = ((SelectBody == Bd2020Horse) && !m_spIsModelHide);
 
 		//Movie Quills
 		if (nodeName == "BdMovieSkin")
-			node->m_Visible = (SelectBody == BdMovieSkin);
+			node->m_Visible = ((SelectBody == BdMovieSkin) && !m_spIsModelHide);
 		if (nodeName == "HeDefault_Movie")
-			node->m_Visible = ((SelectBody == BdMovieSkin) && (SelectHead != HeLink) && (SelectHead != HeBoom) && (SelectHead != HeSFMonsterHunterF));
+			node->m_Visible = (((SelectBody == BdMovieSkin) && (SelectHead != HeLink) && (SelectHead != HeBoom) && (SelectHead != HeSFMonsterHunterF)) && !m_spIsModelHide);
 		if (nodeName == "HeDefault_00_Movie")
-			node->m_Visible = ((SelectBody == BdMovieSkin) && (SelectHead != HeLink) && (SelectHead != HeBoom) && (SelectHead != HeSFMonsterHunterF));
+			node->m_Visible = (((SelectBody == BdMovieSkin) && (SelectHead != HeLink) && (SelectHead != HeBoom) && (SelectHead != HeSFMonsterHunterF)) && !m_spIsModelHide);
 		if (nodeName == "HeDefault_01_Movie")
 			node->m_Visible = false;
 		if (nodeName == "HeBoom_Movie")
-			node->m_Visible = ((SelectBody == BdMovieSkin) && (SelectHead == HeBoom));
+			node->m_Visible = (((SelectBody == BdMovieSkin) && (SelectHead == HeBoom)) && !m_spIsModelHide);
 		if (nodeName == "HeLink_Movie")
-			node->m_Visible = ((SelectBody == BdMovieSkin) && (SelectHead == HeLink));
+			node->m_Visible = (((SelectBody == BdMovieSkin) && (SelectHead == HeLink)) && !m_spIsModelHide);
 		if (nodeName == "HeSFMonsterHunterF_Movie")
-			node->m_Visible = ((SelectBody == BdMovieSkin) && (SelectHead == HeSFMonsterHunterF));
+			node->m_Visible = (((SelectBody == BdMovieSkin) && (SelectHead == HeSFMonsterHunterF)) && !m_spIsModelHide);
 
 		//Frontiers Monster Hunter
 		if (nodeName == "BdSFMonsterHunter")
-			node->m_Visible = (SelectBody == BdSFMonsterHunter);
+			node->m_Visible = ((SelectBody == BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Frontiers Monster Hunter Felyne
 		if (nodeName == "BdSFMonsterHunterF")
-			node->m_Visible = (SelectBody == BdSFMonsterHunterF);
+			node->m_Visible = ((SelectBody == BdSFMonsterHunterF) && !m_spIsModelHide);
 
 		//Frontiers Holiday Cheer Suit
 		if (nodeName == "BdSFHoliday")
-			node->m_Visible = (SelectBody == BdSFHoliday);
+			node->m_Visible = ((SelectBody == BdSFHoliday) && !m_spIsModelHide);
 
 		/////Heads//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		//Base Head
 		if (nodeName == "HeDefault")
-			node->m_Visible = (!(SelectHead == HeSimulator && HeSimulatorVariant == false) && (SelectHead != HeLink) && (SelectHead != HeBoom) && (SelectHead != HeSFMonsterHunterF) && (SelectHead != HeSFMonsterHunter));
+			node->m_Visible = ((!(SelectHead == HeSimulator && HeSimulatorVariant == false) && (SelectHead != HeLink) && (SelectHead != HeBoom) && (SelectHead != HeSFMonsterHunterF) && (SelectHead != HeSFMonsterHunter)) && !m_spIsModelHide);
 		
 		//Super Heads
 		if (nodeName == "HeDefault_00")
-			node->m_Visible = (!(SelectHead == HeSimulator && HeSimulatorVariant == false) && (SelectHead != HeLink) && (SelectHead != HeBoom) && (SelectHead != HeSFMonsterHunterF) && (SelectHead != HeSFMonsterHunter));
+			node->m_Visible = ((!(SelectHead == HeSimulator && HeSimulatorVariant == false) && (SelectHead != HeLink) && (SelectHead != HeBoom) && (SelectHead != HeSFMonsterHunterF) && (SelectHead != HeSFMonsterHunter)) && !m_spIsModelHide);
 		if (nodeName == "HeDefault_01")
 			node->m_Visible = false;
 
 		//SA1 Sunglasses
 		if (nodeName == "HeSA1Sunglass")
-			node->m_Visible = (SelectHead == HeSA1Sunglass);
+			node->m_Visible = ((SelectHead == HeSA1Sunglass) && !m_spIsModelHide);
 
 		//Riders Glasses
 		if (nodeName == "HeRiders")
-			node->m_Visible = (SelectHead == HeRiders);
+			node->m_Visible = ((SelectHead == HeRiders) && !m_spIsModelHide);
 
 		//Headphones
 		if (nodeName == "HeHeadphones")
-			node->m_Visible = (SelectHead == HeHeadphones);
+			node->m_Visible = ((SelectHead == HeHeadphones) && !m_spIsModelHide);
 
 		//Simulator
 		if (nodeName == "HeSimulator_00")
-			node->m_Visible = (SelectHead == HeSimulator && HeSimulatorVariant == false);
+			node->m_Visible = ((SelectHead == HeSimulator && HeSimulatorVariant == false) && !m_spIsModelHide);
 		if (nodeName == "HeSimulator_01")
-			node->m_Visible = (SelectHead == HeSimulator && HeSimulatorVariant == true);
+			node->m_Visible = ((SelectHead == HeSimulator && HeSimulatorVariant == true) && !m_spIsModelHide);
 
 		//Link Hat
 		if (nodeName == "HeLink")
-			node->m_Visible = (SelectHead == HeLink);
+			node->m_Visible = ((SelectHead == HeLink) && !m_spIsModelHide);
 
 		//Boom Spikes
 		if (nodeName == "HeBoom")
-			node->m_Visible = (SelectHead == HeBoom);
+			node->m_Visible = ((SelectHead == HeBoom) && !m_spIsModelHide);
 
 		//Frontiers Monster Hunter
 		if (nodeName == "HeSFMonsterHunter")
-			node->m_Visible = (SelectHead == HeSFMonsterHunter);
+			node->m_Visible = ((SelectHead == HeSFMonsterHunter) && !m_spIsModelHide);
 
 		//Frontiers Monster Hunter Felyne
 		if (nodeName == "HeSFMonsterHunterF")
-			node->m_Visible = (SelectHead == HeSFMonsterHunterF);
+			node->m_Visible = ((SelectHead == HeSFMonsterHunterF) && !m_spIsModelHide);
 
 		//Frontiers Holiday Cheer Suit
 		if (nodeName == "HeSFHoliday")
-			node->m_Visible = (SelectHead == HeSFHoliday);
+			node->m_Visible = ((SelectHead == HeSFHoliday) && !m_spIsModelHide);
 
 		/////Left Hands//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		//Default Glove
 		if (nodeName == "HLDefault")
-			node->m_Visible = (((SelectHandL == HLDefault) ||
+			node->m_Visible = ((((SelectHandL == HLDefault) ||
 				(SelectHandL == HLSA1Crystal) ||
 				(SelectHandL == HLSA2FlameRing) ||
 				(SelectHandL == HL06Bounce) ||
 				(SelectHandL == HLChip)) &&
-				(SelectBody != BdSFMonsterHunter));
+				(SelectBody != BdSFMonsterHunter)) && !m_spIsModelHide);
 
 		//SA1 Crystal Ring
 		if (nodeName == "HLSA1Crystal")
-			node->m_Visible = (SelectHandL == HLSA1Crystal && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectHandL == HLSA1Crystal && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//SA2 Flame Ring
 		if (nodeName == "HLSA2FlameRing")
-			node->m_Visible = (SelectHandL == HLSA2FlameRing && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectHandL == HLSA2FlameRing && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//SA2 Racing Glove
 		if (nodeName == "HLSA2Racing")
-			node->m_Visible = (SelectHandL == HLSA2Racing && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectHandL == HLSA2Racing && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Riders Glove
 		if (nodeName == "HLRiders")
-			node->m_Visible = (SelectHandL == HLRiders && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectHandL == HLRiders && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//06 Bounce Bracelet
 		if (nodeName == "HL06Bounce")
-			node->m_Visible = (SelectHandL == HL06Bounce && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectHandL == HL06Bounce && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Chip Ring
 		if (nodeName == "HLChip")
-			node->m_Visible = (SelectHandL == HLChip && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectHandL == HLChip && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Simulator
 		if (nodeName == "HLSimulator")
-			node->m_Visible = (SelectHandL == HLSimulator && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectHandL == HLSimulator && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Link Glove
 		if (nodeName == "HLLink")
-			node->m_Visible = (SelectHandL == HLLink && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectHandL == HLLink && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Boom Glove
 		if (nodeName == "HLBoom")
-			node->m_Visible = (SelectHandL == HLBoom && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectHandL == HLBoom && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Frontiers Deluxe Glove
 		if (nodeName == "HLSFDeluxe")
-			node->m_Visible = (SelectHandL == HLSFDeluxe && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectHandL == HLSFDeluxe && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Frontiers Korone Glove
 		if (nodeName == "HLSFKorone")
-			node->m_Visible = (SelectHandL == HLSFKorone && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectHandL == HLSFKorone && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Frontiers Monster Hunter
 		if (nodeName == "HLSFMonsterHunter")
-			node->m_Visible = (SelectHandL == HLSFMonsterHunter || SelectBody == BdSFMonsterHunter);
+			node->m_Visible = ((SelectHandL == HLSFMonsterHunter || SelectBody == BdSFMonsterHunter) && !m_spIsModelHide);
 
 		/////Right Hands/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		//Default Glove
 		if (nodeName == "HRDefault")
-			node->m_Visible = (((SelectHandR == HRDefault) ||
+			node->m_Visible = ((((SelectHandR == HRDefault) ||
 				(SelectHandR == HRSA2Bounce) ||
 				(SelectHandR == HR06Homing) ||
 				(SelectHandR == HRSecretRing)) && 
-				(SelectBody != BdSFMonsterHunter));
+				(SelectBody != BdSFMonsterHunter)) && !m_spIsModelHide);
 
 		//SA2 Bounce Bracelet
 		if (nodeName == "HRSA2Bounce_00")
-			node->m_Visible = (SelectHandR == HRSA2Bounce) && (SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectHandR == HRSA2Bounce) && (SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 		if (nodeName == "HRSA2Bounce_01")
-			node->m_Visible = ((SelectHandR == HRSA2Bounce && HRSA2BounceVariant == true) && (SelectBody != BdSFMonsterHunter));
+			node->m_Visible = (((SelectHandR == HRSA2Bounce && HRSA2BounceVariant == true) && (SelectBody != BdSFMonsterHunter)) && !m_spIsModelHide);
 
 		//SA2 Racing Glove
 		if (nodeName == "HRSA2Racing")
-			node->m_Visible = (SelectHandR == HRSA2Racing && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectHandR == HRSA2Racing && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Riders Glove
 		if (nodeName == "HRRiders")
-			node->m_Visible = ((SelectHandR == HRRiders || SelectHandR == HRRidersArkCosmos) && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = (((SelectHandR == HRRiders || SelectHandR == HRRidersArkCosmos) && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 		if (nodeName == "HRRidersArkCosmos")
-			node->m_Visible = (SelectHandR == HRRidersArkCosmos && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectHandR == HRRidersArkCosmos && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//06 Homing Smash Bracelet
 		if (nodeName == "HR06Homing")
-			node->m_Visible = (SelectHandR == HR06Homing && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectHandR == HR06Homing && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Secret Ring
 		if (nodeName == "HRSecretRing")
-			node->m_Visible = (SelectHandR == HRSecretRing && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectHandR == HRSecretRing && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Gauntlet
 		if (nodeName == "HRGauntlet")
-			node->m_Visible = (SelectHandR == HRGauntlet && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectHandR == HRGauntlet && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Simulator
 		if (nodeName == "HRSimulator")
-			node->m_Visible = (SelectHandR == HRSimulator && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectHandR == HRSimulator && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Link Glove
 		if (nodeName == "HRLink")
-			node->m_Visible = (SelectHandR == HRLink && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectHandR == HRLink && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Boom Glove
 		if (nodeName == "HRBoom")
-			node->m_Visible = (SelectHandR == HRBoom && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectHandR == HRBoom && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Frontiers Deluxe Glove
 		if (nodeName == "HRSFDeluxe")
-			node->m_Visible = (SelectHandR == HRSFDeluxe && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectHandR == HRSFDeluxe && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Frontiers Korone Glove
 		if (nodeName == "HRSFKorone")
-			node->m_Visible = (SelectHandR == HRSFKorone && SelectBody != BdSFMonsterHunter);
+			node->m_Visible = ((SelectHandR == HRSFKorone && SelectBody != BdSFMonsterHunter) && !m_spIsModelHide);
 
 		//Frontiers Monster Hunter
 		if (nodeName == "HRSFMonsterHunter")
-			node->m_Visible = (SelectHandR == HRSFMonsterHunter || SelectBody == BdSFMonsterHunter);
+			node->m_Visible = ((SelectHandR == HRSFMonsterHunter || SelectBody == BdSFMonsterHunter) && !m_spIsModelHide);
 
 		/////Misc/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		if (nodeName == "EyeDefault")
-			node->m_Visible = (SelectEyelid == EyelidDefault);
+			node->m_Visible = ((SelectEyelid == EyelidDefault) && !m_spIsModelHide);
 		if (nodeName == "EyeLash")
-			node->m_Visible = (SelectEyelid == EyelidLashes);
+			node->m_Visible = ((SelectEyelid == EyelidLashes) && !m_spIsModelHide);
 		if (nodeName == "EyeSkin")
-			node->m_Visible = (SelectEyelid == EyelidSkin);
+			node->m_Visible = ((SelectEyelid == EyelidSkin) && !m_spIsModelHide);
 
 		//printf("%s\n", nodeName.c_str());
 

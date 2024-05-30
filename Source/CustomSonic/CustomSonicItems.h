@@ -144,8 +144,8 @@ enum SelectSonicBodyType
 	SBSsnMaterial,
 	SBEyelids,
 	SBSuperHead,
-	SBOverflow04,
-	SBOverflow05,
+	SBSuperForm,
+	SBJumpball,
 	SBOverflow06,
 	SBOverflow07,
 	SBOverflow08,
@@ -297,12 +297,12 @@ static std::map<int, const char*> MAP_THUMB_HANDR =
 };
 static std::map<int, const char*> MAP_THUMB_SONICBODY =
 {
-	{ SBSnMaterial,			"Null" },
-	{ SBSsnMaterial,		"Null" },
-	{ SBEyelids,			"Null" },
-	{ SBSuperHead,			"Null" },
-	{ SBOverflow04,			"Null" },
-	{ SBOverflow05,			"Null" },
+	{ SBSnMaterial,			"SBSnMaterial" },
+	{ SBSsnMaterial,		"SBSsnMaterial" },
+	{ SBEyelids,			"SBEyelids" },
+	{ SBSuperHead,			"SBSuperHead" },
+	{ SBSuperForm,			"SBSuperForm" },
+	{ SBJumpball,			"SBJumpball" },
 	{ SBOverflow06,			"Null" },
 	{ SBOverflow07,			"Null" },
 	{ SBOverflow08,			"Null" },
@@ -354,8 +354,8 @@ bool HRSA2BounceVariant = false;
 
 enum SelectSnSonMatType
 {
-	SnMatDefault,
 	SnMatOriginal,
+	SnMatCustom,
 	SnMatS4E2,
 	SnMatRed,
 	SnMatGreen,
@@ -364,13 +364,20 @@ enum SelectSnSonMatType
 };
 enum SelectSsnSonMatType
 {
-	SsnMatDefault,
 	SsnMatOriginal,
+	SsnMatCustom,
+	SsnMatHyper,
 	SsnMatRed,
 	SsnMatGreen,
 	SsnMatPink,
 	SsnMatBlack,
 	SsnMatPurple,
+};
+enum SelectSsnHeadType
+{
+	SsnFormDefault,
+	SsnFormShadow,
+	SsnFormUpward,
 };
 enum SelectSsnFormType
 {
@@ -390,27 +397,29 @@ enum SelectEyelidType
 	EyelidLashes,
 	EyelidSkin,
 };
-enum SelectEffJumpType
+enum SelectJumpBallType
 {
-	EffJmpDefault,
-	EffJmpNoBall,
-	EffJmpNoVFX,
-	EffJmpBAP,
-	EffJmpForces,
-	EffJmpBetaSWA,
-	EffJmpSWA,
-	EffJmpSA1,
-	EffJmpLW,
+	JumpBallDefault,
+	JumpBallSWA,
+	JumpBallBetaSWA,
+	JumpBallBAP,
+	JumpBallLW,
+	JumpBallForces,
+	JumpBallSA1,
+	JumpBallNoVFX,
+	JumpBallNoBall,
 };
 
-SelectSnSonMatType SelectSnSonMat = SelectSnSonMatType::SnMatDefault;
-SelectSsnSonMatType SelectSsnSonMat = SelectSsnSonMatType::SsnMatDefault;
+SelectSnSonMatType SelectSnSonMat = SelectSnSonMatType::SnMatOriginal;
+SelectSsnSonMatType SelectSsnSonMat = SelectSsnSonMatType::SsnMatOriginal;
+SelectSsnHeadType SelectSsnHead = SelectSsnHeadType::SsnFormDefault;
 SelectSsnFormType SelectSsnForm = SelectSsnFormType::SsnFormSuper;
 SelectEyelidType SelectEyelid = SelectEyelidType::EyelidDefault;
-SelectEffJumpType SelectEffJump = SelectEffJumpType::EffJmpDefault;
+SelectJumpBallType SelectJumpBall = SelectJumpBallType::JumpBallDefault;
 bool NoBallJump = true;
 
 int HyperFrameCycle = 0;
+int SA1JumpballFrameCycle = 0;
 
 void MsgWildFire(int Enabled);
 void MsgJumpBall(int BallType);
@@ -782,48 +791,20 @@ void ItemVisibilityHandler(const boost::shared_ptr<hh::mr::CModelData>& model, s
 	else
 		MsgWildFire(0);
 
-	MsgJumpBall(SelectEffJump);
+	MsgJumpBall(SelectJumpBall);
 
 	model->m_NodeGroupModelNum = model->m_NodeGroupModels.size();
 
-	if (HyperFrameCycle >= 47)
+	if (HyperFrameCycle >= 59)
 		HyperFrameCycle = 0;
 	else
 		HyperFrameCycle++;
 
-	auto input = Sonic::CInputState::GetInstance()->GetPadState();
-	bool PressedUp = input.IsTapped(Sonic::eKeyState_DpadUp);
-	bool PressedDown = input.IsTapped(Sonic::eKeyState_DpadDown);
-	bool PressedLeft = input.IsTapped(Sonic::eKeyState_DpadLeft);
-	bool PressedRight = input.IsTapped(Sonic::eKeyState_DpadRight);
-	if (PressedUp)
-	{
-		if (SelectSnSonMat != SnMatBlack)
-			SelectSnSonMat = (SelectSnSonMatType)(SelectSnSonMat + 1);
-		else
-			SelectSnSonMat = SnMatDefault;
-	}
-	if (PressedDown)
-	{
-		if (SelectSnSonMat != SnMatDefault)
-			SelectSnSonMat = (SelectSnSonMatType)(SelectSnSonMat - 1);
-		else
-			SelectSnSonMat = SnMatBlack;
-	}
-	if (PressedRight)
-	{
-		if (SelectSsnSonMat != SsnMatBlack)
-			SelectSsnSonMat = (SelectSsnSonMatType)(SelectSsnSonMat + 1);
-		else
-			SelectSsnSonMat = SsnMatDefault;
-	}
-	if (PressedLeft)
-	{
-		if (SelectSsnSonMat != SsnMatDefault)
-			SelectSsnSonMat = (SelectSsnSonMatType)(SelectSsnSonMat - 1);
-		else
-			SelectSsnSonMat = SsnMatBlack;
-	}
+	if (SA1JumpballFrameCycle >= 29)
+		SA1JumpballFrameCycle = 0;
+	else
+		SA1JumpballFrameCycle++;
+
 }
 
 void traverse(hh::mr::CRenderable* renderable)
@@ -847,21 +828,19 @@ void traverse(hh::mr::CRenderable* renderable)
 		auto hyper_sonic_gm_body04 = hh::mr::CMirageDatabaseWrapper(Sonic::CGameDocument::GetInstance()->m_pMember->m_spDatabase.get()).GetMaterialData("hyper_sonic_gm_body04");
 		auto hyper_sonic_gm_body05 = hh::mr::CMirageDatabaseWrapper(Sonic::CGameDocument::GetInstance()->m_pMember->m_spDatabase.get()).GetMaterialData("hyper_sonic_gm_body05");
 		auto hyper_sonic_gm_body06 = hh::mr::CMirageDatabaseWrapper(Sonic::CGameDocument::GetInstance()->m_pMember->m_spDatabase.get()).GetMaterialData("hyper_sonic_gm_body06");
-		auto chr_Sonic_spin_HD = hh::mr::CMirageDatabaseWrapper(Sonic::CGameDocument::GetInstance()->m_pMember->m_spDatabase.get()).GetMaterialData("chr_Sonic_spin_HD");
-		auto chr_Sonic_spin02_HD = hh::mr::CMirageDatabaseWrapper(Sonic::CGameDocument::GetInstance()->m_pMember->m_spDatabase.get()).GetMaterialData("chr_Sonic_spin02_HD");
 
 		if (strstr(element->m_spModel->m_TypeAndName.c_str(), "chr_Sonic_HD"))
 		{
 			element->m_MaterialMap.clear();
 			switch (SelectSnSonMat)
 			{
-			case SnMatDefault:
-				element->m_MaterialMap.emplace(sonic_gm_body_custom.get(), sonic_gm_body_custom);
-				return;
-				break;
 			case SnMatOriginal:
 				element->m_MaterialMap.emplace(sonic_gm_body_custom.get(), sonic_gm_body_original);
 				return;						  
+				break;
+			case SnMatCustom:
+				element->m_MaterialMap.emplace(sonic_gm_body_custom.get(), sonic_gm_body_custom);
+				return;
 				break;
 			case SnMatS4E2:
 				element->m_MaterialMap.emplace(sonic_gm_body_custom.get(), sonic_gm_body_S4E2);
@@ -891,12 +870,12 @@ void traverse(hh::mr::CRenderable* renderable)
 			element->m_MaterialMap.clear();
 			switch (SelectSsnSonMat)
 			{
-			case SsnMatDefault:
-				element->m_MaterialMap.emplace(super_sonic_gm_body.get(), sonic_gm_body_custom);
-				return;
-				break;
 			case SsnMatOriginal:
 				element->m_MaterialMap.emplace(super_sonic_gm_body.get(), sonic_gm_body_original);
+				return;
+				break;
+			case SsnMatCustom:
+				element->m_MaterialMap.emplace(super_sonic_gm_body.get(), sonic_gm_body_custom);
 				return;
 				break;
 			case SsnMatRed:
@@ -915,64 +894,64 @@ void traverse(hh::mr::CRenderable* renderable)
 				element->m_MaterialMap.emplace(super_sonic_gm_body.get(), sonic_gm_body_black);
 				return;
 				break;
-			//case SsnMatHyper:
-			//	switch (HyperFrameCycle)
-			//	{
-			//	case 0:
-			//	case 1:
-			//	case 2:
-			//	case 3:
-			//		element->m_MaterialMap.emplace(super_sonic_gm_body.get(), hyper_sonic_gm_body00);
-			//		return;
-			//		break;
-			//	case 8:
-			//	case 9:
-			//	case 10:
-			//	case 11:
-			//		element->m_MaterialMap.emplace(super_sonic_gm_body.get(), hyper_sonic_gm_body01);
-			//		return;
-			//		break;
-			//	case 16:
-			//	case 17:
-			//	case 18:
-			//	case 19:
-			//		element->m_MaterialMap.emplace(super_sonic_gm_body.get(), hyper_sonic_gm_body02);
-			//		return;
-			//		break;
-			//	case 24:
-			//	case 25:
-			//	case 26:
-			//	case 27:
-			//		element->m_MaterialMap.emplace(super_sonic_gm_body.get(), hyper_sonic_gm_body03);
-			//		return;
-			//		break;
-			//	case 32:
-			//	case 33:
-			//	case 34:
-			//	case 35:
-			//		element->m_MaterialMap.emplace(super_sonic_gm_body.get(), hyper_sonic_gm_body04);
-			//		return;
-			//		break;
-			//	case 40:
-			//	case 41:
-			//	case 42:
-			//	case 43:
-			//		element->m_MaterialMap.emplace(super_sonic_gm_body.get(), hyper_sonic_gm_body05);
-			//		return;
-			//		break;
-			//	default:
-			//		element->m_MaterialMap.emplace(super_sonic_gm_body.get(), hyper_sonic_gm_body06);
-			//		return;
-			//		break;
-			//	}
-			//	break;
+			case SsnMatHyper:
+				switch (HyperFrameCycle)
+				{
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+					element->m_MaterialMap.emplace(super_sonic_gm_body.get(), hyper_sonic_gm_body00);
+					return;
+					break;
+				case 10:
+				case 11:
+				case 12:
+				case 13:
+				case 14:
+					element->m_MaterialMap.emplace(super_sonic_gm_body.get(), hyper_sonic_gm_body01);
+					return;
+					break;
+				case 20:
+				case 21:
+				case 22:
+				case 23:
+				case 24:
+					element->m_MaterialMap.emplace(super_sonic_gm_body.get(), hyper_sonic_gm_body02);
+					return;
+					break;
+				case 30:
+				case 31:
+				case 32:
+				case 33:
+				case 34:
+					element->m_MaterialMap.emplace(super_sonic_gm_body.get(), hyper_sonic_gm_body03);
+					return;
+					break;
+				case 40:
+				case 41:
+				case 42:
+				case 43:
+				case 44:
+					element->m_MaterialMap.emplace(super_sonic_gm_body.get(), hyper_sonic_gm_body04);
+					return;
+					break;
+				case 50:
+				case 51:
+				case 52:
+				case 53:
+				case 54:
+					element->m_MaterialMap.emplace(super_sonic_gm_body.get(), hyper_sonic_gm_body05);
+					return;
+					break;
+				default:
+					element->m_MaterialMap.emplace(super_sonic_gm_body.get(), hyper_sonic_gm_body06);
+					return;
+					break;
+				}
+				break;
 			}
-		}
-
-		if (strstr(element->m_spModel->m_TypeAndName.c_str(), "chr_Sonic_spin_HD"))
-		{
-			element->m_MaterialMap.clear();
-			element->m_MaterialMap.emplace(chr_Sonic_spin_HD.get(), chr_Sonic_spin02_HD);
 		}
 	}
 	else if (auto bundle = dynamic_cast<hh::mr::CBundle*>(renderable))
@@ -986,31 +965,3 @@ void traverse(hh::mr::CRenderable* renderable)
 			traverse(it);
 	}
 }
-
-//void MaterialSelectionHandler(const boost::shared_ptr<hh::mr::CModelData>& model, std::vector<boost::shared_ptr<hh::mr::CMeshData>>& spMaterial)
-//{
-//	if (!model || !(model->m_Flags & hh::db::eDatabaseDataFlags_IsMadeOne))
-//		return;
-//
-//	if (spMaterial.empty())
-//		spMaterial.assign(model->m_OpaqueMeshes.begin(), model->m_OpaqueMeshes.end());
-//
-//	model->m_OpaqueMeshes.clear();
-//
-//	for (auto& mat : spMaterial)
-//	{
-//		auto matName = mat->m_MaterialName;
-//
-//		if (matName == "sonic_gm_body")
-//		{
-//			mat->m_MaterialName = "sonic_gm_body00";
-//			printf("sonic_gm_body FOUND\n");
-//		}
-//			
-//
-//		if (matName != "sonic_gm_body")
-//			model->m_OpaqueMeshes.push_back(mat);
-//	}
-//
-//	model->m_NodeNum = model->m_OpaqueMeshes.size();
-//}

@@ -1,6 +1,7 @@
 #pragma once
 
-static inline boost::shared_ptr<hh::db::CDatabase> database;
+inline boost::shared_ptr<hh::db::CDatabase> database_ui;
+inline boost::shared_ptr<hh::db::CDatabase> database_sonic;
 
 class InstallSetup
 {

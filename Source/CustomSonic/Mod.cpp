@@ -1,27 +1,21 @@
 #include <Common.h>
 #include "InstallSetup.h"
 #include "InstallCustomUI.h"
-#include "ArchiveTree.h"
-#include "CpkBinder.h"
 #include "SonicVFX.h"
 
-//Declare
-void ReadINI();
 void ReadConfig();
 
-//Init
-EXPORT void Init()
+EXPORT void PreInit()
+{
+	GetModLoaderAPI()->SendMessageToLoader(ML_MSG_REQ_LARGE_ADDRESS_AWARE, nullptr);
+}
+EXPORT void Init(ModInfo_t* modInfo)
 {
 	InstallSetup::applyPatches();
-	InstallCustomUI::applyPatches();
+	InstallCustomUI::applyPatches(modInfo);
 	InstallSonicVFX::applyPatches();
-	ArchiveTree::applyPatches();
-	CpkBinder::applyPatches();
-	ReadINI();
 	ReadConfig();
 }
-
-//Init
 EXPORT void PostInit()
 {
 	InstallSetup::applyPostPatches();

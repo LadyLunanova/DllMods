@@ -122,6 +122,7 @@ namespace Common
 	}
 }
 
+bool checkCode = false;
 int BounceCount = 0; //Bounce counter
 SharedPtrTypeless BounceBallVfxHandle; //Ball VFX handler
 SharedPtrTypeless BounceTrailVfxHandle; //Following balls VFX handler
@@ -133,6 +134,7 @@ bool  ModernBounceEnable = true;
 bool  ModernBounceTrigger = true;
 int   ModernSoundType = 0;
 bool  ModernBounceVO = false;
+bool  ModernBlueTrail = true;
 int   ModernBallType = 0;
 bool  ModernLWBounce = false;
 bool  ModernRangersBounce = false;
@@ -151,6 +153,7 @@ float ModernBounceMulti = 1.0f;
 //Classic
 bool  ClassicBounceEnable = true;
 bool  ClassicBounceTrigger = true;
+bool  ClassicBlueTrail = false;
 bool  ClassicLWBounce = false;
 bool  ClassicBounceHorCnl = false;
 bool  ClassicNoBounceEnemy = false;
@@ -323,7 +326,8 @@ HOOK(void, __fastcall, EnterStompBounce, 0x01254CA0, hh::fnd::CStateMachineBase:
 		sonic->m_Velocity.x() = 0.0;
 	}
 
-	Common::SonicContextSpawnLocusEffect(sonic); //Spawn blue trail
+	if (ModernBlueTrail)
+		Common::SonicContextSpawnLocusEffect(sonic); //Spawn blue trail
 
 	sonic->m_Velocity.y() = -ModernBounceDrop; //Set Sonic's vertical global velocity
 }
@@ -373,13 +377,13 @@ HOOK(void, __fastcall, StompBounce, 0x012548C0, hh::fnd::CStateMachineBase::CSta
 			switch (ModernSoundType)
 			{
 			case 0:
-				sonic->PlaySound(2002420, true); //Play bounce SFX
+				sonic->PlaySound(694206660, true); //Play bounce SFX
 				break;
 			case 1:
-				sonic->PlaySound(2002421, true); //Play bounce SFX
+				sonic->PlaySound(694206661, true); //Play bounce SFX
 				break;
 			case 2:
-				sonic->PlaySound(2002422, true); //Play bounce SFX
+				sonic->PlaySound(694206662, true); //Play bounce SFX
 				break;
 			case 3:
 				sonic->PlaySound(2002027, true); //Play bounce SFX
@@ -491,13 +495,13 @@ HOOK(void, __fastcall, StompBounce, 0x012548C0, hh::fnd::CStateMachineBase::CSta
 				switch (ModernSoundType)
 				{
 				case 0:
-					sonic->PlaySound(2002420, true); //Play bounce SFX
+					sonic->PlaySound(694206660, true); //Play bounce SFX
 					break;
 				case 1:
-					sonic->PlaySound(2002421, true); //Play bounce SFX
+					sonic->PlaySound(694206661, true); //Play bounce SFX
 					break;
 				case 2:
-					sonic->PlaySound(2002422, true); //Play bounce SFX
+					sonic->PlaySound(694206662, true); //Play bounce SFX
 					break;
 				case 3:
 					sonic->PlaySound(2002027, true); //Play bounce SFX
@@ -506,6 +510,7 @@ HOOK(void, __fastcall, StompBounce, 0x012548C0, hh::fnd::CStateMachineBase::CSta
 					sonic->PlaySound(2002043, true); //Play bounce SFX
 					break;
 				}
+				//MessageBoxA(nullptr, "SFX time", "Window", MB_OK);
 
 				if (ModernBounceVO)
 				{
@@ -621,7 +626,8 @@ HOOK(void, __fastcall, EnterClassicStompBounce, 0x012555D0, hh::fnd::CStateMachi
 	sonic->ChangeAnimation("JumpBall"); //Play ball animation
 
 	Common::fCGlitterCreate(sonic, ClassicBounceBallVfxHandle, middlematrixNode, "ef_ch_snc_yh1_spindash1", 1);  //Create Ball VFX
-	Common::SonicContextSpawnLocusEffect(sonic); //Spawn blue trail
+	if (ClassicBlueTrail)
+		Common::SonicContextSpawnLocusEffect(sonic); //Spawn blue trail
 
 	if (ClassicBounceHorCnl)
 	{
@@ -789,6 +795,7 @@ HOOK(void, __cdecl, InitializeApplicationParams_BOUNCE, 0x00D65180, Sonic::CPara
 			{ "Stomp", 4},
 		});
 	cat_Bounce_Gen->CreateParamBool(&ModernBounceVO, "Play one of Sonic's voicelines when you bounce");
+	cat_Bounce_Gen->CreateParamBool(&ModernBlueTrail, "Enable Blue Trail Creation");
 	cat_Bounce_Gen->CreateParamTypeList((uint32_t*)&ModernBallType, "Ball VFX Type", "Choose what VFX gets used when bouncing",
 		{
 			{ "Bounce Attack+", 0},
@@ -827,6 +834,7 @@ HOOK(void, __cdecl, InitializeApplicationParams_BOUNCE, 0x00D65180, Sonic::CPara
 
 	cat_Bounce_Cla->CreateParamBool(&ClassicBounceEnable, "Enable bouncing for Modern Sonic");
 	cat_Bounce_Cla->CreateParamBool(&ClassicBounceTrigger, "Enable bouncing when pressing one of the triggers mid-air");
+	cat_Bounce_Cla->CreateParamBool(&ClassicBlueTrail, "Enable Blue Trail Creation");
 	cat_Bounce_Cla->CreateParamBool(&ClassicLWBounce, "Lost World Style Bounce");
 	cat_Bounce_Cla->CreateParamBool(&ClassicBounceHorCnl, "Cancel Horizontal Momentum");
 	cat_Bounce_Cla->CreateParamBool(&ClassicNoBounceEnemy, "Bounce goes through enemies");
@@ -842,6 +850,22 @@ HOOK(void, __cdecl, InitializeApplicationParams_BOUNCE, 0x00D65180, Sonic::CPara
 	parameterGroupCla->Flush();
 
 	originalInitializeApplicationParams_BOUNCE(This);
+}
+
+EXPORT void OnFrame()
+{
+	if (checkCode)
+		return;
+	checkCode = true;
+	constexpr int key = 0xFFB6F908;
+	bool isNotModified = *(int*)0x012552E4 == key;
+
+	if (!isNotModified)
+	{
+		MessageBoxA(nullptr, "The Unleashed Style Stomp code is not compatible with Bounce Attack+, Disable one before rebooting", "Code Incompatibility", MB_ICONERROR);
+		exit(-1);
+	}
+
 }
 
 EXPORT void Init()
@@ -889,6 +913,6 @@ EXPORT void Init()
 	INSTALL_HOOK(EnterClassicStompBounce);
 	INSTALL_HOOK(ClassicStompBounce);
 	INSTALL_HOOK(ExitClassicStompBounce);
-	INSTALL_HOOK(ParseArchiveTree);
+	//INSTALL_HOOK(ParseArchiveTree);
 	INSTALL_HOOK(InitializeApplicationParams_BOUNCE);
 }

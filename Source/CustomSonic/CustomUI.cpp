@@ -75,14 +75,16 @@ void KillDebugTxtUI()
 }
 
 //Declare Funcs
-void ReadINI();
+void ReadINI(std::string saveFilePath);
 void WriteINI(FILE* iniFile);
+
+static std::string saveFilePath;
 
 //Handle UI
 void CreateFittingUI(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo& in_rUpdateInfo)
 {
-	//Sonic::CCsdDatabaseWrapper wrapper(This->m_pMember->m_pGameDocument->m_pMember->m_spDatabase.get());
-	Sonic::CCsdDatabaseWrapper wrapper(database.get());
+	Sonic::CCsdDatabaseWrapper wrapper(This->m_pMember->m_pGameDocument->m_pMember->m_spDatabase.get());
+	//Sonic::CCsdDatabaseWrapper wrapper(database_ui.get());
 
 	if (!IsUnleashedHUD)
 	{
@@ -114,7 +116,7 @@ void CreateFittingUI(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 	}
 }
 
-void CHudUIOpen(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo& in_rUpdateInfo, float Sh, float Bd, float He, float HL, float HR)
+void CHudUIOpen(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo& in_rUpdateInfo, float Sh, float Bd, float He, float HL, float HR, float SB)
 {
 	auto arX = 1280.0f;
 	auto arY = 720.0f;
@@ -126,7 +128,7 @@ void CHudUIOpen(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo&
 	auto rowY2 = 0.5515f;
 	auto rowY3 = 0.7046f;
 
-	ReadINI();
+	ReadINI(saveFilePath);
 	prevblur = *ENABLE_BLUR;
 	*ENABLE_BLUR = false;
 	if (MemoryOpenTimer <= 0)
@@ -196,6 +198,9 @@ void CHudUIOpen(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo&
 		break;
 	case UIPartHandR:
 		scBBScroll->SetMotionFrame(HR);
+		break;
+	case UISonicBody:
+		scBBScroll->SetMotionFrame(SB);
 		break;
 	}
 	scBBScroll->m_MotionSpeed = 0.0f;
@@ -414,6 +419,52 @@ void CHudUISelect()
 			CHudUISFXSelect(true);
 			CHudUICursorAnim();
 			SelectHandR = (enum SelectHandRType)CHudVarTrueSel;
+		}
+		return;
+		break;
+	case UISonicBody:
+		if (CHudVarTrueSel >= SBOverflow06)
+			CHudUISFXSelect(false);
+		else
+		{
+			CHudUISFXSelect(true);
+			CHudUICursorAnim();
+			switch (CHudVarTrueSel)
+			{
+			case (enum SelectSonicBodyType)SBSnMaterial:
+				if (SelectSnSonMat != SnMatBlack)
+					SelectSnSonMat = (SelectSnSonMatType)(SelectSnSonMat + 1);
+				else
+					SelectSnSonMat = SnMatOriginal;
+				return;
+				break;
+			case (enum SelectSonicBodyType)SBSsnMaterial:
+				if (SelectSsnSonMat != SsnMatPurple)
+					SelectSsnSonMat = (SelectSsnSonMatType)(SelectSsnSonMat + 1);
+				else
+					SelectSsnSonMat = SsnMatOriginal;
+				return;
+				break;
+			case (enum SelectSonicBodyType)SBEyelids:
+				
+				return;
+				break;
+			case (enum SelectSonicBodyType)SBSuperHead:
+
+				return;
+				break;
+			case (enum SelectSonicBodyType)SBSuperForm:
+
+				return;
+				break;
+			case (enum SelectSonicBodyType)SBJumpball:
+				if (SelectJumpBall != JumpBallNoBall)
+					SelectJumpBall = (SelectJumpBallType)(SelectJumpBall + 1);
+				else
+					SelectJumpBall = JumpBallDefault;
+				return;
+				break;
+			}
 		}
 		return;
 		break;
@@ -808,6 +859,84 @@ void CHudUIMove(int Type)
 		}
 		return;
 		break;
+	case UISonicBody:
+		switch (Type)
+		{
+		case 0: //Up
+			switch (CHudVarVisSel)
+			{
+			case 0:
+			case 1:
+			case 2:
+				if (CHudVarScroll <= 0)
+				{
+					CHudVarVisSel += 6;
+					CHudVarScroll = CHudVarSBMaxScroll;
+				}
+				else if (CHudVarScroll > 0)
+					CHudVarScroll--;
+				break;
+			default:
+				CHudVarVisSel -= 3;
+				break;
+			}
+			//CHudVarScroll--;
+			return;
+			break;
+		case 1: //Down
+			switch (CHudVarVisSel)
+			{
+			case 6:
+			case 7:
+			case 8:
+				if (CHudVarScroll >= CHudVarSBMaxScroll)
+				{
+					CHudVarVisSel -= 6;
+					CHudVarScroll = 0;
+				}
+				else if (CHudVarScroll < CHudVarSBMaxScroll)
+					CHudVarScroll++;
+				break;
+			default:
+				CHudVarVisSel += 3;
+				break;
+			}
+			//CHudVarScroll++;
+			return;
+			break;
+		case 2: //Left
+			if (CHudVarVisSel <= 0 && CHudVarScroll <= 0)
+			{
+				CHudVarScroll = CHudVarSBMaxScroll;
+				CHudVarVisSel = 8;
+			}
+			else if (CHudVarVisSel <= 0 && CHudVarScroll > 0)
+			{
+				CHudVarScroll--;
+				CHudVarVisSel += 2;
+			}
+			else
+				CHudVarVisSel--;
+			return;
+			break;
+		case 3: //Right
+			if (CHudVarVisSel >= 8 && CHudVarScroll >= CHudVarSBMaxScroll)
+			{
+				CHudVarScroll = 0;
+				CHudVarVisSel = 0;
+			}
+			else if (CHudVarVisSel >= 8 && CHudVarScroll < CHudVarSBMaxScroll)
+			{
+				CHudVarScroll++;
+				CHudVarVisSel -= 2;
+			}
+			else
+				CHudVarVisSel++;
+			return;
+			break;
+		}
+		return;
+		break;
 	}
 
 }
@@ -1063,9 +1192,9 @@ void CHudUISwitch(int Type)
 				CHudTabSel = UIPartHandR;
 				break;
 			case UIPartHandR:
-				CHudTabSel = UISonicPart;
+				CHudTabSel = UISonicBody;
 				break;
-			case UISonicPart:
+			case UISonicBody:
 				CHudTabSel = UIPartShoes;
 				break;
 			}
@@ -1075,7 +1204,7 @@ void CHudUISwitch(int Type)
 			switch (CHudTabSel)
 			{
 			case UIPartShoes:
-				CHudTabSel = UISonicPart;
+				CHudTabSel = UISonicBody;
 				break;
 			case UIPartBody:
 				CHudTabSel = UIPartShoes;
@@ -1089,7 +1218,7 @@ void CHudUISwitch(int Type)
 			case UIPartHandR:
 				CHudTabSel = UIPartHandL;
 				break;
-			case UISonicPart:
+			case UISonicBody:
 				CHudTabSel = UIPartHandR;
 				break;
 			}
@@ -1260,7 +1389,7 @@ void CHudUIExit(int Type)
 		IsInMenu = false;
 		MemoryOpenTimer = 1800;
 		*ENABLE_BLUR = prevblur;
-		FILE* pFile = fopen("CustomSelect.ini", "wb");
+		FILE* pFile = fopen(saveFilePath.c_str(), "wb");
 		WriteINI(pFile);
 		fclose(pFile);
 		CHudUISceneDestroy();
@@ -1443,7 +1572,7 @@ const char* CHudUIThumbHandRString(int id, char* result)
 
 	return result;
 }
-const char* CHudUIThumbSnSonMatString(int id, char* result)
+const char* CHudUIThumbSonicBodyString(int id, char* result)
 {
 	auto mapChar = MAP_THUMB_SONICBODY[SBSnMaterial + (CHudVarScroll * 3) + id];
 	auto mapInt = (SBSnMaterial + (CHudVarScroll * 3) + id);
@@ -1461,7 +1590,7 @@ const char* CHudUIThumbSnSonMatString(int id, char* result)
 	const char* texExt9 = "_09";
 
 	sprintf(result, "%s%s%s", texExtUI, mapChar, texExtVar);
-	printf("%s%s%s", texExtUI, mapChar, texExtVar);
+	//printf("%s%s%s", texExtUI, mapChar, texExtVar);
 
 	return result;
 }
@@ -1517,12 +1646,12 @@ void CHudUIThumbManager(Sonic::CGameObject* This)
 			scSWATagTxt->GetNode("img")->SetPatternIndex(UIPartHandR);
 		return;
 		break;
-	case UISonicPart:
+	case UISonicBody:
 		for (int i = 0; i <= 8; i++)
-			CHudUITexsetData(This, i + 6, CHudUIThumbSnSonMatString(i, SBBuffer));
-		scBBTextArea->GetNode("textarea_textbox")->SetPatternIndex(UISonicPart);
+			CHudUITexsetData(This, i + 6, CHudUIThumbSonicBodyString(i, SBBuffer));
+		scBBTextArea->GetNode("textarea_textbox")->SetPatternIndex(UISonicBody);
 		if (IsUnleashedHUD)
-			scSWATagTxt->GetNode("img")->SetPatternIndex(UISonicPart);
+			scSWATagTxt->GetNode("img")->SetPatternIndex(UISonicBody);
 		return;
 		break;
 	}
@@ -1535,7 +1664,7 @@ void CHudUIThumbManager(Sonic::CGameObject* This)
 
 }
 
-void CHudUIScrollManager(Sonic::CGameObject* This, float Sh, float Bd, float He, float HL, float HR)
+void CHudUIScrollManager(Sonic::CGameObject* This, float Sh, float Bd, float He, float HL, float HR, float SB)
 {
 	auto arY = 720.0f;
 	auto scaleY = 0.88642f;
@@ -1557,8 +1686,8 @@ void CHudUIScrollManager(Sonic::CGameObject* This, float Sh, float Bd, float He,
 	case UIPartHandR:
 		scBBScroll->SetMotionFrame(HR);
 		break;
-	case UISonicPart:
-		scBBScroll->SetMotionFrame(0);
+	case UISonicBody:
+		scBBScroll->SetMotionFrame(SB);
 		break;
 	}
 	scBBScroll->m_MotionSpeed = 0.0f;
@@ -1586,6 +1715,10 @@ void CHudUIScrollManager(Sonic::CGameObject* This, float Sh, float Bd, float He,
 		case UIPartHandR:
 			scSWAScroll->SetPosition(0, (0.107 + (HR * (0.001 * (CHudVarHRMaxScroll * 0.685)))) * arY);
 			scSWAScroll->SetMotionFrame(100.f / CHudVarHRMaxScroll);
+			break;
+		case UISonicBody:
+			scSWAScroll->SetPosition(0, 0.107 * arY);
+			scSWAScroll->SetMotionFrame(0);
 			break;
 		}
 	}
@@ -1658,6 +1791,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 	float CHudVarHeScrollBar = (CHudVarScroll * (100.f / CHudVarHeMaxScroll));
 	float CHudVarHLScrollBar = (CHudVarScroll * (100.f / CHudVarHLMaxScroll));
 	float CHudVarHRScrollBar = (CHudVarScroll * (100.f / CHudVarHRMaxScroll));
+	float CHudVarSBScrollBar = (CHudVarScroll * (100.f / CHudVarSBMaxScroll));
 
 
 	////------Open Fitting Menu------////
@@ -1674,7 +1808,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 			return;
 			break;
 		default:
-			CHudUIOpen(This, Edx, in_rUpdateInfo, CHudVarShScrollBar, CHudVarBdScrollBar, CHudVarHeScrollBar, CHudVarHLScrollBar, CHudVarHRScrollBar);
+			CHudUIOpen(This, Edx, in_rUpdateInfo, CHudVarShScrollBar, CHudVarBdScrollBar, CHudVarHeScrollBar, CHudVarHLScrollBar, CHudVarHRScrollBar, CHudVarSBScrollBar);
 			break;
 		}
 	}
@@ -1772,7 +1906,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 			if (scenecheck && IsInScrollOpen == false)
 			{
 				scBBScroll->GetNode("star")->SetRotation(CHudVarScrollBarStarSpin);
-				CHudUIScrollManager(This, CHudVarShScrollBar, CHudVarBdScrollBar, CHudVarHeScrollBar, CHudVarHLScrollBar, CHudVarHRScrollBar);
+				CHudUIScrollManager(This, CHudVarShScrollBar, CHudVarBdScrollBar, CHudVarHeScrollBar, CHudVarHLScrollBar, CHudVarHRScrollBar, CHudVarSBScrollBar);
 			}
 				
 			////------SWA Open Timer Unhide
@@ -2118,7 +2252,7 @@ HOOK(void, __fastcall, CHUDPauseUpdate, 0x0042A520, hh::fnd::CStateMachineBase::
 	CHudTabSel = UIPartShoes;
 	CHudVarVisSel = 0;
 	MemoryOpenTimer = 0;
-	FILE* pFile = fopen("CustomSelect.ini", "wb");
+	FILE* pFile = fopen(saveFilePath.c_str(), "wb");
 	WriteINI(pFile);
 	fclose(pFile);
 	CHudUISceneDestroy();
@@ -2132,7 +2266,7 @@ void __fastcall CHudSonicStageRemoveCallback(Sonic::CGameObject* This, void*, So
 	CHudTabSel = UIPartShoes;
 	CHudVarVisSel = 0;
 	MemoryOpenTimer = 0;
-	FILE* pFile = fopen("CustomSelect.ini", "wb");
+	FILE* pFile = fopen(saveFilePath.c_str(), "wb");
 	WriteINI(pFile);
 	fclose(pFile);
 	CHudUISceneDestroy();
@@ -2145,7 +2279,7 @@ HOOK(void, __fastcall, CHudResultStart, 0x010B6840, hh::fnd::CStateMachineBase::
 	CHudTabSel = UIPartShoes;
 	CHudVarVisSel = 0;
 	MemoryOpenTimer = 0;
-	FILE* pFile = fopen("CustomSelect.ini", "wb");
+	FILE* pFile = fopen(saveFilePath.c_str(), "wb");
 	WriteINI(pFile);
 	fclose(pFile);
 	CHudUISceneDestroy();
@@ -2217,8 +2351,7 @@ HOOK(void, __fastcall, MsgLookAtEnd, 0x00E3F3B0, void* This, void* notSonicConte
 //Parameter Editor Options
 HOOK(void, __cdecl, InitializeApplicationUIParams, 0x00D65180, Sonic::CParameterFile* This)
 {
-	boost::shared_ptr<Sonic::CParameterGroup> parameterGroup;
-	This->CreateParameterGroup(parameterGroup, "Luna's Mods", "Parameters for Lady Luna's code mods");
+	auto parameterGroup = This->CreateParameterGroup("Luna's Mods", "Parameters for Lady Luna's code mods");
 	Sonic::CEditParam* cat_Bounce = parameterGroup->CreateParameterCategory("Customizable Sonic", "Parameters for customizable Sonic");
 
 	cat_Bounce->CreateParamBool(&ConfigDecoEnable, "Show the fitting room UI decorations.");
@@ -2241,8 +2374,13 @@ HOOK(void, __cdecl, InitializeApplicationUIParams, 0x00D65180, Sonic::CParameter
 }
 
 //Install UI
-void InstallCustomUI::applyPatches()
+void InstallCustomUI::applyPatches(ModInfo_t* modInfo)
 {
+	saveFilePath = modInfo->CurrentMod->Path;
+	saveFilePath.erase(saveFilePath.find_last_of("\\/") + 1);
+	saveFilePath += "CustomizeSave.ini";
+	ReadINI(saveFilePath);
+
 	INSTALL_HOOK(CHudSonicStageUpdate);
 	INSTALL_HOOK(CHudPlayableMenuUpdate);
 	INSTALL_HOOK(CHUDPauseUpdate);

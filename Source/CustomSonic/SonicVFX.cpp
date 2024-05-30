@@ -1,5 +1,165 @@
 #include "SonicVFX.h"
+#include "NPCAnim.h"
 
+//////Renderables//////
+//boost::shared_ptr<hh::mr::CSingleElement> m_spSonicJumpBall;
+bool isRenderableCreated = false;
+static uint32_t pCAnimationStateMachineSetBlend = 0xCE0720;
+static uint32_t pCNPCAnimationCtor = 0xB67750;
+
+static void* fCNPCAnimationCtor(Sonic::CNPCAnimation* This)
+{
+	void* result = nullptr;
+
+	__asm
+	{
+		mov esi, This
+		call[pCNPCAnimationCtor]
+		mov result, eax
+	}
+
+	return result;
+}
+static void* fCAnimationStateMachineSetBlend(Sonic::CAnimationStateMachine* This,
+	const Hedgehog::Base::CSharedString& in_rSourceState, const Hedgehog::Base::CSharedString& in_rDestinationState, float in_BlendTime)
+{
+	void* result = nullptr;
+
+	__asm
+	{
+		push in_BlendTime
+		mov ecx, This
+		mov eax, in_rSourceState
+		mov edi, in_rDestinationState
+		call[pCAnimationStateMachineSetBlend]
+		mov result, eax
+	}
+
+	return result;
+}
+
+class JumpballLWAnimRenderable : public Sonic::CGameObject3D
+{
+public:
+	boost::shared_ptr<hh::mr::CSingleElement> m_spElement;
+	boost::shared_ptr<Sonic::CMatrixNodeTransform> m_spChildNode;
+	boost::shared_ptr<Sonic::CNPCAnimation> m_spNPCAnimation;
+
+	////Animation List
+	//static inline const hh::anim::SMotionInfo m_sAnimList[] =
+	//{
+	//	hh::anim::SMotionInfo{"START", "spin_jp_start" },
+	//	hh::anim::SMotionInfo{"LOOP", "spin_nomal_loop"},
+	//};
+	static inline hh::anim::SMotionInfo m_sAnimList[2];
+
+	void AddCallback(const Hedgehog::Base::THolder<Sonic::CWorld>& in_rWorldHolder,
+		Sonic::CGameDocument* in_pGameDocument, const boost::shared_ptr<Hedgehog::Database::CDatabase>& in_spDatabase) override
+		{
+		Sonic::CApplicationDocument::GetInstance()->AddMessageActor("GameObject", this);
+		in_pGameDocument->AddUpdateUnit("a", this);
+
+		////Setup Model
+		hh::mr::CMirageDatabaseWrapper wrapper(in_spDatabase.get());
+		boost::shared_ptr<hh::mr::CModelData> spModelData = wrapper.GetModelData("chr_sonic_spin", 0);
+
+		////Spawn Model
+		m_spElement = boost::make_shared<hh::mr::CSingleElement>(spModelData);
+		if (!spModelData)
+			return;
+		AddRenderable("Object", m_spElement, true);
+
+		////Attach renderable to Sonic with offset
+		const int playerID = GetGameDocument()->m_pMember->m_PlayerIDs.begin()[0]; 
+		const Sonic::Player::CPlayerSpeedContext* context = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID))->GetContext();
+		m_spChildNode = boost::make_shared<Sonic::CMatrixNodeTransform>();
+		const float scale = 1.5f;
+		const float offset = 0.075f;
+		m_spChildNode->m_Transform.SetPosition(hh::math::CVector(0, offset, 0));
+		m_spChildNode->m_Transform.m_Matrix *= Eigen::Scaling(scale);
+		m_spChildNode->NotifyChanged();
+		m_spChildNode->SetParent(m_spMatrixNodeTransform.get());
+		m_spMatrixNodeTransform->SetParent(context->m_spMatrixNode.get());
+		m_spMatrixNodeTransform->NotifyChanged();
+		m_spElement->BindMatrixNode(m_spChildNode);
+
+		m_spNPCAnimation = boost::make_shared<Sonic::CNPCAnimation>();
+		fCNPCAnimationCtor(m_spNPCAnimation.get());
+
+		m_sAnimList[0].Name = "START";
+		m_sAnimList[0].FileName = "spin_jp_start";
+
+		m_sAnimList[1].Name = "LOOP";
+		m_sAnimList[1].FileName = "spin_nomal_loop";
+
+		////Initialize Skeleton
+		m_spNPCAnimation->Initialize(in_spDatabase, "chr_sonic_spin");
+		m_spNPCAnimation->NPC_ADD_ANIM_LIST(m_sAnimList);
+		m_spElement->BindPose(m_spNPCAnimation->m_spAnimationPose);
+		m_spNPCAnimation->m_spAnimationPose->Update(0.0f);
+
+		////Animation transitions/states
+		auto* state = m_spNPCAnimation->m_spAnimationStateMachine->GetAnimationState("START").get();
+		state->m_TransitionState = "LOOP";
+		state->m_Field90 = true;
+		state->m_Field8C = -1.0f;
+		fCAnimationStateMachineSetBlend(m_spNPCAnimation->m_spAnimationStateMachine.get(), "LOOP", "START", 0.1f);
+
+		////Start Animation
+		m_spNPCAnimation->m_spAnimationStateMachine->ChangeState("START");
+
+		}
+};
+boost::shared_ptr<JumpballLWAnimRenderable> obj_SonicJumpBallLWRenderable;
+class JumpballSA1AnimRenderable : public Sonic::CGameObject3D
+{
+public:
+	boost::shared_ptr<hh::mr::CSingleElement> m_spElement;
+	boost::shared_ptr<Sonic::CMatrixNodeTransform> m_spChildNode;
+	boost::shared_ptr<Sonic::CMatrixNodeTransform> m_spRotNode;
+	boost::shared_ptr<Sonic::CNPCAnimation> m_spNPCAnimation;
+
+	void AddCallback(const Hedgehog::Base::THolder<Sonic::CWorld>& in_rWorldHolder,
+		Sonic::CGameDocument* in_pGameDocument, const boost::shared_ptr<Hedgehog::Database::CDatabase>& in_spDatabase) override
+	{
+		Sonic::CApplicationDocument::GetInstance()->AddMessageActor("GameObject", this);
+		in_pGameDocument->AddUpdateUnit("a", this);
+
+		////Setup Model
+		hh::mr::CMirageDatabaseWrapper wrapper(in_spDatabase.get());
+		boost::shared_ptr<hh::mr::CModelData> spModelData = wrapper.GetModelData("chr_sonic_spin_SA1", 0);
+
+		////Spawn Model
+		m_spElement = boost::make_shared<hh::mr::CSingleElement>(spModelData);
+		if (!spModelData)
+			return;
+		AddRenderable("Object", m_spElement, true);
+
+		////Attach renderable to Sonic with offset
+		const int playerID = GetGameDocument()->m_pMember->m_PlayerIDs.begin()[0];
+		const Sonic::Player::CPlayerSpeedContext* context = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID))->GetContext();
+		m_spChildNode = boost::make_shared<Sonic::CMatrixNodeTransform>();
+		const float scale = 1.25f;
+		const float offset = 0.35f;
+		m_spChildNode->m_Transform.SetPosition(hh::math::CVector(0, offset, 0));
+		m_spChildNode->m_Transform.m_Matrix *= Eigen::Scaling(scale);
+		m_spChildNode->NotifyChanged();
+		m_spChildNode->SetParent(m_spMatrixNodeTransform.get());
+		m_spRotNode = boost::make_shared<Sonic::CMatrixNodeTransform>();
+		//m_spRotNode->m_Transform.SetRotation(hh::math::CQuaternion(1, 0, 0, 0));
+		//m_spRotNode->m_Transform.m_Matrix *= Eigen::
+		m_spRotNode->NotifyChanged();
+		m_spRotNode->SetParent(m_spChildNode.get());
+		m_spMatrixNodeTransform->SetParent(context->m_spMatrixNode.get());
+		m_spMatrixNodeTransform->NotifyChanged();
+		m_spElement->BindMatrixNode(m_spRotNode);
+
+	}
+};
+boost::shared_ptr<JumpballSA1AnimRenderable> obj_SonicJumpBallSA1Renderable;
+
+
+//////Globals//////
 SharedPtrTypeless WildfireVfxHandle;
 SharedPtrTypeless JumpballVfxHandle;
 bool WildFireActive = false;
@@ -18,11 +178,6 @@ void ParticleLightGet(int Enabled)
 	else
 		ParticleLightActive = false;
 }
-int JumpBallType = 0;
-void MsgJumpBall(int BallType)
-{
-	JumpBallType = BallType;
-}
 bool JumpBlueTrailActive = false;
 void JumpBlueTrailGet(int Enabled)
 {
@@ -31,8 +186,25 @@ void JumpBlueTrailGet(int Enabled)
 	else
 		JumpBlueTrailActive = false;
 }
+enum SelectJumpBallVFXType
+{
+	JumpBallDefault,
+	JumpBallSWA,
+	JumpBallBetaSWA,
+	JumpBallBAP,
+	JumpBallLW,
+	JumpBallForces,
+	JumpBallSA1,
+	JumpBallNoVFX,
+	JumpBallNoBall,
+};
+SelectJumpBallVFXType SelectJumpBallVFX = SelectJumpBallVFXType::JumpBallDefault;
+void MsgJumpBall(int BallType)
+{
+	SelectJumpBallVFX = (SelectJumpBallVFXType)BallType;
+}
 
-//Dynamic Omnis
+//////Dynamic Omnis//////
 // Original code by Skyth: https://github.com/blueskythlikesclouds
 hh::base::CRefPtr<Sonic::CLocalLight> genericPLight;
 hh::base::CRefPtr<Sonic::CLocalLight> superPLight;
@@ -150,7 +322,6 @@ void SuperParticleLight(Sonic::Player::CPlayer* player)
 	else
 		superPLight = nullptr;
 }
-
 inline void SonicContextSpawnLocusEffect(Sonic::Player::CPlayerSpeedContext* pSonicContext)
 {
 	// 1 seems to not stop? Force it to be 0
@@ -180,7 +351,6 @@ void SpawnFireParticle(Sonic::Player::CPlayer* player)
 	if (!WildfireVfxHandle)
 		Common::fCGlitterCreate(player->m_spContext.get(), WildfireVfxHandle, &ChestNode, "ef_ch_sng_wildfire", 1);  //Create Fire VFX
 }
-
 void KillFireParticle(Sonic::Player::CPlayer* player)
 {
 	if (!WildfireVfxHandle)
@@ -195,7 +365,6 @@ HOOK(void, __fastcall, MsgRestartStage, 0xE76810, Sonic::Player::CPlayer* This, 
 	KillFireParticle(This);
 	return originalMsgRestartStage(This, Edx, message);
 }
-
 void __fastcall CSonicRemoveCallback(Sonic::Player::CPlayer* This, void* Edx, void* A1)
 {
 	KillFireParticle(This);
@@ -210,86 +379,54 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	bool PressedY = input.IsTapped(Sonic::eKeyState_Y);
 	bool IsModernSonic = (Sonic::Player::CSonicClassicContext::GetInstance() == nullptr) && (Sonic::Player::CSonicSpContext::GetInstance() == nullptr);
 
+	//if (!isRenderableCreated && PressedY)
+	//{
+	//	hh::mr::CMirageDatabaseWrapper sonicWrapper(Sonic::CApplicationDocument::GetInstance()->m_pMember->m_spApplicationDatabase.get());
+	//	auto modelData = sonicWrapper.GetModelData("chr_sonic_spin");
+	//	printf("ATTEMPTING RENDERABLE CREATION\n");
+	//	if (modelData != nullptr && modelData->IsMadeAll())
+	//	{
+	//		printf("CREATING RENDERABLE\n");
+	//		isRenderableCreated = true;
+	//		m_spSonicJumpBall = boost::make_shared<hh::mr::CSingleElement>(modelData);
+	//		//This->AddRenderable("Object", m_spSonicJumpBall, true);
+	//		This->AddRenderable("Object", JumpballAnimRenderable, true);
+	//		//m_spSonicJumpBall->BindMatrixNode(This->m_spContext->m_spMatrixNode);
+	//	}
+	//}
+	//if (isRenderableCreated && PressedY)
+	//	m_spSonicJumpBall = nullptr;
+	
+	
+	if (!isRenderableCreated && PressedLeft)
+	{
+		isRenderableCreated = true;
+		obj_SonicJumpBallLWRenderable = boost::make_shared<JumpballLWAnimRenderable>();
+		Sonic::CGameDocument::GetInstance()->AddGameObject(obj_SonicJumpBallLWRenderable);
+	}
+	else if (PressedRight)
+	{
+		isRenderableCreated = false;
+		obj_SonicJumpBallLWRenderable->SendMessageImm<Sonic::Message::MsgKill>(obj_SonicJumpBallLWRenderable->m_ActorID);
+	}
+
 	if (IsModernSonic)
 	{
 		if (WildFireActive == true)
 		{
 			SpawnFireParticle(This);
-			//sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_JumpShortReleaseTime] = 256.0f;
 		}
 		if (WildFireActive == false)
 		{
 			KillFireParticle(This);
-			//sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_JumpShortReleaseTime);
 		}
 
-		//if (SelectShoes == ShSUWallJmp)
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_JumpPower] = 22.0f;
-		//else if (SelectShoes == ShSUStomp)
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_JumpPower] = 12.3f;
-		//else
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_JumpPower);
-
-		//if (SelectShoes == ShSUAirboost)
-		//{
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_AirBoostTime] = 1000.0f;
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_BoostInAirKeepTime] = 1000.0f;
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_AirBoostGravityRate] = 0.5f;
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_AirBoostLevitationTime] = 0.25f;
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_AirBoostFirstDecrease] = 0.0f;
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_AirBoostEnableChaosEnergy] = 0.0f;
-		//}
-		//else
-		//{
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_AirBoostTime);
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_BoostInAirKeepTime);
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_AirBoostGravityRate);
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_AirBoostLevitationTime);
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_AirBoostFirstDecrease);
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_AirBoostEnableChaosEnergy);
-		//}
-
-		//if (SelectShoes == ShSA1LightSpd || SelectShoes == ShSoaps || SelectShoes == ShSoapsLightSpd || SelectShoes == ShSoapsRacing)
-		//{
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_RotationSpeedMax] = 5000.0f;
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_RotationSpeedMaxShoesSliding] = 5000.0f;
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_RotationForce0] = 100.0f;
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_RotationForce1] = 100.0f;
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_RotationForce2] = 100.0f;
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_VertVelocityBallToFall] = -1000.0f;
-		//}
-		//else
-		//{
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_RotationSpeedMax);
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_RotationSpeedMaxShoesSliding);
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_RotationForce0);
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_RotationForce1);
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_RotationForce2);
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_VertVelocityBallToFall);
-		//}
-
-		//if (SelectShoes == Sh06GemDefault ||
-		//	SelectShoes == Sh06GemRed ||
-		//	SelectShoes == Sh06GemYellow ||
-		//	SelectShoes == Sh06GemWhite ||
-		//	SelectShoes == Sh06GemGreen ||
-		//	SelectShoes == Sh06GemPurple ||
-		//	SelectShoes == Sh06GemSky ||
-		//	SelectShoes == Sh06GemBlue)
-		//{
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_MaxHorzVelocity] = 30.0f;
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::eSonicParameter_MotionRunToDash] = 48.0f;
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::eSonicParameter_MotionDashToJet] = 84.0f;
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::eSonicParameter_MotionJetToBoost] = 100.0f;
-		//	
-		//}
-		//else
-		//{
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_MaxHorzVelocity);
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::eSonicParameter_MotionRunToDash);
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::eSonicParameter_MotionDashToJet);
-		//	sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::eSonicParameter_MotionJetToBoost);
-		//}
+		if (SelectJumpBallVFX == (enum SelectJumpBallVFXType)JumpBallNoBall)
+		{
+			sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_JumpShortReleaseTime] = 256.0f;
+		}
+		else
+			sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_JumpShortReleaseTime);
 	}
 
 	//printf(sonic->GetCurrentAnimationName().c_str());
@@ -305,7 +442,6 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	}
 		
 }
-
 HOOK(void, __fastcall, CSonicStateJumpBallStartState, 0x011BCBE0, hh::fnd::CStateMachineBase::CStateBase* This)
 {
 	originalCSonicStateJumpBallStartState(This);
@@ -318,29 +454,31 @@ HOOK(void, __fastcall, CSonicStateJumpBallStartState, 0x011BCBE0, hh::fnd::CStat
 
 	if (!IsSuper)
 	{
-		switch (JumpBallType)
+		switch (SelectJumpBallVFX)
 		{
-		case 1:
-		case 2:
+		case (enum SelectJumpBallVFXType)JumpBallNoVFX:
+		case (enum SelectJumpBallVFXType)JumpBallNoBall:
 			return;
 			break;
-		case 3:
+		case (enum SelectJumpBallVFXType)JumpBallBAP:
 			Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sng_yh1_bounceattack", 1);  //Create Ball VFX
 			break;
-		case 4:
+		case (enum SelectJumpBallVFXType)JumpBallForces:
 			Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sng_yh1_forcesspinattack", 1);  //Create Ball VFX
 			break;
-		case 5:
+		case (enum SelectJumpBallVFXType)JumpBallBetaSWA:
 			Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sng_yh1_swaspinattack", 1);  //Create Ball VFX
 			break;
-		case 6:
+		case (enum SelectJumpBallVFXType)JumpBallSWA:
 			Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sng_yh1_swaretailspinattack", 1);  //Create Ball VFX
 			break;
-		case 7:
-			printf("SPAWN SA1 JUMPBALL NOW\n");
+		case (enum SelectJumpBallVFXType)JumpBallSA1:
+			obj_SonicJumpBallSA1Renderable = boost::make_shared<JumpballSA1AnimRenderable>();
+			Sonic::CGameDocument::GetInstance()->AddGameObject(obj_SonicJumpBallSA1Renderable);
 			break;
-		case 8:
-			printf("SPAWN LW JUMPBALL NOW\n");
+		case (enum SelectJumpBallVFXType)JumpBallLW:
+			obj_SonicJumpBallLWRenderable = boost::make_shared<JumpballLWAnimRenderable>();
+			Sonic::CGameDocument::GetInstance()->AddGameObject(obj_SonicJumpBallLWRenderable);
 			break;
 		default:
 			Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sng_yh1_spinattack", 1);  //Create Ball VFX
@@ -349,32 +487,34 @@ HOOK(void, __fastcall, CSonicStateJumpBallStartState, 0x011BCBE0, hh::fnd::CStat
 	}
 	else
 	{
-		switch (JumpBallType)
+		switch (SelectJumpBallVFX)
 		{
-		case 1:
-		case 2:
+		case (enum SelectJumpBallVFXType)JumpBallNoVFX:
+		case (enum SelectJumpBallVFXType)JumpBallNoBall:
 			return;
 			break;
-		case 3:
-			Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sps_yh1_bounceattack", 1);  //Create Ball VFX
+		case (enum SelectJumpBallVFXType)JumpBallBAP:
+			Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sps_yh1_bounceattack", 1);
 			break;
-		case 4:
-			Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sps_yh1_forcesspinattack", 1);  //Create Ball VFX
+		case (enum SelectJumpBallVFXType)JumpBallForces:
+			Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sps_yh1_forcesspinattack", 1);
 			break;
-		case 5:
-			Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sps_yh1_swaspinattack", 1);  //Create Ball VFX
+		case (enum SelectJumpBallVFXType)JumpBallBetaSWA:
+			Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sps_yh1_swaspinattack", 1);
 			break;
-		case 6:
-			Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sps_yh1_swaretailspinattack", 1);  //Create Ball VFX
+		case (enum SelectJumpBallVFXType)JumpBallSWA:
+			Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sps_yh1_swaretailspinattack", 1);
 			break;
-		case 7:
-			printf("SPAWN SUPER SA1 JUMPBALL NOW\n");
+		case (enum SelectJumpBallVFXType)JumpBallSA1:
+			obj_SonicJumpBallSA1Renderable = boost::make_shared<JumpballSA1AnimRenderable>();
+			Sonic::CGameDocument::GetInstance()->AddGameObject(obj_SonicJumpBallSA1Renderable);
 			break;
-		case 8:
-			printf("SPAWN SUPER LW JUMPBALL NOW\n");
+		case (enum SelectJumpBallVFXType)JumpBallLW:
+			obj_SonicJumpBallLWRenderable = boost::make_shared<JumpballLWAnimRenderable>();
+			Sonic::CGameDocument::GetInstance()->AddGameObject(obj_SonicJumpBallLWRenderable);
 			break;
 		default:
-			Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sps_yh1_spinattack", 1);  //Create Ball VFX
+			Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sps_yh1_spinattack", 1);
 			break;
 		}
 	}
@@ -384,8 +524,17 @@ HOOK(void, __fastcall, CSonicStateJumpBallEndState, 0x011BCB60, hh::fnd::CStateM
 {
 	originalCSonicStateJumpBallEndState(This);
 	auto sonic = (Sonic::Player::CPlayerSpeedContext*)This->m_pContext;
-	Common::fCGlitterEnd(sonic, JumpballVfxHandle, true); //Destroy Ball VFX
+	if (obj_SonicJumpBallLWRenderable)
+	{
+		obj_SonicJumpBallLWRenderable->SendMessageImm<Sonic::Message::MsgKill>(obj_SonicJumpBallLWRenderable->m_ActorID);
+	}
+	if (obj_SonicJumpBallSA1Renderable)
+	{
+		obj_SonicJumpBallSA1Renderable->SendMessageImm<Sonic::Message::MsgKill>(obj_SonicJumpBallSA1Renderable->m_ActorID);
+	}
+		
 
+	Common::fCGlitterEnd(sonic, JumpballVfxHandle, true); //Destroy Ball VFX
 	auto SparkEffectManager = sonic->m_pSparkEffectManager;
 	FUNCTION_PTR(void*, __stdcall, StopLocusEffect, 0x00E8C940, void* a1, const hh::base::CSharedString & sharedString);
 	if (SparkEffectManager)
@@ -397,22 +546,9 @@ HOOK(void, __fastcall, CSonicStateJumpBallEndState, 0x011BCB60, hh::fnd::CStateM
 //Parameter Editor Options
 HOOK(void, __cdecl, InitializeApplicationVFXParams, 0x00D65180, Sonic::CParameterFile* This)
 {
-	boost::shared_ptr<Sonic::CParameterGroup> parameterGroup;
-	This->CreateParameterGroup(parameterGroup, "Luna's Mods", "Parameters for Lady Luna's code mods");
+	auto parameterGroup = This->CreateParameterGroup("Luna's Mods", "Parameters for Lady Luna's code mods");
 	Sonic::CEditParam* cat_Bounce = parameterGroup->CreateParameterCategory("Customizable Sonic", "Parameters for customizable Sonic");
 
-	cat_Bounce->CreateParamTypeList((uint32_t*)&JumpBallType, "Jumpball VFX", "Choose which jumpball",
-		{
-			{ "None", 0},
-			{ "Default", 1},
-			{ "Bounce Attack+", 2},
-			{ "Forces", 3},
-			{ "Beta Unleashed", 4},
-			{ "Custom Beta Unleashed", 5},
-			{ "Unleashed", 6},
-			{ "Adventure", 7},
-			{ "Lost World", 8},
-		});
 	cat_Bounce->CreateParamBool(&JumpBlueTrailActive, "Create a blue trail when Sonic jumps.");
 
 	parameterGroup->Flush();
@@ -420,7 +556,7 @@ HOOK(void, __cdecl, InitializeApplicationVFXParams, 0x00D65180, Sonic::CParamete
 	originalInitializeApplicationVFXParams(This);
 }
 
-//Install WildFire
+//Install VFX
 void InstallSonicVFX::applyPatches()
 {
 	INSTALL_HOOK(MsgRestartStage);

@@ -8,8 +8,7 @@
     <ClCompile Include="CustomUI.cpp" />
     <ClCompile Include="SonicVFX.cpp" />
     <ClCompile Include="InstallSetup.cpp" />
-    <ClCompile Include="CpkBinder.cpp" />
-    <ClCompile Include="ArchiveTree.cpp" />
+    <ClCompile Include="NPCAnim.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -19,8 +18,6 @@
     <ClInclude Include="CustomUI.h" />
     <ClInclude Include="SonicVFX.h" />
     <ClInclude Include="InstallSetup.h" />
-    <ClInclude Include="CpkBinder.h" />
     <ClInclude Include="Path.h" />
-    <ClInclude Include="ArchiveTree.h" />
   </ItemGroup>
 </Project>

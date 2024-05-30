@@ -55,9 +55,7 @@ enum MenuOptionType
 	UIPartHead,
 	UIPartHandL,
 	UIPartHandR,
-	UISonicPart,
-	UIEffJump,
-	UIEffBoost,
+	UISonicBody,
 };
 MenuOptionType CHudTabSel = MenuOptionType::UIPartShoes;
 bool prevblur = false;
@@ -94,6 +92,7 @@ int CHudVarBdMaxScroll = 3;
 int CHudVarHeMaxScroll = 2;
 int CHudVarHLMaxScroll = 4;
 int CHudVarHRMaxScroll = 5;
+int CHudVarSBMaxScroll = 0;
 
 
 //Menu Functions
@@ -221,38 +220,49 @@ void WriteINI(FILE* iniFile)
 {
 	if (!iniFile)
 		return;
-	fprintf(iniFile,
-		"%s\n%s%d\n%s%d\n%s%d\n%s%d\n%s%d\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%d\n%s%d\n%s%d\n%s%d\n%s%d\n%s%d\n%s%d\n",
+	printf("WRITING INI");
+	printf("\n");
+	char buffer[512]{};
+	snprintf(buffer, 512,
+		"%s\n%s%d\n%s%d\n%s%d\n%s%d\n%s%d\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%d\n%s%d\n%s%d\n%s%d\n%s%d\n%s%d\n%s%d\n%s%d\n%s%d\n%s%d\n",
 		"[Select]",
 		"SelectShoes=", SelectShoes,
 		"ShDefaultVariant=", ShDefaultVariant,
 		"ShSA2BetaVariant=", ShSA2BetaVariant,
 		"ShSA2SoapVariant=", ShSA2SoapVariant,
 		"Sh06GemVariant=", Sh06GemVariant,
-		"BdDefaultVariant=", "False",
-		"BdWildFireVariant=", "False",
-		"BdScarfVariant=", "False",
-		"BdMovieVariant=", "False",
-		"HeSimulatorVariant=", "False",
-		"HRSA2BounceVariant=", "False",
+		"BdDefaultVariant=", BdDefaultVariant ? "True" : "False",
+		"BdWildFireVariant=", BdWildFireVariant ? "True" : "False",
+		"BdScarfVariant=", BdScarfVariant ? "True" : "False",
+		"BdMovieVariant=", BdMovieVariant ? "True" : "False",
+		"HeSimulatorVariant=", HeSimulatorVariant ? "True" : "False",
+		"HRSA2BounceVariant=", HRSA2BounceVariant ? "True" : "False",
 		"SelectBody=", SelectBody,
 		"SelectHead=", SelectHead,
 		"SelectHandL=", SelectHandL,
 		"SelectHandR=", SelectHandR,
 		"SelectSnSonMat=", SelectSnSonMat,
+		"SelectSsnSonMat=", SelectSsnSonMat,
 		"SelectEyelid=", SelectEyelid,
-		"SelectEffJump=", SelectEffJump);
+		"SelectSsnHead=", SelectSsnHead,
+		"SelectSsnForm=", SelectSsnForm,
+		"SelectJumpBall=", SelectJumpBall);
+	fputs(buffer, iniFile);
 }
 
-void ReadINI()
+void ReadINI(std::string saveFilePath)
 {
-	INIReader* reader = new INIReader("CustomizeSave.ini");
+	printf("READING INI");
+	printf("\n");
+	INIReader* reader = new INIReader(saveFilePath);
 	if (reader->ParseError() != 0)
 	{
-		FILE* pFile = fopen("CustomizeSave.ini", "wb");
+		printf("INI PARSE FAIL");
+		printf("\n");
+		FILE* pFile = fopen(saveFilePath.c_str(), "wb");
 		WriteINI(pFile);
 		fclose(pFile);
-		reader = new INIReader("CustomizeSave.ini");
+		reader = new INIReader(saveFilePath);
 	}
 	SelectShoes = (SelectShoeType)reader->GetInteger("Select", "SelectShoes", SelectShoes);
 	ShDefaultVariant = (ShDefaultVariantType)reader->GetInteger("Select", "ShDefaultVariant", ShDefaultVariant);
@@ -269,9 +279,12 @@ void ReadINI()
 	SelectHead = (SelectHeadType)reader->GetInteger("Select", "SelectHead", SelectHead);
 	SelectHandL = (SelectHandLType)reader->GetInteger("Select", "SelectHandL", SelectHandL);
 	SelectHandR = (SelectHandRType)reader->GetInteger("Select", "SelectHandR", SelectHandR);
-	//SelectSnSonMat = (SelectSnSonMatType)reader->GetInteger("Select", "SelectSnSonMat", SelectSnSonMat);
+	SelectSnSonMat = (SelectSnSonMatType)reader->GetInteger("Select", "SelectSnSonMat", SelectSnSonMat);
+	SelectSsnSonMat = (SelectSsnSonMatType)reader->GetInteger("Select", "SelectSsnSonMat", SelectSsnSonMat);
 	SelectEyelid = (SelectEyelidType)reader->GetInteger("Select", "SelectEyelid", SelectEyelid);
-	SelectEffJump = (SelectEffJumpType)reader->GetInteger("Select", "SelectEffJump", SelectEffJump);
+	SelectSsnHead = (SelectSsnHeadType)reader->GetInteger("Select", "SelectSsnHead", SelectSsnHead);
+	SelectSsnForm = (SelectSsnFormType)reader->GetInteger("Select", "SelectSsnForm", SelectSsnForm);
+	SelectJumpBall = (SelectJumpBallType)reader->GetInteger("Select", "SelectJumpBall", SelectJumpBall);
 }
 
 void ReadConfig()

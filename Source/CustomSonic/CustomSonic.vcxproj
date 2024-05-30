@@ -176,11 +176,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ArchiveTree.cpp" />
-    <ClCompile Include="CpkBinder.cpp" />
     <ClCompile Include="CustomUI.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="InstallSetup.cpp" />
+    <ClCompile Include="NPCAnim.h" />
     <ClCompile Include="Mod.cpp" />
     <ClCompile Include="Pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -196,8 +195,6 @@
     <ClCompile Include="SonicVFX.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ArchiveTree.h" />
-    <ClInclude Include="CpkBinder.h" />
     <ClInclude Include="InstallCustomUI.h" />
     <ClInclude Include="CustomSonicItems.h" />
     <ClInclude Include="CustomUI.h" />

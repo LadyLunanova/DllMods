@@ -59,7 +59,7 @@ bool IsSSZStageMod = false;
 bool IsEUCStageMod = false;
 bool IsPLAStageMod = false;
 bool IsPAMStageMod = false;
-bool IsTransTails = false;
+bool IsGensRT = false;
 //Config Option
 bool IsSWAMDL = false;
 bool IsParticleLights = true;
@@ -84,6 +84,8 @@ int TrailFlag = 0;
 3 - Gay
 4 - Bi
 5 - Pan
+6 - NB
+7 - None
 */
 
 
@@ -184,6 +186,7 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	int rand1to5 = std::rand() % 5;
 	uint8_t getBossID = GetCurrentStageID();
 
+	//Homing Trails
 	if (Sonic::Player::CSonicSpContext::GetInstance() == nullptr)
 	{
 		sonic->m_pPlayer->SendMessageImm(sonic->m_pPlayer->m_ActorID, GetAnimInfo);
@@ -219,6 +222,11 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 			WRITE_MEMORY(0x00E5FE61, char*, "homing_nb"); //Normal Trail
 			WRITE_MEMORY(0x00E8E0AF, char*, "homing_nb"); //Normal Trail
 			WRITE_MEMORY(0x00E5FE01, char*, "homing_nb"); //Super Trail
+			break;
+		case 7:
+			WRITE_MEMORY(0x00E5FE61, char*, "homing_none"); //Normal Trail
+			WRITE_MEMORY(0x00E8E0AF, char*, "homing_none"); //Normal Trail
+			WRITE_MEMORY(0x00E5FE01, char*, "homing_none"); //Super Trail
 			break;
 		default:
 			WRITE_MEMORY(0x00E5FE61, char*, "homing_generic"); //Normal Trail
@@ -723,9 +731,15 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 
 	originalCPlayerSpeedUpdate(This, _, updateInfo);
 
+	//Particle Omni Lights
 	if (IsParticleLights)
-		ParticleLight(0.0, 0.2, 1.0, 1.0, 4.2);
+	{
+		if (IsGensRT)
+			ParticleLight(0.0, 0.3, 1.5, 2.0, 8.4);
+		else
+			ParticleLight(0.0, 0.2, 1.0, 1.0, 4.2);
 		//ParticleLight(10000, 10000, 10000, 10000, 1000000000); //Flashbang mode
+	}
 }
 HOOK(void, __fastcall, EnterRunQuickStep, 0x01231360, hh::fnd::CStateMachineBase::CStateBase* This)
 {
@@ -945,43 +959,8 @@ HOOK(bool, __stdcall, ParseArchiveTree, 0xD4C8E0, void* A1, char* data, const si
 		std::stringstream stream;
 
 		stream << "  <DefAppend>\n";
-		stream << "    <Name>SonicSp</Name>\n";
-		stream << "    <Archive>evSonic</Archive>\n";
-		stream << "  </DefAppend>\n";
-
-		stream << "  <DefAppend>\n";
 		stream << "    <Name>SonicActionCommon</Name>\n";
 		stream << "    <Archive>SonicGlitter</Archive>\n";
-		stream << "  </DefAppend>\n";
-
-		stream << "  <DefAppend>\n";
-		stream << "    <Name>Title</Name>\n";
-		stream << "    <Archive>evSonic</Archive>\n";
-		stream << "  </DefAppend>\n";
-
-		stream << "  <DefAppend>\n";
-		stream << "    <Name>ev031</Name>\n";
-		stream << "    <Archive>evSonic</Archive>\n";
-		stream << "  </DefAppend>\n";
-
-		stream << "  <DefAppend>\n";
-		stream << "    <Name>ev041</Name>\n";
-		stream << "    <Archive>evSonic</Archive>\n";
-		stream << "  </DefAppend>\n";
-
-		stream << "  <DefAppend>\n";
-		stream << "    <Name>ev042</Name>\n";
-		stream << "    <Archive>evSonic</Archive>\n";
-		stream << "  </DefAppend>\n";
-
-		stream << "  <DefAppend>\n";
-		stream << "    <Name>ev091</Name>\n";
-		stream << "    <Archive>evSonic</Archive>\n";
-		stream << "  </DefAppend>\n";
-
-		stream << "  <DefAppend>\n";
-		stream << "    <Name>pam_cmn</Name>\n";
-		stream << "    <Archive>FEMpam</Archive>\n";
 		stream << "  </DefAppend>\n";
 
 		stream << "  <DefAppend>\n";
@@ -1032,12 +1011,13 @@ HOOK(void, __fastcall, LoadArchiveList, 0x69C270, void* This, void* Edx, void* A
 	return originalLoadArchiveList(This, Edx, A3, A4, name, archiveInfo);
 }
 
+
 //Parameter Editor Options
 HOOK(void, __cdecl, InitializeApplicationParams, 0x00D65180, Sonic::CParameterFile* This)
 {
 	boost::shared_ptr<Sonic::CParameterGroup> parameterGroup;
 	This->CreateParameterGroup(parameterGroup, "Luna's Mods", "Parameters for Lady Luna's code mods");
-	Sonic::CParameterCategory* cat_Bounce = parameterGroup->CreateParameterCategory("Trans Fem Sonic", "Parameters for Trans Fem Sonic");
+	Sonic::CEditParam* cat_Bounce = parameterGroup->CreateParameterCategory("Trans Fem Sonic", "Parameters for Trans Fem Sonic");
 
 	//cat_Bounce->CreateParamInt(&someInt, "Integer");
 	//cat_Bounce->CreateParamBool(&someBool, "Bool");
@@ -1054,6 +1034,7 @@ HOOK(void, __cdecl, InitializeApplicationParams, 0x00D65180, Sonic::CParameterFi
 			{ "Bi", 4},
 			{ "Pan", 5},
 			{ "Non-Binary", 6},
+			{ "None", 7},
 		});
 	cat_Bounce->CreateParamBool(&IsIdleChatVO, "Idle Chatter");
 	cat_Bounce->CreateParamBool(&IsRankChatVO, "Rank Quotes");
@@ -1072,11 +1053,12 @@ HOOK(void, __cdecl, InitializeApplicationParams, 0x00D65180, Sonic::CParameterFi
 	originalInitializeApplicationParams(This);
 }
 
+
 EXPORT void Init()
 {
 	INIReader reader("mod.ini");
-	std::string SelectModel = reader.Get("Main", "IncludeDir1", "disk_swa");
-	IsSWAMDL = SelectModel == "disk_swa";
+	//std::string SelectModel = reader.Get("Main", "IncludeDir1", "disk_swa");
+	//IsSWAMDL = SelectModel == "disk_swa";
 	IsParticleLights = reader.GetBoolean("Main", "IsParticleLights", IsParticleLights);
 	TrailFlag = reader.GetInteger("Main", "TrailFlag", TrailFlag);
 	IsIdleChatVO = reader.GetBoolean("Option", "IsIdleChatVO", IsIdleChatVO);
@@ -1092,19 +1074,19 @@ EXPORT void Init()
 	IsTornadoVO = reader.GetBoolean("Option", "IsTornadoVO", IsTornadoVO);
 	IsFootTapSFX = reader.GetBoolean("Option", "IsFootTapSFX", IsFootTapSFX);
 	//Fix stray polys on unleashed skeleton
-	if (IsSWAMDL)
-	{
-		//Right Mouth
-		WRITE_MEMORY(0x015E8FB4, const char*, "Jaw_LT");
-		WRITE_MEMORY(0x015E8FBC, const char*, "Lip_C_LT");
-		WRITE_MEMORY(0x015E8FCC, const char*, "Lip_L_LT");
-		WRITE_MEMORY(0x015E8FD4, const char*, "Lip_R_LT");
-		//Left Mouth
-		WRITE_MEMORY(0x015E8FFC, const char*, "Jaw_LT1");
-		WRITE_MEMORY(0x015E9004, const char*, "Lip_C_LT1");
-		WRITE_MEMORY(0x015E9014, const char*, "Lip_L_LT1");
-		WRITE_MEMORY(0x015E901C, const char*, "Lip_R_LT1");
-	}
+	//if (IsSWAMDL)
+	//{
+	//	//Right Mouth
+	//	WRITE_MEMORY(0x015E8FB4, const char*, "Jaw_LT");
+	//	WRITE_MEMORY(0x015E8FBC, const char*, "Lip_C_LT");
+	//	WRITE_MEMORY(0x015E8FCC, const char*, "Lip_L_LT");
+	//	WRITE_MEMORY(0x015E8FD4, const char*, "Lip_R_LT");
+	//	//Left Mouth
+	//	WRITE_MEMORY(0x015E8FFC, const char*, "Jaw_LT1");
+	//	WRITE_MEMORY(0x015E9004, const char*, "Lip_C_LT1");
+	//	WRITE_MEMORY(0x015E9014, const char*, "Lip_L_LT1");
+	//	WRITE_MEMORY(0x015E901C, const char*, "Lip_R_LT1");
+	//}
 	INSTALL_HOOK(CPlayerSpeedUpdate);
 	INSTALL_HOOK(EnterRunQuickStep);
 	//INSTALL_HOOK(ProcMsgNotifyLapTimeHud);
@@ -1120,8 +1102,8 @@ EXPORT void Init()
 	WRITE_JUMP(0x00BDDD91, &Enemy_MidAsmHook);
 	WRITE_MEMORY(0x016C73D8, void*, CscGenericTornadoNull);
 	INSTALL_HOOK(ParseArchiveTree);
-	INSTALL_HOOK(LoadArchive);
-	INSTALL_HOOK(LoadArchiveList);
+	//INSTALL_HOOK(LoadArchive);
+	//INSTALL_HOOK(LoadArchiveList);
 	INSTALL_HOOK(InitializeApplicationParams);
 
 	if (Common::IsModEnabled("Unleashed Project") || Common::IsModEnabled("Unleashed Project Encore"))
@@ -1162,21 +1144,7 @@ EXPORT void Init()
 	if (GetModuleHandle(L"STH2006Project.dll"))
 		Is06Project = true;
 
-	//if (Common::IsModEnabled("Trans Fem Tails"))
-	//{
-	//	WRITE_MEMORY(0x00588D6E, char*, "CollectionRoomTFTails_Cnv")
-	//	WRITE_MEMORY(0x00589AD0, char*, "CollectionRoomTFTails_Cnv")
-	//	WRITE_MEMORY(0x0058A5D0, char*, "CollectionRoomTFTails_Cnv")
-	//	WRITE_MEMORY(0x00CF64E9, char*, "CollectionRoomTFTails_Cnv")
-	//	WRITE_MEMORY(0x010608E4, char*, "CollectionRoomTFTails_Cnv")
-	//	WRITE_MEMORY(0x010856F6, char*, "CollectionRoomTFTails_Cnv")
-	//	WRITE_MEMORY(0x011717D3, char*, "CollectionRoomTFTails_Cnv")
-	//	WRITE_MEMORY(0x01172904, char*, "CollectionRoomTFTails_Cnv")
-	//	WRITE_MEMORY(0x01172C46, char*, "CollectionRoomTFTails_Cnv")
-	//	WRITE_MEMORY(0x0117450D, char*, "CollectionRoomTFTails_Cnv")
-	//	WRITE_MEMORY(0x01175F9D, char*, "CollectionRoomTFTails_Cnv")
-	//	WRITE_MEMORY(0x01177835, char*, "CollectionRoomTFTails_Cnv")
-	//	WRITE_MEMORY(0x0117890D, char*, "CollectionRoomTFTails_Cnv")
-	//	WRITE_MEMORY(0x0117890D, char*, "CollectionRoomTFTails_Cnv")
-	//}
+	if (Common::IsModEnabled("Generations Raytracing"))
+		IsGensRT = true;
+
 }

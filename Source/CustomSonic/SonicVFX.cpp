@@ -31,6 +31,7 @@ public:
 	boost::shared_ptr<hh::mr::CSingleElement> m_spElement;
 	boost::shared_ptr<Sonic::CMatrixNodeTransform> m_spChildNode;
 	boost::shared_ptr<Sonic::CNPCAnimation> m_spNPCAnimation;
+	bool hasChangedState = false;
 
 	////Animation List
 	static inline hh::anim::SMotionInfo m_sAnimList[2];
@@ -73,8 +74,11 @@ public:
 		////Setup anim list
 		m_sAnimList[0].Name = "START";
 		m_sAnimList[0].FileName = "spin_jp_start";
+		m_sAnimList[0].RepeatType = 1;
 		m_sAnimList[1].Name = "LOOP";
 		m_sAnimList[1].FileName = "spin_nomal_loop";
+		//m_sAnimList[1].FileName = "spin_dash_charge_loop";
+		m_sAnimList[1].RepeatType = 0;
 
 		//////Initialize Skeleton
 		m_spNPCAnimation->Initialize(in_spDatabase, "chr_sonic_spin");
@@ -82,7 +86,7 @@ public:
 		m_spElement->BindPose(m_spNPCAnimation->m_spAnimationPose);
 		m_spNPCAnimation->m_spAnimationPose->Update(0.0f);
 
-		//////Animation transitions/states
+		//////Animation transition
 		auto* state = m_spNPCAnimation->m_spAnimationStateMachine->GetAnimationState("START").get();
 		state->m_TransitionState = "LOOP";
 		state->m_Field90 = true;
@@ -96,9 +100,18 @@ public:
 
 	void UpdateParallel(const Hedgehog::Universe::SUpdateInfo& in_rUpdateInfo) override
 	{
-		//m_spNPCAnimation->m_spAnimationStateMachine->Update(in_rUpdateInfo);
-		//m_spNPCAnimation->m_spAnimationStateMachine->UpdateStateMachine(in_rUpdateInfo);
-
+		if (m_spNPCAnimation->m_spAnimationStateMachine->m_Time >= 0.35 && !hasChangedState)
+		{
+			hasChangedState = true;
+			m_spNPCAnimation->m_spAnimationStateMachine->ChangeState("LOOP");
+		}
+		m_spNPCAnimation->m_spAnimationPose->Update(in_rUpdateInfo.DeltaTime);
+		m_spNPCAnimation->m_spAnimationStateMachine->UpdateStateMachine(in_rUpdateInfo);
+		
+		//printf(sonic->GetCurrentAnimationName().c_str());
+		//printf(m_spNPCAnimation->m_spAnimationStateMachine->m_Time);
+		//printf("%f\n", m_spNPCAnimation->m_spAnimationStateMachine->m_Time);
+		//printf("%f\n", m_sAnimList[0].EndFrame);
 	}
 };
 boost::shared_ptr<JumpballLWAnimRenderable> obj_SonicJumpBallLWRenderable;

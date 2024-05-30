@@ -7,19 +7,6 @@ bool isRenderableCreated = false;
 static uint32_t pCAnimationStateMachineSetBlend = 0xCE0720;
 static uint32_t pCNPCAnimationCtor = 0xB67750;
 
-static void* fCNPCAnimationCtor(Sonic::CNPCAnimation* This)
-{
-	void* result = nullptr;
-
-	__asm
-	{
-		mov esi, This
-		call[pCNPCAnimationCtor]
-		mov result, eax
-	}
-
-	return result;
-}
 static void* fCAnimationStateMachineSetBlend(Sonic::CAnimationStateMachine* This,
 	const Hedgehog::Base::CSharedString& in_rSourceState, const Hedgehog::Base::CSharedString& in_rDestinationState, float in_BlendTime)
 {
@@ -46,11 +33,6 @@ public:
 	boost::shared_ptr<Sonic::CNPCAnimation> m_spNPCAnimation;
 
 	////Animation List
-	//static inline const hh::anim::SMotionInfo m_sAnimList[] =
-	//{
-	//	hh::anim::SMotionInfo{"START", "spin_jp_start" },
-	//	hh::anim::SMotionInfo{"LOOP", "spin_nomal_loop"},
-	//};
 	static inline hh::anim::SMotionInfo m_sAnimList[2];
 
 	void AddCallback(const Hedgehog::Base::THolder<Sonic::CWorld>& in_rWorldHolder,
@@ -83,29 +65,31 @@ public:
 		m_spMatrixNodeTransform->NotifyChanged();
 		m_spElement->BindMatrixNode(m_spChildNode);
 
-		m_spNPCAnimation = boost::make_shared<Sonic::CNPCAnimation>();
-		fCNPCAnimationCtor(m_spNPCAnimation.get());
+		////Construct animator
+		auto npcAnimation = reinterpret_cast<Sonic::CNPCAnimation*>(__HH_ALLOC(0x30));
+		fCNPCAnimationCtor(npcAnimation);
+		m_spNPCAnimation = boost::shared_ptr<Sonic::CNPCAnimation>(npcAnimation);
 
+		////Setup anim list
 		m_sAnimList[0].Name = "START";
 		m_sAnimList[0].FileName = "spin_jp_start";
-
 		m_sAnimList[1].Name = "LOOP";
 		m_sAnimList[1].FileName = "spin_nomal_loop";
 
-		////Initialize Skeleton
+		//////Initialize Skeleton
 		m_spNPCAnimation->Initialize(in_spDatabase, "chr_sonic_spin");
 		m_spNPCAnimation->NPC_ADD_ANIM_LIST(m_sAnimList);
 		m_spElement->BindPose(m_spNPCAnimation->m_spAnimationPose);
 		m_spNPCAnimation->m_spAnimationPose->Update(0.0f);
 
-		////Animation transitions/states
+		//////Animation transitions/states
 		auto* state = m_spNPCAnimation->m_spAnimationStateMachine->GetAnimationState("START").get();
 		state->m_TransitionState = "LOOP";
 		state->m_Field90 = true;
 		state->m_Field8C = -1.0f;
 		fCAnimationStateMachineSetBlend(m_spNPCAnimation->m_spAnimationStateMachine.get(), "LOOP", "START", 0.1f);
 
-		////Start Animation
+		//////Start Animation
 		m_spNPCAnimation->m_spAnimationStateMachine->ChangeState("START");
 
 		}

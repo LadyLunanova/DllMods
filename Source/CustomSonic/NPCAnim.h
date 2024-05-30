@@ -11,7 +11,17 @@
 
 namespace Sonic
 {
-	class CNPCAnimation;  
+	class CNPCAnimation;
+
+	static uint32_t pCNPCAnimationCtor = 0xB67750;
+	static void fCNPCAnimationCtor(Sonic::CNPCAnimation* This)
+	{
+		__asm
+		{
+			mov esi, This
+			call[pCNPCAnimationCtor]
+		}
+	}
 
 	static inline BB_FUNCTION_PTR(void, __stdcall, fpCNPCAnimationInitialize, 0xB677A0,
 		CNPCAnimation* This, const boost::shared_ptr<Hedgehog::Database::CDatabase>& in_spDatabase, const Hedgehog::Base::CSharedString& in_rSkeletonName, float in_Scale);
@@ -38,19 +48,24 @@ namespace Sonic
 		boost::shared_ptr<Hedgehog::Animation::CAnimationPose> m_spAnimationPose;
 		Hedgehog::Math::CVector m_Velocity;
 
+		virtual ~CNPCAnimation() = default;
+
 		virtual boost::shared_ptr<Hedgehog::Animation::CAnimationPose>
-		GetSharedAnimationPose()
+			GetSharedAnimationPose()
 		{
 			return m_spAnimationPose;
 		}
 
 		virtual boost::shared_ptr<Hedgehog::Animation::CAnimationPose>*
-		GetPtrSharedAnimationPose()
+			GetPtrSharedAnimationPose()
 		{
 			return &m_spAnimationPose;
 		}
 
-		virtual ~CNPCAnimation() = default;
+		CNPCAnimation()
+		{
+			fCNPCAnimationCtor(this);
+		}
 
 
 		void Initialize(const boost::shared_ptr<Hedgehog::Database::CDatabase>& in_spDatabase, const Hedgehog::Base::CSharedString& in_rSkeletonName, float in_Scale = 1.0f)

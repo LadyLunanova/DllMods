@@ -166,7 +166,6 @@ public:
 	boost::shared_ptr<Sonic::CNPCAnimation> m_spNPCAnimation;
 	bool hasChangedState = false;
 
-	//bool flickerVis = false;
 	bool isVisible = true;
 	bool typeFlicker = false;
 	float flickerTimer = 0.0f;
@@ -195,7 +194,7 @@ public:
 		const int playerID = GetGameDocument()->m_pMember->m_PlayerIDs.begin()[0];
 		const Sonic::Player::CPlayerSpeedContext* context = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID))->GetContext();
 		m_spChildNode = boost::make_shared<Sonic::CMatrixNodeTransform>();
-		const float scale = 1.16f;
+		const float scale = 1.07f;
 		const float offset = 0.4f;
 		m_spChildNode->m_Transform.SetPosition(hh::math::CVector(0, offset, 0));
 		m_spChildNode->m_Transform.m_Matrix *= Eigen::Scaling(scale);
@@ -229,6 +228,9 @@ public:
 
 	void UpdateParallel(const Hedgehog::Universe::SUpdateInfo& in_rUpdateInfo) override
 	{
+		const int playerID = GetGameDocument()->m_pMember->m_PlayerIDs.begin()[0];
+		const Sonic::Player::CPlayerSpeed* pPlayer = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID));
+
 		if (m_spNPCAnimation->m_spAnimationStateMachine->m_Time >= 0.35 && !hasChangedState)
 		{
 			hasChangedState = true;
@@ -239,9 +241,8 @@ public:
 
 		if (m_spElement->m_Enabled && isVisible && !typeFlicker)
 		{
-			
+			pPlayer->m_spCharacterModel->m_Enabled = false;
 			isVisible = false;
-			
 		}
 
 		flickerTimer += in_rUpdateInfo.DeltaTime;
@@ -253,24 +254,26 @@ public:
 
 		if (typeFlicker)
 		{
-			
+			pPlayer->m_spCharacterModel->m_Enabled = isVisible;
 			isVisible = !isVisible;
 			m_spElement->m_Enabled = isVisible;
-			
 		}
 		else if (!m_spElement->m_Enabled)
 		{
-			
+			pPlayer->m_spCharacterModel->m_Enabled = false;
 			isVisible = false;
 			m_spElement->m_Enabled = true;
-			
 		}
-		//MsgModelHide(m_spElement->m_Enabled);
-
-		//m_spElement->m_Enabled = flickerVis;
-		//MsgModelHide(flickerVis);
 
 		//printf("%f\n", m_spNPCAnimation->m_spAnimationStateMachine->m_Time);
+	}
+
+	void KillCallback() override
+	{
+		const int playerID = GetGameDocument()->m_pMember->m_PlayerIDs.begin()[0];
+		const Sonic::Player::CPlayerSpeed* pPlayer = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID));
+		pPlayer->m_spCharacterModel->m_Enabled = true;
+		//printf("KILL CALLBACK\n");
 	}
 };
 boost::shared_ptr<JumpballSA1AnimRenderable> obj_SonicJumpBallSA1Renderable;

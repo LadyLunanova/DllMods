@@ -164,6 +164,7 @@ public:
 	boost::shared_ptr<hh::mr::CSingleElement> m_spElement;
 	boost::shared_ptr<Sonic::CMatrixNodeTransform> m_spChildNode;
 	boost::shared_ptr<Sonic::CNPCAnimation> m_spNPCAnimation;
+	SharedPtrTypeless SA2ballVfxHandle;
 	bool hasChangedState = false;
 
 	bool isVisible = true;
@@ -193,6 +194,7 @@ public:
 		////Attach renderable to Sonic with offset
 		const int playerID = GetGameDocument()->m_pMember->m_PlayerIDs.begin()[0];
 		const Sonic::Player::CPlayerSpeedContext* context = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID))->GetContext();
+		const Sonic::Player::CPlayer* cpcontext = static_cast<Sonic::Player::CPlayer*>(m_pMessageManager->GetMessageActor(playerID));
 		m_spChildNode = boost::make_shared<Sonic::CMatrixNodeTransform>();
 		const float scale = 1.07f;
 		const float offset = 0.4f;
@@ -224,6 +226,9 @@ public:
 		//////Start Animation
 		m_spNPCAnimation->m_spAnimationStateMachine->ChangeState("LOOP");
 
+		////Spawn VFX
+		auto BallNode = m_spElement->GetNode("mesh_ball"); //Set up bone matrix for VFX
+		Common::fCGlitterCreate(cpcontext->m_spContext.get(), SA2ballVfxHandle, &BallNode, "ef_ch_sng_yh1_sa2spinattack", 1);  //Create VFX
 	}
 
 	void UpdateParallel(const Hedgehog::Universe::SUpdateInfo& in_rUpdateInfo) override
@@ -272,7 +277,9 @@ public:
 	{
 		const int playerID = GetGameDocument()->m_pMember->m_PlayerIDs.begin()[0];
 		const Sonic::Player::CPlayerSpeed* pPlayer = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID));
+		const Sonic::Player::CPlayer* cpcontext = static_cast<Sonic::Player::CPlayer*>(m_pMessageManager->GetMessageActor(playerID));
 		pPlayer->m_spCharacterModel->m_Enabled = true;
+		Common::fCGlitterEnd(cpcontext->m_spContext.get(), SA2ballVfxHandle, true); //Destroy Ball VFX
 		//printf("KILL CALLBACK\n");
 	}
 };
@@ -350,10 +357,6 @@ public:
 		m_spNPCAnimation->m_spAnimationStateMachine->ChangeState("START");
 
 		auto BallNode = m_spElement->GetNode("Mesh"); //Set up bone matrix for VFX
-		//Eigen::Affine3f affine;
-		//affine = BallNode->m_WorldMatrix;
-		
-
 		Common::fCGlitterCreate(cpcontext->m_spContext.get(), WarsballVfxHandle, &BallNode, "ef_ch_sng_yh1_forcesspinattack", 1);  //Create VFX
 	}
 

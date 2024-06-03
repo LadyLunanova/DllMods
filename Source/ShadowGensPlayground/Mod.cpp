@@ -246,7 +246,23 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	bool isSkateAnim =
 		GetAnimInfo->m_Name == "Boost" ||
 		GetAnimInfo->m_Name == "Jet" ||
-		GetAnimInfo->m_Name == "Dash";
+		GetAnimInfo->m_Name == "Dash" ||
+		GetAnimInfo->m_Name == "Sliding" ||
+		GetAnimInfo->m_Name == "SlidingM" ||
+		GetAnimInfo->m_Name == "Stomping" ||
+		GetAnimInfo->m_Name == "Airboost" ||
+		GetAnimInfo->m_Name == "JumpShortBegin" ||
+		GetAnimInfo->m_Name == "JumpShort" ||
+		GetAnimInfo->m_Name == "TrickPrepare" ||
+		GetAnimInfo->m_Name == "JumpBoard" ||
+		GetAnimInfo->m_Name == "JumpBoardSpecialL" ||
+		GetAnimInfo->m_Name == "JumpBoardSpecialR" ||
+		GetAnimInfo->m_Name == "WallJumpA" ||
+		GetAnimInfo->m_Name == "BrakeLoopL" ||
+		GetAnimInfo->m_Name == "BrakeLoopR" ||
+		GetAnimInfo->m_Name == "BrakeLoopLg" ||
+		GetAnimInfo->m_Name == "RunQuickStepL" ||
+		GetAnimInfo->m_Name == "RunQuickStepR";
 	
 
 	//---------------------------------------------------

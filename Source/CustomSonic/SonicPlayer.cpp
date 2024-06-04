@@ -51,6 +51,7 @@ void MsgModelHide(bool Enabled);
 //////Renderables//////
 //boost::shared_ptr<hh::mr::CSingleElement> m_spSonicJumpBall;
 bool isRenderableCreated = false;
+bool isRenderableUpdateCreated = false;
 bool isSA1FlickerHide = false;
 static uint32_t pCAnimationStateMachineSetBlend = 0xCE0720;
 static uint32_t pCNPCAnimationCtor = 0xB67750;
@@ -406,26 +407,26 @@ public:
 	boost::shared_ptr<Sonic::CMatrixNodeTransform> m_spChildNode;
 	boost::shared_ptr<hh::mr::CBundle> m_spBundle;
 
-
 	//////Custom Funcs
-	void AddCustomBundleModel(Hedgehog::Base::CSharedString modelNode)
+	void addCustomRenderModel(Hedgehog::Base::CSharedString modelNode, boost::shared_ptr<hh::mr::CSingleElement> m_spElement)
 	{
-		////Setup Model
-		auto in_spDatabase = Sonic::CGameDocument::GetInstance()->m_pMember->m_spDatabase;
-		hh::mr::CMirageDatabaseWrapper wrapper(in_spDatabase.get());
-		boost::shared_ptr<hh::mr::CModelData> m_spModelData = wrapper.GetModelData(modelNode, 0);
-		m_spElementSnShoes = boost::make_shared<hh::mr::CSingleElement>(m_spModelData);
-		if (!m_spModelData)
-			return;
-
-		m_spBundle->m_RenderableList.push_back(m_spElementSnShoes);
-
-		////Attach renderable to Sonic
+		auto in_spDatabase = GetGameDocument()->m_pMember->m_spDatabase;
 		const int playerID = GetGameDocument()->m_pMember->m_PlayerIDs.begin()[0];
 		const Sonic::Player::CPlayerSpeedContext* context = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID))->GetContext();
 		const Sonic::Player::CPlayerSpeed* pPlayer = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID));
-		m_spElementSnShoes->BindMatrixNode(context->m_spMatrixNode);
-		m_spElementSnShoes->BindPose(pPlayer->m_spCharacterModel->m_spInstanceInfo->m_spPose);
+
+		////Setup Model
+		hh::mr::CMirageDatabaseWrapper wrapper(in_spDatabase.get());
+		boost::shared_ptr<hh::mr::CModelData> m_spModelData = wrapper.GetModelData(modelNode, 0);
+		m_spElement = boost::make_shared<hh::mr::CSingleElement>(m_spModelData);
+		if (!m_spModelData)
+			return;
+
+		m_spBundle->AddRenderable(m_spElement);
+
+		////Attach renderable to Sonic
+		m_spElement->BindMatrixNode(context->m_spMatrixNode);
+		m_spElement->BindPose(pPlayer->m_spCharacterModel->m_spInstanceInfo->m_spPose);
 	}
 
 	//////Renderable Funcs
@@ -435,36 +436,38 @@ public:
 		Sonic::CApplicationDocument::GetInstance()->AddMessageActor("GameObject", this);
 		in_pGameDocument->AddUpdateUnit("b", this);
 		BB_FUNCTION_PTR(void, __thiscall, fpCBundleCtor, 0x006FA910, Hedgehog::Mirage::CBundle * This);
+		FUNCTION_PTR(void, __thiscall, fpCBundleAddRenderable, 0x6FAA00, Hedgehog::Mirage::CBundle * This, const boost::shared_ptr<Hedgehog::Mirage::CRenderable>&renderable);
 		m_spBundle = boost::make_shared<Hedgehog::Mirage::CBundle>();
 		fpCBundleCtor(m_spBundle.get());
 		AddRenderable("Player", m_spBundle, true);
 
 		////Setup Model
-		hh::mr::CMirageDatabaseWrapper wrapper(in_spDatabase.get()); 
-		boost::shared_ptr<hh::mr::CModelData> m_spModelData = wrapper.GetModelData("chr_Sonic_HeDefault", 0); 
-		boost::shared_ptr<hh::mr::CModelData> m_spModelData2 = wrapper.GetModelData("chr_Sonic_BdDefault_00", 0); 
+		//hh::mr::CMirageDatabaseWrapper wrapper(in_spDatabase.get()); 
+		//boost::shared_ptr<hh::mr::CModelData> m_spModelData = wrapper.GetModelData("chr_Sonic_HeDefault", 0); 
+		//boost::shared_ptr<hh::mr::CModelData> m_spModelData2 = wrapper.GetModelData("chr_Sonic_BdDefault_00", 0); 
 
 		////Spawn Model
-		m_spElementSnHead = boost::make_shared<hh::mr::CSingleElement>(m_spModelData);
-		if (!m_spModelData)
-			return;
+		//m_spElementSnHead = boost::make_shared<hh::mr::CSingleElement>(m_spModelData);
+		//if (!m_spModelData)
+		//	return;
 
-		m_spElementSnBody = boost::make_shared<hh::mr::CSingleElement>(m_spModelData2);
-		if (!m_spModelData2)
-			return;
+		//m_spElementSnBody = boost::make_shared<hh::mr::CSingleElement>(m_spModelData2);
+		//if (!m_spModelData2)
+		//	return;
 
-		m_spBundle->m_RenderableList.push_back(m_spElementSnHead);
-		m_spBundle->m_RenderableList.push_back(m_spElementSnBody);
+		//m_spBundle->m_RenderableList.push_back(m_spElementSnHead);
+		//m_spBundle->m_RenderableList.push_back(m_spElementSnBody);
+		//fpCBundleAddRenderable(m_spBundle.get(), m_spElementSnHead);
+		//fpCBundleAddRenderable(m_spBundle.get(), m_spElementSnBody);
 
 		////Attach renderable to Sonic
-		const int playerID = GetGameDocument()->m_pMember->m_PlayerIDs.begin()[0];
-		const Sonic::Player::CPlayerSpeedContext* context = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID))->GetContext();
-		const Sonic::Player::CPlayerSpeed* pPlayer = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID));
-		m_spElementSnHead->BindMatrixNode(context->m_spMatrixNode); 
-		m_spElementSnHead->BindPose(pPlayer->m_spCharacterModel->m_spInstanceInfo->m_spPose); 
-
-		m_spElementSnBody->BindMatrixNode(context->m_spMatrixNode);
-		m_spElementSnBody->BindPose(pPlayer->m_spCharacterModel->m_spInstanceInfo->m_spPose);
+		//const int playerID = GetGameDocument()->m_pMember->m_PlayerIDs.begin()[0];
+		//const Sonic::Player::CPlayerSpeedContext* context = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID))->GetContext();
+		//const Sonic::Player::CPlayerSpeed* pPlayer = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID));
+		//m_spElementSnHead->BindMatrixNode(context->m_spMatrixNode); 
+		//m_spElementSnHead->BindPose(pPlayer->m_spCharacterModel->m_spInstanceInfo->m_spPose); 
+		//m_spElementSnBody->BindMatrixNode(context->m_spMatrixNode);
+		//m_spElementSnBody->BindPose(pPlayer->m_spCharacterModel->m_spInstanceInfo->m_spPose);
 
 	}
 
@@ -483,19 +486,14 @@ public:
 		bool PressedUp = input.IsTapped(Sonic::eKeyState_DpadUp);
 		bool PressedDown = input.IsTapped(Sonic::eKeyState_DpadDown);
 
-		if (PressedUp)
-		{
-			AddCustomBundleModel("chr_Sonic_HeDefault");
-		}
+		//if (PressedUp)
+		//	addCustomRenderModel("chr_Sonic_HeDefault", m_spElementSnHead);
 		if (PressedRight)
-		{
-			AddCustomBundleModel("chr_Sonic_BdDefault_00");
-		}
-		if (PressedDown)
-		{
-			AddCustomBundleModel("chr_Sonic_ShDefault_00");
-		}
-
+			addCustomRenderModel("chr_Sonic_BdDefault_00", m_spElementSnBody);
+		if (PressedLeft)
+			m_spBundle->RemoveRenderable(m_spElementSnBody);
+		//if (PressedDown)
+		//	addCustomRenderModel("chr_Sonic_ShDefault_00", m_spElementSnShoes);
 	}
 
 	void KillCallback() override
@@ -692,13 +690,9 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 		}
 
 		if (WildFireActive == true)
-		{
 			SpawnFireParticle(This);
-		}
 		if (WildFireActive == false)
-		{
 			KillFireParticle(This);
-		}
 
 		if (SelectJumpBallVFX == (enum SelectJumpBallVFXType)JumpBallNoBall)
 			sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_JumpShortReleaseTime] = 256.0f;

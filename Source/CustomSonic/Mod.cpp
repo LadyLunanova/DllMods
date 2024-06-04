@@ -15,6 +15,7 @@ EXPORT void Init(ModInfo_t* modInfo)
 	InstallCustomUI::applyPatches(modInfo);
 	InstallSonicPlayer::applyPatches();
 	ReadConfig();
+	//MessageBoxA(nullptr, "Init Halt", "Window", 0);
 }
 EXPORT void PostInit()
 {

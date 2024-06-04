@@ -597,6 +597,79 @@ const char* CModelEyelidString(char* result)
 	return result;
 }
 
+boost::shared_ptr<Hedgehog::Mirage::CModelData> loadArchiveDatabase(Hedgehog::Base::CSharedString archiveName, Hedgehog::Base::CSharedString modelName)
+{
+	boost::shared_ptr<Hedgehog::Database::CDatabase> database;
+	database = Hedgehog::Database::CDatabase::CreateDatabase();
+	auto& loader = Sonic::CApplicationDocument::GetInstance()->m_pMember->m_spDatabaseLoader;
+
+	loader->CreateArchiveList(
+		archiveName + ".ar",
+		archiveName + ".arl",
+		{ 200, 5 });
+
+	loader->LoadArchiveList(database, archiveName + ".arl");
+
+	loader->LoadArchive(database, archiveName + ".ar", { -10, 5 }, false, false);
+
+	Hedgehog::Mirage::CMirageDatabaseWrapper wrapper(database.get());
+	
+	return wrapper.GetModelData(modelName);
+}
+const char* ArchiveShoeString(char* result)
+{
+	auto mapChar = MAP_FILE_SHOE[SelectShoes];
+	const char* texExtVar = "";
+	const char* texExt0 = "_00";
+	const char* texExt1 = "_01";
+	const char* texExt2 = "_02";
+	const char* texExt3 = "_03";
+	const char* texExt4 = "_04";
+	const char* texExt5 = "_05";
+	const char* texExt6 = "_06";
+	const char* texExt7 = "_07";
+	const char* texExt8 = "_08";
+	const char* texExt9 = "_09";
+	bool isShDefault = (SelectShoes == ShDefault);
+	bool isShDefaultLightS = (ShDefaultVariant == DefaultLightS);
+	bool isShSA2Beta = (SelectShoes == ShSA2Beta);
+	bool isShSA2BetaLightS = (ShSA2BetaVariant == SA2BetaLightS);
+	bool isShSA2Soap = (SelectShoes == ShSA2Soap);
+	bool isShSA2SoapDefault = (ShSA2SoapVariant == SA2Soap);
+	bool isShSA2SoapLightS = (ShSA2SoapVariant == SA2SoapLightS);
+	bool isShSA2SoapRacing = (ShSA2SoapVariant == SA2SoapRacing);
+	bool isSh06Gem = (SelectShoes == Sh06Gem);
+	bool isSh06GemDefault = (Sh06GemVariant == GemDefault);
+	bool isSh06GemRed = (Sh06GemVariant == GemRed);
+	bool isSh06GemBlue = (Sh06GemVariant == GemBlue);
+	bool isSh06GemGreen = (Sh06GemVariant == GemGreen);
+	bool isSh06GemPurple = (Sh06GemVariant == GemPurple);
+	bool isSh06GemSky = (Sh06GemVariant == GemSky);
+	bool isSh06GemWhite = (Sh06GemVariant == GemWhite);
+	bool isSh06GemYellow = (Sh06GemVariant == GemYellow);
+
+	if ((isShDefault && !isShDefaultLightS) || (isShSA2Beta && !isShSA2BetaLightS) || (isShSA2Soap && !isShSA2SoapDefault) || (isSh06Gem && isSh06GemDefault))
+		texExtVar = texExt0;
+	else if ((isShDefault && isShDefaultLightS) || (isShSA2Beta && isShSA2BetaLightS) || (isShSA2Soap && isShSA2SoapLightS) || (isSh06Gem && isSh06GemRed))
+		texExtVar = texExt1;
+	else if ((isShSA2Soap && isShSA2SoapRacing) || (isSh06Gem && isSh06GemBlue))
+		texExtVar = texExt2;
+	else if (isSh06Gem && isSh06GemGreen)
+		texExtVar = texExt3;
+	else if (isSh06Gem && isSh06GemPurple)
+		texExtVar = texExt4;
+	else if (isSh06Gem && isSh06GemSky)
+		texExtVar = texExt5;
+	else if (isSh06Gem && isSh06GemWhite)
+		texExtVar = texExt6;
+	else if (isSh06Gem && isSh06GemYellow)
+		texExtVar = texExt7;
+
+	sprintf(result, "%s%s", mapChar, texExtVar);
+	//printf("%s%s\n", mapChar, texExtVar);
+	return result;
+}
+
 //////Sonic Renderable
 class CustomizeSonicRenderable : public Sonic::CGameObject3D
 {
@@ -611,7 +684,7 @@ public:
 	boost::shared_ptr<hh::mr::CBundle> m_spBundle;
 
 	//////Custom Funcs
-	void addCustomRenderModel(Hedgehog::Base::CSharedString modelNode, boost::shared_ptr<hh::mr::CSingleElement>& m_spElement)
+	void addCustomRenderModel(Hedgehog::Base::CSharedString modelNode, Hedgehog::Base::CSharedString archiveName, boost::shared_ptr<hh::mr::CSingleElement>& m_spElement)
 	{
 		auto in_spDatabase = GetGameDocument()->m_pMember->m_spDatabase;
 		const int playerID = GetGameDocument()->m_pMember->m_PlayerIDs.begin()[0];
@@ -619,11 +692,14 @@ public:
 		const Sonic::Player::CPlayerSpeed* pPlayer = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID));
 
 		////Setup Model
-		hh::mr::CMirageDatabaseWrapper wrapper(in_spDatabase.get());
-		boost::shared_ptr<hh::mr::CModelData> m_spModelData = wrapper.GetModelData(modelNode, 0);
-		m_spElement = boost::make_shared<hh::mr::CSingleElement>(m_spModelData);
-		if (!m_spModelData)
+		//hh::mr::CMirageDatabaseWrapper wrapper(in_spDatabase.get());
+		//boost::shared_ptr<hh::mr::CModelData> m_spModelData = wrapper.GetModelData(modelNode, 0);
+		//m_spElement = boost::make_shared<hh::mr::CSingleElement>(m_spModelData);
+		boost::shared_ptr<hh::mr::CModelData> m_spModelData = loadArchiveDatabase(archiveName, modelNode);
+		if (!m_spModelData || !m_spModelData->IsMadeAll())
 			return;
+		
+		m_spElement = boost::make_shared<hh::mr::CSingleElement>(m_spModelData);
 
 		//m_spBundle->AddRenderable(m_spElement);
 		AddRenderable("Player", m_spElement, true);
@@ -645,12 +721,14 @@ public:
 		if (isLoadModel)
 		{
 			RemoveRenderables();
-			addCustomRenderModel(CModelHeadString(HeBuffer), m_spElementSnHead);
-			addCustomRenderModel(CModelBodyString(BdBuffer), m_spElementSnBody);
-			addCustomRenderModel(CModelHandRString(HRBuffer), m_spElementSnHandR);
-			addCustomRenderModel(CModelHandLString(HLBuffer), m_spElementSnHandL);
-			addCustomRenderModel(CModelShoeString(ShBuffer), m_spElementSnShoes);
-			addCustomRenderModel(CModelEyelidString(EyeBuffer), m_spElementSnEyelid);
+			//loadArchiveDatabase(ArchiveShoeString(ShBuffer), CModelShoeString(ShBuffer));
+
+			//addCustomRenderModel(CModelHeadString(HeBuffer), ArchiveShoeString(ShBuffer), m_spElementSnHead);
+			//addCustomRenderModel(CModelBodyString(BdBuffer), "", m_spElementSnBody);
+			//addCustomRenderModel(CModelHandRString(HRBuffer), "", m_spElementSnHandR);
+			//addCustomRenderModel(CModelHandLString(HLBuffer), "", m_spElementSnHandL);
+			addCustomRenderModel(CModelShoeString(ShBuffer), ArchiveShoeString(ShBuffer), m_spElementSnShoes);
+			//addCustomRenderModel(CModelEyelidString(EyeBuffer), "", m_spElementSnEyelid);
 			isLoadModel = false;
 		}
 	}

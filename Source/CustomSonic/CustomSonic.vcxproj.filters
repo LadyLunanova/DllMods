@@ -6,7 +6,7 @@
     <ClCompile Include="Mod.cpp" />
     <ClCompile Include="UpdateDirector.cpp" />
     <ClCompile Include="CustomUI.cpp" />
-    <ClCompile Include="SonicVFX.cpp" />
+    <ClCompile Include="SonicPlayer.cpp" />
     <ClCompile Include="InstallSetup.cpp" />
     <ClCompile Include="NPCAnim.h" />
   </ItemGroup>
@@ -16,7 +16,7 @@
     <ClInclude Include="InstallCustomUI.h" />
     <ClInclude Include="CustomSonicItems.h" />
     <ClInclude Include="CustomUI.h" />
-    <ClInclude Include="SonicVFX.h" />
+    <ClInclude Include="SonicPlayer.h" />
     <ClInclude Include="InstallSetup.h" />
     <ClInclude Include="Path.h" />
   </ItemGroup>

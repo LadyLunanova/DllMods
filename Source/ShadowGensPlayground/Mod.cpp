@@ -59,6 +59,8 @@ namespace Common
 	}
 }
 
+int ShitStop = 0;
+
 //Dynamic Omnis
 // Original code by Skyth: https://github.com/blueskythlikesclouds
 hh::base::CRefPtr<Sonic::CLocalLight> genericPLight;
@@ -156,6 +158,7 @@ SharedPtrTypeless Jet3L_VfxHandle; //VFX handler
 SharedPtrTypeless Jet4L_VfxHandle; //VFX handler
 SharedPtrTypeless Jet5L_VfxHandle; //VFX handler
 
+Hedgehog::Math::CVector m_spCamTargetPos;
 
 void sonicNodeGlitterCreate(Sonic::Player::CPlayerSpeed* This, SharedPtrTypeless& VFXHandle, Hedgehog::Base::CSharedString boneNode, Hedgehog::Base::CSharedString GTEFile)
 {
@@ -176,32 +179,6 @@ void sonicGlitterEnd(Sonic::Player::CPlayerSpeed* This, SharedPtrTypeless& VFXHa
 	VFXHandle = nullptr;
 }
 
-void shadowCreateJetLocus(Sonic::Player::CPlayerSpeed* This)
-{
-	sonicNodeGlitterCreate(This, JetLocus1R_VfxHandle, "EffectJet1_R", "ef_ch_sh_yh1_jetlocus");
-	sonicNodeGlitterCreate(This, JetLocus2R_VfxHandle, "EffectJet2_R", "ef_ch_sh_yh1_jetlocus");
-	sonicNodeGlitterCreate(This, JetLocus3R_VfxHandle, "EffectJet3_R", "ef_ch_sh_yh1_jetlocus");
-	sonicNodeGlitterCreate(This, JetLocus4R_VfxHandle, "EffectJet4_R", "ef_ch_sh_yh1_jetlocus");
-	sonicNodeGlitterCreate(This, JetLocus5R_VfxHandle, "EffectJet5_R", "ef_ch_sh_yh1_jetlocus");
-	sonicNodeGlitterCreate(This, JetLocus1L_VfxHandle, "EffectJet1_L", "ef_ch_sh_yh1_jetlocus");
-	sonicNodeGlitterCreate(This, JetLocus2L_VfxHandle, "EffectJet2_L", "ef_ch_sh_yh1_jetlocus");
-	sonicNodeGlitterCreate(This, JetLocus3L_VfxHandle, "EffectJet3_L", "ef_ch_sh_yh1_jetlocus");
-	sonicNodeGlitterCreate(This, JetLocus4L_VfxHandle, "EffectJet4_L", "ef_ch_sh_yh1_jetlocus");
-	sonicNodeGlitterCreate(This, JetLocus5L_VfxHandle, "EffectJet5_L", "ef_ch_sh_yh1_jetlocus");
-}
-void shadowEndJetLocus(Sonic::Player::CPlayerSpeed* This)
-{
-	sonicGlitterEnd(This, JetLocus1R_VfxHandle, true);
-	sonicGlitterEnd(This, JetLocus2R_VfxHandle, true);
-	sonicGlitterEnd(This, JetLocus3R_VfxHandle, true);
-	sonicGlitterEnd(This, JetLocus4R_VfxHandle, true);
-	sonicGlitterEnd(This, JetLocus5R_VfxHandle, true);
-	sonicGlitterEnd(This, JetLocus1L_VfxHandle, true);
-	sonicGlitterEnd(This, JetLocus2L_VfxHandle, true);
-	sonicGlitterEnd(This, JetLocus3L_VfxHandle, true);
-	sonicGlitterEnd(This, JetLocus4L_VfxHandle, true);
-	sonicGlitterEnd(This, JetLocus5L_VfxHandle, true);
-}
 void shadowCreateJet(Sonic::Player::CPlayerSpeed* This)
 {
 	sonicNodeGlitterCreate(This, Jet1R_VfxHandle, "EffectJet1_R", "ef_bo_sha_yh2_jet");
@@ -270,15 +247,9 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	//---------------------------------------------------
 
 	if (isSkateAnim)
-	{
 		shadowCreateJet(This);
-		//shadowCreateJetLocus(This);
-	}
 	else
-	{
 		shadowEndJet(This);
-		//shadowEndJetLocus(This);
-	}
 
 	//---------------------------------------------------
 	// Console Stuff
@@ -295,6 +266,16 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	//---------------------------------------------------
 	// Call Original Player Update
 	//---------------------------------------------------
+
+	if (ShitStop >= 1)
+	{
+		//ShitStop--;
+		//return;
+		//m_spCamTargetPos;
+		//This->SendMessageImm<Sonic::Message::MsgSetPosition>(Sonic::CCamera->m_ActorID);
+	}
+	//else
+	//	originalCPlayerSpeedUpdate(This, _, updateInfo);
 
 	originalCPlayerSpeedUpdate(This, _, updateInfo);
 
@@ -315,6 +296,7 @@ HOOK(void, __fastcall, CSonicStateHomingAttackStart, 0x01232040, hh::fnd::CState
 	pPlayer->m_spCharacterModel->m_Enabled = false;
 	printf("ENTER HOMING ATTACK\n");
 	originalCSonicStateHomingAttackStart(This);
+	ShitStop = 16;
 }
 
 HOOK(void, __fastcall, CSonicStateHomingAttackEnd, 0x01231F80, hh::fnd::CStateMachineBase::CStateBase* This)
@@ -334,9 +316,24 @@ HOOK(void, __fastcall, CSonicStateHomingAttackEnd, 0x01231F80, hh::fnd::CStateMa
 	originalCSonicStateHomingAttackEnd(This);
 }
 
+HOOK(float, __fastcall, MsgGetCameraTargetPosition, 0xE69C70, Sonic::Player::CPlayerSpeed* This, void* Edx, Sonic::Message::MsgSetPosition& message)
+{
+
+	m_spCamTargetPos = This->GetContext()->m_spMatrixNode->m_Transform.m_Position;
+
+	if (ShitStop >= 1)
+	{
+		ShitStop--;
+		//return fuckall;
+	}
+	else
+		return originalMsgGetCameraTargetPosition(This, Edx, message);
+}
+
 EXPORT void Init()
 {
 	INSTALL_HOOK(CPlayerSpeedUpdate);
 	INSTALL_HOOK(CSonicStateHomingAttackStart);
 	INSTALL_HOOK(CSonicStateHomingAttackEnd);
+	//INSTALL_HOOK(MsgGetCameraTargetPosition);
 }

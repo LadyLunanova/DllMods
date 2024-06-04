@@ -406,6 +406,7 @@ enum SelectJumpBallType
 	JumpBallLW,
 	JumpBallForces,
 	JumpBallSA1,
+	JumpBallSA2,
 	JumpBallNoVFX,
 	JumpBallNoBall,
 };
@@ -831,7 +832,8 @@ void traverse(hh::mr::CRenderable* renderable)
 
 		if (strstr(element->m_spModel->m_TypeAndName.c_str(), "chr_Sonic_HD"))
 		{
-			element->m_MaterialMap.clear();
+			//element->m_MaterialMap.clear();
+			element->m_MaterialMap.erase(sonic_gm_body_custom.get());
 			switch (SelectSnSonMat)
 			{
 			case SnMatOriginal:
@@ -867,11 +869,12 @@ void traverse(hh::mr::CRenderable* renderable)
 
 		if (strstr(element->m_spModel->m_TypeAndName.c_str(), "chr_SuperSonic_HD"))
 		{
-			element->m_MaterialMap.clear();
+			//element->m_MaterialMap.clear();
+			element->m_MaterialMap.erase(super_sonic_gm_body.get());
 			switch (SelectSsnSonMat)
 			{
 			case SsnMatOriginal:
-				element->m_MaterialMap.emplace(super_sonic_gm_body.get(), sonic_gm_body_original);
+				element->m_MaterialMap.emplace(super_sonic_gm_body.get(), super_sonic_gm_body);
 				return;
 				break;
 			case SsnMatCustom:

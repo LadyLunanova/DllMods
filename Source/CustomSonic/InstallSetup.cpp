@@ -34,8 +34,9 @@ EXPORT void OnFrame()
 			traverse(renderable.get());
 	}
 
-	std::lock_guard lock(mutex);
+	//ItemVisibilityHandler(it->first, it->second);
 
+	std::lock_guard lock(mutex);
 	for (auto it = models.begin(); it != models.end();)
 	{
 		if (it->first.unique())
@@ -49,9 +50,6 @@ EXPORT void OnFrame()
 			++it;
 		}
 	}
-	
-
-
 }
 
 void InstallSetup::applyPatches()

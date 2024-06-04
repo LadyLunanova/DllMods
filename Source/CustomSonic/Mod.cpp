@@ -1,7 +1,7 @@
 #include <Common.h>
 #include "InstallSetup.h"
 #include "InstallCustomUI.h"
-#include "SonicVFX.h"
+#include "SonicPlayer.h"
 
 void ReadConfig();
 

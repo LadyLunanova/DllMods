@@ -192,7 +192,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="UpdateDirector.cpp" />
-    <ClCompile Include="SonicVFX.cpp" />
+    <ClCompile Include="SonicPlayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="InstallCustomUI.h" />
@@ -202,7 +202,7 @@
     <ClInclude Include="Path.h" />
     <ClInclude Include="Pch.h" />
     <ClInclude Include="UpdateDirector.h" />
-    <ClInclude Include="SonicVFX.h" />
+    <ClInclude Include="SonicPlayer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

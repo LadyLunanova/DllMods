@@ -420,6 +420,7 @@ SelectJumpBallType SelectJumpBall = SelectJumpBallType::JumpBallDefault;
 bool NoBallJump = true;
 
 int HyperFrameCycle = 0;
+bool isRenderableCreated = false;
 
 bool m_IsModelHide = false;
 void MsgModelHide(bool Enabled)
@@ -429,6 +430,125 @@ void MsgModelHide(bool Enabled)
 
 void MsgWildFire(int Enabled);
 void MsgJumpBall(int BallType);
+
+//////Sonic Renderable
+class CustomizeSonicRenderable : public Sonic::CGameObject3D
+{
+public:
+	boost::shared_ptr<hh::mr::CSingleElement> m_spElementSnHead;
+	boost::shared_ptr<hh::mr::CSingleElement> m_spElementSnBody;
+	boost::shared_ptr<hh::mr::CSingleElement> m_spElementSnShoes;
+	boost::shared_ptr<hh::mr::CSingleElement> m_spElementSnHandR;
+	boost::shared_ptr<hh::mr::CSingleElement> m_spElementSnHandL;
+	boost::shared_ptr<hh::mr::CSingleElement> m_spElementSnEyelid;
+	boost::shared_ptr<Sonic::CMatrixNodeTransform> m_spChildNode;
+	boost::shared_ptr<hh::mr::CBundle> m_spBundle;
+
+	//////Custom Funcs
+	void addCustomRenderModel(Hedgehog::Base::CSharedString modelNode, boost::shared_ptr<hh::mr::CSingleElement>& m_spElement)
+	{
+		auto in_spDatabase = GetGameDocument()->m_pMember->m_spDatabase;
+		const int playerID = GetGameDocument()->m_pMember->m_PlayerIDs.begin()[0];
+		const Sonic::Player::CPlayerSpeedContext* context = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID))->GetContext();
+		const Sonic::Player::CPlayerSpeed* pPlayer = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID));
+
+		////Setup Model
+		hh::mr::CMirageDatabaseWrapper wrapper(in_spDatabase.get());
+		boost::shared_ptr<hh::mr::CModelData> m_spModelData = wrapper.GetModelData(modelNode, 0);
+		m_spElement = boost::make_shared<hh::mr::CSingleElement>(m_spModelData);
+		if (!m_spModelData)
+			return;
+
+		//m_spBundle->AddRenderable(m_spElement);
+		AddRenderable("Player", m_spElement, true);
+
+		////Attach renderable to Sonic
+		m_spElement->BindMatrixNode(context->m_spMatrixNode);
+		m_spElement->BindPose(pPlayer->m_spCharacterModel->m_spInstanceInfo->m_spPose);
+	}
+
+	//////Renderable Funcs
+	void AddCallback(const Hedgehog::Base::THolder<Sonic::CWorld>& in_rWorldHolder,
+		Sonic::CGameDocument* in_pGameDocument, const boost::shared_ptr<Hedgehog::Database::CDatabase>& in_spDatabase) override
+	{
+		Sonic::CApplicationDocument::GetInstance()->AddMessageActor("GameObject", this);
+		in_pGameDocument->AddUpdateUnit("b", this);
+	}
+
+	void UpdateParallel(const Hedgehog::Universe::SUpdateInfo& in_rUpdateInfo) override
+	{
+		const int playerID = GetGameDocument()->m_pMember->m_PlayerIDs.begin()[0];
+		const Sonic::Player::CPlayerSpeed* pPlayer = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID));
+		auto pPlayer_Invisible = (pPlayer->m_spCharacterModel->m_spInstanceInfo->m_Flags & Hedgehog::Mirage::eInstanceInfoFlags_Invisible) != 0;
+
+		if (m_spElementSnHead != nullptr)
+		{
+			m_spElementSnHead->m_MaterialMap = pPlayer->m_spCharacterModel->m_MaterialMap;
+			m_spElementSnHead->m_Enabled = !pPlayer_Invisible;
+		}
+		if (m_spElementSnBody != nullptr)
+		{
+			m_spElementSnBody->m_MaterialMap = pPlayer->m_spCharacterModel->m_MaterialMap;
+			m_spElementSnBody->m_Enabled = !pPlayer_Invisible;
+		}
+		if (m_spElementSnShoes != nullptr)
+		{
+			m_spElementSnShoes->m_MaterialMap = pPlayer->m_spCharacterModel->m_MaterialMap;
+			m_spElementSnShoes->m_Enabled = !pPlayer_Invisible;
+		}
+		if (m_spElementSnHandR != nullptr)
+		{
+			m_spElementSnHandR->m_MaterialMap = pPlayer->m_spCharacterModel->m_MaterialMap;
+			m_spElementSnHandR->m_Enabled = !pPlayer_Invisible;
+		}
+		if (m_spElementSnHandL != nullptr)
+		{
+			m_spElementSnHandL->m_MaterialMap = pPlayer->m_spCharacterModel->m_MaterialMap;
+			m_spElementSnHandL->m_Enabled = !pPlayer_Invisible;
+		}
+		if (m_spElementSnEyelid != nullptr)
+		{
+			m_spElementSnEyelid->m_MaterialMap = pPlayer->m_spCharacterModel->m_MaterialMap;
+			m_spElementSnEyelid->m_Enabled = !pPlayer_Invisible;
+		}
+
+		auto input = Sonic::CInputState::GetInstance()->GetPadState();
+		bool PressedY = input.IsTapped(Sonic::eKeyState_Y);
+		bool PressedLeft = input.IsTapped(Sonic::eKeyState_DpadLeft);
+		bool PressedRight = input.IsTapped(Sonic::eKeyState_DpadRight);
+		bool PressedUp = input.IsTapped(Sonic::eKeyState_DpadUp);
+		bool PressedDown = input.IsTapped(Sonic::eKeyState_DpadDown);
+
+		if (PressedUp)
+			addCustomRenderModel("chr_Sonic_HeDefault", m_spElementSnHead);
+		if (PressedRight)
+			addCustomRenderModel("chr_Sonic_BdDefault_00", m_spElementSnBody);
+		if (PressedLeft)
+		{
+			RemoveRenderables();
+		}
+		if (PressedDown)
+			addCustomRenderModel("chr_Sonic_ShDefault_00", m_spElementSnShoes);
+	}
+
+	void KillCallback() override
+	{
+		isRenderableCreated = false;
+
+		//printf("KILL CALLBACK\n");
+	}
+};
+boost::shared_ptr<CustomizeSonicRenderable> obj_CustomizeSonicRenderable;
+
+void CreateCustomizeSonicRenderable()
+{
+	if (!isRenderableCreated)
+	{
+		obj_CustomizeSonicRenderable = boost::make_shared<CustomizeSonicRenderable>();
+		Sonic::CGameDocument::GetInstance()->AddGameObject(obj_CustomizeSonicRenderable);
+		isRenderableCreated = true;
+	}
+}
 
 void ItemVisibilityHandler(const boost::shared_ptr<hh::mr::CModelData>& model, std::vector<boost::shared_ptr<hh::mr::CNodeGroupModelData>>& nodeGroupModels)
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-class InstallSonicVFX
+class InstallSonicPlayer
 {
 public:
 	static void applyPatches();

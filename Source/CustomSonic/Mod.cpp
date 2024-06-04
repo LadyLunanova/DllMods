@@ -13,7 +13,7 @@ EXPORT void Init(ModInfo_t* modInfo)
 {
 	InstallSetup::applyPatches();
 	InstallCustomUI::applyPatches(modInfo);
-	InstallSonicVFX::applyPatches();
+	InstallSonicPlayer::applyPatches();
 	ReadConfig();
 }
 EXPORT void PostInit()

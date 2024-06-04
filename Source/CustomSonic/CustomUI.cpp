@@ -141,6 +141,7 @@ void CHudUIOpen(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo&
 	if (!obBBCustomUI) //Create UI project if it doesn't exist
 		CreateFittingUI(This, Edx, in_rUpdateInfo);
 
+	isLoadModel = true;
 	//Main UI
 	scBBGui = prFittingScreenBB->CreateScene("chara");
 	scBBGui->SetMotion("Intro_Anim");
@@ -365,6 +366,7 @@ void CHudUIOpen(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo&
 void CHudUISelect()
 {
 	//SWAOpenTimer = 10;
+	isLoadModel = true;
 	switch (CHudTabSel)
 	{
 	case UIPartShoes:
@@ -943,6 +945,7 @@ void CHudUIMove(int Type)
 
 void CHudUIAlt()
 {
+	isLoadModel = true;
 	switch (CHudTabSel)
 	{
 	case UIPartShoes:
@@ -1172,6 +1175,7 @@ void CHudUISwitch(int Type)
 	if (Type == 1)
 	{
 		IsInMenuChange = false;
+		isLoadModel = true;
 		CHudVarVisSel = 0;
 		CHudVarScroll = 0;
 		CHudVarTrueSel = 0;
@@ -1387,6 +1391,7 @@ void CHudUIExit(int Type)
 	{
 		IsInMenuExit = false;
 		IsInMenu = false;
+		isLoadModel = true;
 		MemoryOpenTimer = 1800;
 		*ENABLE_BLUR = prevblur;
 		FILE* pFile = fopen(saveFilePath.c_str(), "wb");
@@ -1408,7 +1413,7 @@ void CHudUITexsetData(Sonic::CGameObject* This, int texSetID, const char* texStr
 
 const char* CHudUIThumbShoeString(int id, char* result)
 {
-	auto mapChar = MAP_THUMB_SHOE[ShDefault + (CHudVarScroll * 3) + id];
+	auto mapChar = MAP_FILE_SHOE[ShDefault + (CHudVarScroll * 3) + id];
 	auto mapInt = (ShDefault + (CHudVarScroll * 3) + id);
 	const char* texExtUI = "ui_";
 	const char* texExtOn = "_On";
@@ -1462,7 +1467,7 @@ const char* CHudUIThumbShoeString(int id, char* result)
 }
 const char* CHudUIThumbBodyString(int id, char* result)
 {
-	auto mapChar = MAP_THUMB_BODY[BdDefault + (CHudVarScroll * 3) + id];
+	auto mapChar = MAP_FILE_BODY[BdDefault + (CHudVarScroll * 3) + id];
 	auto mapInt = (BdDefault + (CHudVarScroll * 3) + id);
 	const char* texExtUI = "ui_";
 	const char* texExtOn = "_On";
@@ -1490,7 +1495,7 @@ const char* CHudUIThumbBodyString(int id, char* result)
 }
 const char* CHudUIThumbHeadString(int id, char* result)
 {
-	auto mapChar = MAP_THUMB_HEAD[HeDefault + (CHudVarScroll * 3) + id];
+	auto mapChar = MAP_FILE_HEAD[HeDefault + (CHudVarScroll * 3) + id];
 	auto mapInt = (HeDefault + (CHudVarScroll * 3) + id);
 	const char* texExtUI = "ui_";
 	const char* texExtOn = "_On";
@@ -1518,7 +1523,7 @@ const char* CHudUIThumbHeadString(int id, char* result)
 }
 const char* CHudUIThumbHandLString(int id, char* result)
 {
-	auto mapChar = MAP_THUMB_HANDL[HLDefault + (CHudVarScroll * 3) + id];
+	auto mapChar = MAP_FILE_HANDL[HLDefault + (CHudVarScroll * 3) + id];
 	auto mapInt = (HLDefault + (CHudVarScroll * 3) + id);
 	const char* texExtUI = "ui_";
 	const char* texExtOn = "_On";
@@ -1546,7 +1551,7 @@ const char* CHudUIThumbHandLString(int id, char* result)
 }
 const char* CHudUIThumbHandRString(int id, char* result)
 {
-	auto mapChar = MAP_THUMB_HANDR[HRDefault + (CHudVarScroll * 3) + id];
+	auto mapChar = MAP_FILE_HANDR[HRDefault + (CHudVarScroll * 3) + id];
 	auto mapInt = (HRDefault + (CHudVarScroll * 3) + id);
 	const char* texExtUI = "ui_";
 	const char* texExtOn = "_On";
@@ -1574,7 +1579,7 @@ const char* CHudUIThumbHandRString(int id, char* result)
 }
 const char* CHudUIThumbSonicBodyString(int id, char* result)
 {
-	auto mapChar = MAP_THUMB_SONICBODY[SBSnMaterial + (CHudVarScroll * 3) + id];
+	auto mapChar = MAP_FILE_SONICBODY[SBSnMaterial + (CHudVarScroll * 3) + id];
 	auto mapInt = (SBSnMaterial + (CHudVarScroll * 3) + id);
 	const char* texExtUI = "ui_";
 	const char* texExtVar = "_00";

@@ -158,7 +158,7 @@ SelectHandLType SelectHandL = SelectHandLType::HLDefault;
 SelectHandRType SelectHandR = SelectHandRType::HRDefault;
 SelectSonicBodyType SelectSonicBody = SelectSonicBodyType::SBSnMaterial;
 
-static std::map<int, const char*> MAP_THUMB_SHOE =
+static std::map<int, const char*> MAP_FILE_SHOE =
 {
 	{ ShDefault,			"ShDefault"},
 	{ ShClassic,			"ShClassic" },
@@ -197,7 +197,7 @@ static std::map<int, const char*> MAP_THUMB_SHOE =
 	{ ShOverflow01,			"Null" },
 	{ ShOverflow02,			"Null" },
 };
-static std::map<int, const char*> MAP_THUMB_BODY =
+static std::map<int, const char*> MAP_FILE_BODY =
 {
 	{ BdDefault,			"BdDefault"},
 	{ BdSA2Racing,			"BdSA2Racing" },
@@ -221,7 +221,7 @@ static std::map<int, const char*> MAP_THUMB_BODY =
 	{ BdOverflow01,			"Null" },
 	{ BdOverflow02,			"Null" },
 };
-static std::map<int, const char*> MAP_THUMB_HEAD =
+static std::map<int, const char*> MAP_FILE_HEAD =
 {
 	{ HeDefault,			"HeDefault"},
 	{ HeSA1Sunglass,		"HeSA1Sunglass" },
@@ -240,7 +240,7 @@ static std::map<int, const char*> MAP_THUMB_HEAD =
 	{ HeOverflow01,			"Null" },
 	{ HeOverflow02,			"Null" },
 };
-static std::map<int, const char*> MAP_THUMB_HANDL =
+static std::map<int, const char*> MAP_FILE_HANDL =
 {
 	{ HLDefault,			"HLDefault"},
 	{ HLSA1Crystal,			"HLSA1Crystal"},
@@ -267,7 +267,7 @@ static std::map<int, const char*> MAP_THUMB_HANDL =
 	{ HLOverflow01,			"Null" },
 	{ HLOverflow02,			"Null" },
 };
-static std::map<int, const char*> MAP_THUMB_HANDR =
+static std::map<int, const char*> MAP_FILE_HANDR =
 {
 	{ HRDefault,			"HRDefault"},
 	{ HRSA2Bounce,			"HRSA2Bounce"},
@@ -295,7 +295,7 @@ static std::map<int, const char*> MAP_THUMB_HANDR =
 	{ HROverflow01,			"Null" },
 	{ HROverflow02,			"Null" },
 };
-static std::map<int, const char*> MAP_THUMB_SONICBODY =
+static std::map<int, const char*> MAP_FILE_SONICBODY =
 {
 	{ SBSnMaterial,			"SBSnMaterial" },
 	{ SBSsnMaterial,		"SBSsnMaterial" },
@@ -421,6 +421,7 @@ bool NoBallJump = true;
 
 int HyperFrameCycle = 0;
 bool isRenderableCreated = false;
+bool isLoadModel = true;
 
 bool m_IsModelHide = false;
 void MsgModelHide(bool Enabled)
@@ -430,6 +431,171 @@ void MsgModelHide(bool Enabled)
 
 void MsgWildFire(int Enabled);
 void MsgJumpBall(int BallType);
+
+const char* CModelHeadString(char* result)
+{
+	auto mapChar = MAP_FILE_HEAD[SelectHead];
+	const char* texExtVar = "";
+	const char* texExt0 = "_00";
+	const char* texExt1 = "_01";
+	const char* texExt2 = "_02";
+	const char* texExt3 = "_03";
+	const char* texExt4 = "_04";
+	const char* texExt5 = "_05";
+	const char* texExt6 = "_06";
+	const char* texExt7 = "_07";
+	const char* texExt8 = "_08";
+	const char* texExt9 = "_09";
+	bool isHeSimulator = (SelectHead == HeSimulator);
+
+	if ((isHeSimulator && !HeSimulatorVariant))
+		texExtVar = texExt0;
+	else if ((isHeSimulator && HeSimulatorVariant))
+		texExtVar = texExt1;
+
+	sprintf(result, "chr_Sn_%s%s", mapChar, texExtVar);
+	//printf("chr_Sn_%s%s\n", mapChar, texExtVar);
+	return result;
+}
+const char* CModelBodyString(char* result)
+{
+	auto mapChar = MAP_FILE_BODY[SelectBody];
+	const char* texExtVar = "";
+	const char* texExt0 = "_00";
+	const char* texExt1 = "_01";
+	const char* texExt2 = "_02";
+	const char* texExt3 = "_03";
+	const char* texExt4 = "_04";
+	const char* texExt5 = "_05";
+	const char* texExt6 = "_06";
+	const char* texExt7 = "_07";
+	const char* texExt8 = "_08";
+	const char* texExt9 = "_09";
+	bool isBdDefault = (SelectBody == BdDefault);
+
+	if ((isBdDefault && !BdDefaultVariant))
+		texExtVar = texExt0;
+	else if ((isBdDefault && BdDefaultVariant))
+		texExtVar = texExt1;
+
+	sprintf(result, "chr_Sn_%s%s", mapChar, texExtVar);
+	//printf("chr_Sn_%s%s\n", mapChar, texExtVar);
+	return result;
+}
+const char* CModelHandLString(char* result)
+{
+	auto mapChar = MAP_FILE_HANDL[SelectHandL];
+	const char* texExtVar = "";
+	const char* texExt0 = "_00";
+	const char* texExt1 = "_01";
+	const char* texExt2 = "_02";
+	const char* texExt3 = "_03";
+	const char* texExt4 = "_04";
+	const char* texExt5 = "_05";
+	const char* texExt6 = "_06";
+	const char* texExt7 = "_07";
+	const char* texExt8 = "_08";
+	const char* texExt9 = "_09";
+
+	sprintf(result, "chr_Sn_%s%s", mapChar, texExtVar);
+	//printf("chr_Sn_%s%s\n", mapChar, texExtVar);
+	return result;
+}
+const char* CModelHandRString(char* result)
+{
+	auto mapChar = MAP_FILE_HANDR[SelectHandR];
+	const char* texExtVar = "";
+	const char* texExt0 = "_00";
+	const char* texExt1 = "_01";
+	const char* texExt2 = "_02";
+	const char* texExt3 = "_03";
+	const char* texExt4 = "_04";
+	const char* texExt5 = "_05";
+	const char* texExt6 = "_06";
+	const char* texExt7 = "_07";
+	const char* texExt8 = "_08";
+	const char* texExt9 = "_09";
+	bool isHRSA2Bounce = (SelectHandR == HRSA2Bounce);
+	if ((isHRSA2Bounce && !HRSA2BounceVariant))
+		texExtVar = texExt0;
+	else if ((isHRSA2Bounce && HRSA2BounceVariant))
+		texExtVar = texExt1;
+
+	sprintf(result, "chr_Sn_%s%s", mapChar, texExtVar);
+	//printf("chr_Sn_%s%s\n", mapChar, texExtVar);
+	return result;
+}
+const char* CModelShoeString(char* result)
+{
+	auto mapChar = MAP_FILE_SHOE[SelectShoes];
+	const char* texExtVar = "";
+	const char* texExt0 = "_00";
+	const char* texExt1 = "_01";
+	const char* texExt2 = "_02";
+	const char* texExt3 = "_03";
+	const char* texExt4 = "_04";
+	const char* texExt5 = "_05";
+	const char* texExt6 = "_06";
+	const char* texExt7 = "_07";
+	const char* texExt8 = "_08";
+	const char* texExt9 = "_09";
+	bool isShDefault = (SelectShoes == ShDefault);
+	bool isShDefaultLightS = (ShDefaultVariant == DefaultLightS);
+	bool isShSA2Beta = (SelectShoes == ShSA2Beta);
+	bool isShSA2BetaLightS = (ShSA2BetaVariant == SA2BetaLightS);
+	bool isShSA2Soap = (SelectShoes == ShSA2Soap);
+	bool isShSA2SoapDefault = (ShSA2SoapVariant == SA2Soap);
+	bool isShSA2SoapLightS = (ShSA2SoapVariant == SA2SoapLightS);
+	bool isShSA2SoapRacing = (ShSA2SoapVariant == SA2SoapRacing);
+	bool isSh06Gem = (SelectShoes == Sh06Gem);
+	bool isSh06GemDefault = (Sh06GemVariant == GemDefault);
+	bool isSh06GemRed = (Sh06GemVariant == GemRed);
+	bool isSh06GemBlue = (Sh06GemVariant == GemBlue);
+	bool isSh06GemGreen = (Sh06GemVariant == GemGreen);
+	bool isSh06GemPurple = (Sh06GemVariant == GemPurple);
+	bool isSh06GemSky = (Sh06GemVariant == GemSky);
+	bool isSh06GemWhite = (Sh06GemVariant == GemWhite);
+	bool isSh06GemYellow = (Sh06GemVariant == GemYellow);
+
+	if ((isShDefault && !isShDefaultLightS) || (isShSA2Beta && !isShSA2BetaLightS) || (isShSA2Soap && !isShSA2SoapDefault) || (isSh06Gem && isSh06GemDefault))
+		texExtVar = texExt0;
+	else if ((isShDefault && isShDefaultLightS) || (isShSA2Beta && isShSA2BetaLightS) || (isShSA2Soap && isShSA2SoapLightS) || (isSh06Gem && isSh06GemRed))
+		texExtVar = texExt1;
+	else if ((isShSA2Soap && isShSA2SoapRacing) || (isSh06Gem && isSh06GemBlue))
+		texExtVar = texExt2;
+	else if (isSh06Gem && isSh06GemGreen)
+		texExtVar = texExt3;
+	else if (isSh06Gem && isSh06GemPurple)
+		texExtVar = texExt4;
+	else if (isSh06Gem && isSh06GemSky)
+		texExtVar = texExt5;
+	else if (isSh06Gem && isSh06GemWhite)
+		texExtVar = texExt6;
+	else if (isSh06Gem && isSh06GemYellow)
+		texExtVar = texExt7;
+
+	sprintf(result, "chr_Sn_%s%s", mapChar, texExtVar);
+	//printf("chr_Sn_%s%s\n", mapChar, texExtVar);
+	return result;
+}
+const char* CModelEyelidString(char* result)
+{
+	const char* texExtVar = "";
+	const char* texExt0 = "EyeDefault";
+	const char* texExt1 = "EyeLash";
+	const char* texExt2 = "EyeSkin";
+
+	if (SelectEyelid == EyelidDefault)
+		texExtVar = texExt0;
+	else if (SelectEyelid == EyelidLashes)
+		texExtVar = texExt1;
+	else if (SelectEyelid == EyelidSkin)
+		texExtVar = texExt2;
+
+	sprintf(result, "chr_Sn_%s", texExtVar);
+	//printf("chr_Sn_%s%s\n", texExtVar);
+	return result;
+}
 
 //////Sonic Renderable
 class CustomizeSonicRenderable : public Sonic::CGameObject3D
@@ -467,6 +633,28 @@ public:
 		m_spElement->BindPose(pPlayer->m_spCharacterModel->m_spInstanceInfo->m_spPose);
 	}
 
+	void loadCustomRenderModel()
+	{
+		char ShBuffer[256];
+		char BdBuffer[256];
+		char HeBuffer[256];
+		char HLBuffer[256];
+		char HRBuffer[256];
+		char EyeBuffer[256];
+
+		if (isLoadModel)
+		{
+			RemoveRenderables();
+			addCustomRenderModel(CModelHeadString(HeBuffer), m_spElementSnHead);
+			addCustomRenderModel(CModelBodyString(BdBuffer), m_spElementSnBody);
+			addCustomRenderModel(CModelHandRString(HRBuffer), m_spElementSnHandR);
+			addCustomRenderModel(CModelHandLString(HLBuffer), m_spElementSnHandL);
+			addCustomRenderModel(CModelShoeString(ShBuffer), m_spElementSnShoes);
+			addCustomRenderModel(CModelEyelidString(EyeBuffer), m_spElementSnEyelid);
+			isLoadModel = false;
+		}
+	}
+
 	//////Renderable Funcs
 	void AddCallback(const Hedgehog::Base::THolder<Sonic::CWorld>& in_rWorldHolder,
 		Sonic::CGameDocument* in_pGameDocument, const boost::shared_ptr<Hedgehog::Database::CDatabase>& in_spDatabase) override
@@ -480,6 +668,12 @@ public:
 		const int playerID = GetGameDocument()->m_pMember->m_PlayerIDs.begin()[0];
 		const Sonic::Player::CPlayerSpeed* pPlayer = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID));
 		auto pPlayer_Invisible = (pPlayer->m_spCharacterModel->m_spInstanceInfo->m_Flags & Hedgehog::Mirage::eInstanceInfoFlags_Invisible) != 0;
+		//char ShBuffer[256];
+		//char BdBuffer[256];
+		//char HeBuffer[256];
+		//char HLBuffer[256];
+		//char HRBuffer[256];
+		//char EyeBuffer[256];
 
 		if (m_spElementSnHead != nullptr)
 		{
@@ -519,16 +713,18 @@ public:
 		bool PressedUp = input.IsTapped(Sonic::eKeyState_DpadUp);
 		bool PressedDown = input.IsTapped(Sonic::eKeyState_DpadDown);
 
-		if (PressedUp)
-			addCustomRenderModel("chr_Sonic_HeDefault", m_spElementSnHead);
-		if (PressedRight)
-			addCustomRenderModel("chr_Sonic_BdDefault_00", m_spElementSnBody);
-		if (PressedLeft)
-		{
-			RemoveRenderables();
-		}
-		if (PressedDown)
-			addCustomRenderModel("chr_Sonic_ShDefault_00", m_spElementSnShoes);
+		loadCustomRenderModel();
+
+		//if (PressedY)
+		//{
+		//	RemoveRenderables();
+		//	addCustomRenderModel(CModelHeadString(HeBuffer), m_spElementSnHead);
+		//	addCustomRenderModel(CModelBodyString(BdBuffer), m_spElementSnBody);
+		//	addCustomRenderModel(CModelHandRString(HRBuffer), m_spElementSnHandR);
+		//	addCustomRenderModel(CModelHandLString(HLBuffer), m_spElementSnHandL);
+		//	addCustomRenderModel(CModelShoeString(ShBuffer), m_spElementSnShoes);
+		//	addCustomRenderModel(CModelEyelidString(EyeBuffer), m_spElementSnEyelid);
+		//}
 	}
 
 	void KillCallback() override

@@ -596,6 +596,46 @@ const char* CModelEyelidString(char* result)
 	//printf("chr_Sn_%s%s\n", texExtVar);
 	return result;
 }
+const char* CMaterialBodyString(char* result)
+{
+	const char* texExtVar = "";
+	const char* texExtCustom = "sonic_gm_body"; //Custom
+	const char* texExtOG = "sonic_gm_body00"; //OG
+	const char* texExtS4E2 = "sonic_gm_body01"; //S4E2
+	const char* texExtRed = "sonic_gm_body02"; //Red
+	const char* texExtGreen = "sonic_gm_body03"; //Green
+	const char* texExtPink = "sonic_gm_body04"; //Pink
+	const char* texExtBlack = "sonic_gm_body05"; //Black
+
+	switch (SelectSnSonMat)
+	{
+	case SnMatOriginal:
+		texExtVar = texExtOG;
+		break;
+	case SnMatCustom:
+		texExtVar = texExtCustom;
+		break;
+	case SnMatS4E2:
+		texExtVar = texExtS4E2;
+		break;
+	case SnMatRed:
+		texExtVar = texExtRed;
+		break;
+	case SnMatGreen:
+		texExtVar = texExtGreen;
+		break;
+	case SnMatPink:
+		texExtVar = texExtPink;
+		break;
+	case SnMatBlack:
+		texExtVar = texExtBlack;
+		break;
+	}
+
+	sprintf(result, "%s", texExtVar);
+	//printf("%s%s\n", mapChar, texExtVar);
+	return result;
+}
 
 const char* ArchiveHeadString(char* result)
 {
@@ -781,6 +821,10 @@ public:
 	boost::shared_ptr<Hedgehog::Database::CDatabase> m_spArDatabase;
 	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spArHeadMatData;
 	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spArHeadReplaceMatData;
+	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spArBodyMatData;
+	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spArBodyReplaceMatData;
+	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spArEyelidMatData;
+	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spArEyelidReplaceMatData;
 
 	struct arDataStruct
 	{
@@ -835,14 +879,10 @@ public:
 
 	void addCustomRenderMaterial(boost::shared_ptr<hh::mr::CSingleElement>& m_spElement, boost::shared_ptr<Hedgehog::Mirage::CMaterialData> materialData, boost::shared_ptr<Hedgehog::Mirage::CMaterialData> materialReplaceData)
 	{
-		auto in_spDatabase = GetGameDocument()->m_pMember->m_spDatabase;
-		auto sonic_gm_body_custom = hh::mr::CMirageDatabaseWrapper(in_spDatabase.get()).GetMaterialData("sonic_gm_body"); //Custom Fur
-		auto sonic_gm_body_red = hh::mr::CMirageDatabaseWrapper(in_spDatabase.get()).GetMaterialData("sonic_gm_body02");
-
 		if (!materialData || !materialData->IsMadeAll() || !materialReplaceData || !materialReplaceData->IsMadeAll())
 			return;
 
-		m_spElement->m_MaterialMap.emplace(sonic_gm_body_custom.get(), sonic_gm_body_red);
+		m_spElement->m_MaterialMap.emplace(materialData.get(), materialReplaceData);
 	}
 
 	void loadCustomRenderModel()
@@ -853,20 +893,33 @@ public:
 		char HLBuffer[256];
 		char HRBuffer[256];
 		char EyeBuffer[256];
+		arDataStruct arHeadData;
+		arDataStruct arBodyData;
+		arDataStruct arEyelidData;
 
 		if (isLoadModel)
 		{
-			RemoveRenderables();
+			arHeadData = loadArchiveDatabase(ArchiveHeadString(HeBuffer), CModelHeadString(HeBuffer), "sonic_gm_body", CMaterialBodyString(HeBuffer));
+			arBodyData = loadArchiveDatabase(ArchiveBodyString(BdBuffer), CModelBodyString(BdBuffer), "sonic_gm_body", CMaterialBodyString(BdBuffer));
+			arEyelidData = loadArchiveDatabase(ArchiveEyelidString(HeBuffer), CModelEyelidString(HeBuffer), "sonic_gm_body", CMaterialBodyString(HeBuffer));
 
-			m_spArHeadMdlData = loadArchiveDatabase(ArchiveHeadString(HeBuffer), CModelHeadString(HeBuffer), "", "").m_spArModelData;
-			m_spArBodyMdlData = loadArchiveDatabase(ArchiveBodyString(BdBuffer), CModelBodyString(BdBuffer), "", "").m_spArModelData;
 			m_spArShoesMdlData = loadArchiveDatabase(ArchiveShoeString(ShBuffer), CModelShoeString(ShBuffer), "", "").m_spArModelData;
 			m_spArHandRMdlData = loadArchiveDatabase(ArchiveHandRString(HRBuffer), CModelHandRString(HRBuffer), "", "").m_spArModelData;
 			m_spArHandLMdlData = loadArchiveDatabase(ArchiveHandLString(HLBuffer), CModelHandLString(HLBuffer), "", "").m_spArModelData;
-			m_spArEyelidMdlData = loadArchiveDatabase(ArchiveEyelidString(EyeBuffer), CModelEyelidString(EyeBuffer), "", "").m_spArModelData;
 
-			m_spArHeadMatData = loadArchiveDatabase("", "", "sonic_gm_body", "sonic_gm_body02").m_spArMaterialData;
+			m_spArHeadMdlData = arHeadData.m_spArModelData;
+			m_spArHeadMatData = arHeadData.m_spArMaterialData;
+			m_spArHeadReplaceMatData = arHeadData.m_spArReplaceMaterialData;
 
+			m_spArBodyMdlData = arBodyData.m_spArModelData;
+			m_spArBodyMatData = arBodyData.m_spArMaterialData;
+			m_spArBodyReplaceMatData = arBodyData.m_spArReplaceMaterialData;
+
+			m_spArEyelidMdlData = arEyelidData.m_spArModelData;
+			m_spArEyelidMatData = arEyelidData.m_spArMaterialData;
+			m_spArEyelidReplaceMatData = arEyelidData.m_spArReplaceMaterialData;
+
+			RemoveRenderables();
 			isLoadModel = false;
 		}
 
@@ -906,6 +959,18 @@ public:
 			addCustomRenderMaterial(m_spElementSnHead, m_spArHeadMatData, m_spArHeadReplaceMatData);
 			m_spArHeadMatData = nullptr;
 			m_spArHeadReplaceMatData = nullptr;
+		}
+		if (m_spArBodyMatData != nullptr && m_spArBodyMatData->IsMadeAll() && m_spArBodyReplaceMatData != nullptr && m_spArBodyReplaceMatData->IsMadeAll())
+		{
+			addCustomRenderMaterial(m_spElementSnBody, m_spArBodyMatData, m_spArBodyReplaceMatData);
+			m_spArBodyMatData = nullptr;
+			m_spArBodyReplaceMatData = nullptr;
+		}
+		if (m_spArEyelidMatData != nullptr && m_spArEyelidMatData->IsMadeAll() && m_spArEyelidReplaceMatData != nullptr && m_spArEyelidReplaceMatData->IsMadeAll())
+		{
+			addCustomRenderMaterial(m_spElementSnEyelid, m_spArEyelidMatData, m_spArEyelidReplaceMatData);
+			m_spArEyelidMatData = nullptr;
+			m_spArEyelidReplaceMatData = nullptr;
 		}
 	}
 

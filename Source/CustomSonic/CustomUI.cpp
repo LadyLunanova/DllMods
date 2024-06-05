@@ -141,7 +141,7 @@ void CHudUIOpen(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo&
 	if (!obBBCustomUI) //Create UI project if it doesn't exist
 		CreateFittingUI(This, Edx, in_rUpdateInfo);
 
-	isLoadModel = true;
+	//isLoadModel = true;
 	//Main UI
 	scBBGui = prFittingScreenBB->CreateScene("chara");
 	scBBGui->SetMotion("Intro_Anim");
@@ -945,7 +945,7 @@ void CHudUIMove(int Type)
 
 void CHudUIAlt()
 {
-	isLoadModel = true;
+	//isLoadModel = true;
 	switch (CHudTabSel)
 	{
 	case UIPartShoes:
@@ -963,6 +963,7 @@ void CHudUIAlt()
 			}
 			CHudUISFXAlt();
 			CHudUICursorAnim();
+			isLoadModel = true;
 			return;
 			break;
 		case ShSA2Beta:
@@ -977,6 +978,7 @@ void CHudUIAlt()
 			}
 			CHudUISFXAlt();
 			CHudUICursorAnim();
+			isLoadModel = true;
 			return;
 			break;
 		case ShSA2Soap:
@@ -994,6 +996,7 @@ void CHudUIAlt()
 			}
 			CHudUISFXAlt();
 			CHudUICursorAnim();
+			isLoadModel = true;
 			return;
 			break;
 		case Sh06Gem:
@@ -1026,6 +1029,7 @@ void CHudUIAlt()
 			}
 			CHudUISFXAlt();
 			CHudUICursorAnim();
+			isLoadModel = true;
 			return;
 			break;
 		}
@@ -1038,24 +1042,28 @@ void CHudUIAlt()
 			if (BdDefaultVariant == false) BdDefaultVariant = true; else BdDefaultVariant = false;
 			CHudUISFXAlt();
 			CHudUICursorAnim();
+			isLoadModel = true;
 			return;
 			break;
 		case BdWildFire:
 			if (BdWildFireVariant == false) BdWildFireVariant = true; else BdWildFireVariant = false;
 			CHudUISFXAlt();
 			CHudUICursorAnim();
+			isLoadModel = true;
 			return;
 			break;
 		case BdScarf:
 			if (BdScarfVariant == false) BdScarfVariant = true; else BdScarfVariant = false;
 			CHudUISFXAlt();
 			CHudUICursorAnim();
+			isLoadModel = true;
 			return;
 			break;
 		case BdMovieSkin:
 			if (BdMovieVariant == false) BdMovieVariant = true; else BdMovieVariant = false;
 			CHudUISFXAlt();
 			CHudUICursorAnim();
+			isLoadModel = true;
 			return;
 			break;
 		}
@@ -1068,6 +1076,7 @@ void CHudUIAlt()
 			if (HeSimulatorVariant == false) HeSimulatorVariant = true; else HeSimulatorVariant = false;
 			CHudUISFXAlt();
 			CHudUICursorAnim();
+			isLoadModel = true;
 			return;
 			break;
 		}
@@ -1080,6 +1089,7 @@ void CHudUIAlt()
 			if (HRSA2BounceVariant == false) HRSA2BounceVariant = true; else HRSA2BounceVariant = false;
 			CHudUISFXAlt();
 			CHudUICursorAnim();
+			isLoadModel = true;
 			return;
 			break;
 		}
@@ -1175,7 +1185,7 @@ void CHudUISwitch(int Type)
 	if (Type == 1)
 	{
 		IsInMenuChange = false;
-		isLoadModel = true;
+		//isLoadModel = true;
 		CHudVarVisSel = 0;
 		CHudVarScroll = 0;
 		CHudVarTrueSel = 0;
@@ -1391,7 +1401,7 @@ void CHudUIExit(int Type)
 	{
 		IsInMenuExit = false;
 		IsInMenu = false;
-		isLoadModel = true;
+		//isLoadModel = true;
 		MemoryOpenTimer = 1800;
 		*ENABLE_BLUR = prevblur;
 		FILE* pFile = fopen(saveFilePath.c_str(), "wb");

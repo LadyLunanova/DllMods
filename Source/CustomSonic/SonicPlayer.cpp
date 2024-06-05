@@ -249,8 +249,8 @@ public:
 
 		if (m_spElement->m_Enabled && isVisible && !typeFlicker)
 		{
-			//pPlayer->m_spCharacterModel->m_Enabled = false;
-			isSA1FlickerHide = true;
+			pPlayer->m_spCharacterModel->m_Enabled = false;
+			//isSA1FlickerHide = true;
 			isVisible = false;
 		}
 
@@ -263,15 +263,15 @@ public:
 
 		if (typeFlicker)
 		{
-			isSA1FlickerHide = !isVisible;
-			//pPlayer->m_spCharacterModel->m_Enabled = isVisible;
+			//isSA1FlickerHide = !isVisible;
+			pPlayer->m_spCharacterModel->m_Enabled = isVisible;
 			isVisible = !isVisible;
 			m_spElement->m_Enabled = isVisible;
 		}
 		else if (!m_spElement->m_Enabled)
 		{
-			isSA1FlickerHide = true;
-			//pPlayer->m_spCharacterModel->m_Enabled = false;
+			//isSA1FlickerHide = true;
+			pPlayer->m_spCharacterModel->m_Enabled = false;
 			isVisible = false;
 			m_spElement->m_Enabled = true;
 		}

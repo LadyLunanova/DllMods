@@ -4,6 +4,9 @@
 #include "SonicPlayer.h"
 
 void ReadConfig();
+void ReadJson(std::string jsonFilePath);
+static std::string jsonFilePath;
+static std::string jsonFilePathHead;
 
 EXPORT void PreInit()
 {
@@ -11,11 +14,15 @@ EXPORT void PreInit()
 }
 EXPORT void Init(ModInfo_t* modInfo)
 {
+	jsonFilePath = modInfo->CurrentMod->Path;
+	jsonFilePath.erase(jsonFilePath.find_last_of("\\/") + 1);
+	jsonFilePathHead = (jsonFilePath += "CustomizeHead.json");
 	InstallSetup::applyPatches();
 	InstallCustomUI::applyPatches(modInfo);
 	InstallSonicPlayer::applyPatches();
-	ReadConfig();
 	//MessageBoxA(nullptr, "Init Halt", "Window", 0);
+	ReadConfig();
+	ReadJson(jsonFilePathHead);
 }
 EXPORT void PostInit()
 {

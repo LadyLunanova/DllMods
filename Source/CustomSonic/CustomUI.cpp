@@ -129,6 +129,10 @@ void CHudUIOpen(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo&
 	auto rowY3 = 0.7046f;
 
 	CHudVarHeMaxScroll = ((((s_ItemDataHead.size() + 2) / 3 - 3) >= 1) ? ((s_ItemDataHead.size() + 2) / 3 - 3) : (0));
+	CHudVarBdMaxScroll = ((((s_ItemDataBody.size() + 2) / 3 - 3) >= 1) ? ((s_ItemDataBody.size() + 2) / 3 - 3) : (0));
+	CHudVarShMaxScroll = ((((s_ItemDataShoes.size() + 2) / 3 - 3) >= 1) ? ((s_ItemDataShoes.size() + 2) / 3 - 3) : (0));
+	CHudVarHRMaxScroll = ((((s_ItemDataHandR.size() + 2) / 3 - 3) >= 1) ? ((s_ItemDataHandR.size() + 2) / 3 - 3) : (0));
+	CHudVarHLMaxScroll = ((((s_ItemDataHandL.size() + 2) / 3 - 3) >= 1) ? ((s_ItemDataHandL.size() + 2) / 3 - 3) : (0));
 
 	ReadINI(saveFilePath);
 	prevblur = *ENABLE_BLUR;
@@ -906,7 +910,7 @@ void CHudUIAlt()
 	switch (CHudTabSel)
 	{
 	case UIPartShoes:
-		if (s_ItemDataShoes[CHudVarTrueSel].altcount >= 1)
+		if (!(CHudVarTrueSel >= s_ItemDataShoes.size()) && (s_ItemDataShoes[CHudVarTrueSel].altcount >= 1))
 		{
 			if (!(s_ItemDataShoes[CHudVarTrueSel].altselect >= s_ItemDataShoes[CHudVarTrueSel].altcount))
 				s_ItemDataShoes[CHudVarTrueSel].altselect++;
@@ -919,7 +923,7 @@ void CHudUIAlt()
 		return;
 		break;
 	case UIPartBody:
-		if (s_ItemDataBody[CHudVarTrueSel].altcount >= 1)
+		if (!(CHudVarTrueSel >= s_ItemDataBody.size()) && (s_ItemDataBody[CHudVarTrueSel].altcount >= 1))
 		{
 			if (!(s_ItemDataBody[CHudVarTrueSel].altselect >= s_ItemDataBody[CHudVarTrueSel].altcount))
 				s_ItemDataBody[CHudVarTrueSel].altselect++;
@@ -932,7 +936,7 @@ void CHudUIAlt()
 		return;
 		break;
 	case UIPartHead:
-		if (s_ItemDataHead[CHudVarTrueSel].altcount >= 1)
+		if (!(CHudVarTrueSel >= s_ItemDataHead.size()) && (s_ItemDataHead[CHudVarTrueSel].altcount >= 1))
 		{
 			if (!(s_ItemDataHead[CHudVarTrueSel].altselect >= s_ItemDataHead[CHudVarTrueSel].altcount))
 				s_ItemDataHead[CHudVarTrueSel].altselect++;
@@ -945,7 +949,7 @@ void CHudUIAlt()
 		return;
 		break;
 	case UIPartHandR:
-		if (s_ItemDataHandR[CHudVarTrueSel].altcount >= 1)
+		if (!(CHudVarTrueSel >= s_ItemDataHandR.size()) && (s_ItemDataHandR[CHudVarTrueSel].altcount >= 1))
 		{
 			if (!(s_ItemDataHandR[CHudVarTrueSel].altselect >= s_ItemDataHandR[CHudVarTrueSel].altcount))
 				s_ItemDataHandR[CHudVarTrueSel].altselect++;
@@ -958,7 +962,7 @@ void CHudUIAlt()
 		return;
 		break;
 	case UIPartHandL:
-		if (s_ItemDataHandL[CHudVarTrueSel].altcount >= 1)
+		if (!(CHudVarTrueSel >= s_ItemDataHandL.size()) && (s_ItemDataHandL[CHudVarTrueSel].altcount >= 1))
 		{
 			if (!(s_ItemDataHandL[CHudVarTrueSel].altselect >= s_ItemDataHandL[CHudVarTrueSel].altcount))
 				s_ItemDataHandL[CHudVarTrueSel].altselect++;
@@ -1871,10 +1875,11 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 			}
 
 			////------Handle Alt Prompt
+
 			switch (CHudTabSel)
 			{
 			case UIPartShoes:
-				if (s_ItemDataShoes[CHudVarTrueSel].altcount >= 1)
+				if (!(CHudVarTrueSel >= s_ItemDataShoes.size()) && (s_ItemDataShoes[CHudVarTrueSel].altcount >= 1))
 				{
 					scBBIcon->GetNode("star")->SetPatternIndex(1);
 					if (IsUnleashedHUD && SWAOpenTimer <= 0)
@@ -1888,7 +1893,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 				}
 				break;
 			case UIPartBody:
-				if (s_ItemDataBody[CHudVarTrueSel].altcount >= 1)
+				if (!(CHudVarTrueSel >= s_ItemDataBody.size()) && (s_ItemDataBody[CHudVarTrueSel].altcount >= 1))
 				{
 					scBBIcon->GetNode("star")->SetPatternIndex(1);
 					if (IsUnleashedHUD && SWAOpenTimer <= 0)
@@ -1902,7 +1907,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 				}
 				break;
 			case UIPartHandR:
-				if (s_ItemDataHandR[CHudVarTrueSel].altcount >= 1)
+				if (!(CHudVarTrueSel >= s_ItemDataHandR.size()) && (s_ItemDataHandR[CHudVarTrueSel].altcount >= 1))
 				{
 					scBBIcon->GetNode("star")->SetPatternIndex(1);
 					if (IsUnleashedHUD && SWAOpenTimer <= 0)
@@ -1916,7 +1921,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 				}
 				break;
 			case UIPartHandL:
-				if (s_ItemDataHandL[CHudVarTrueSel].altcount >= 1)
+				if (!(CHudVarTrueSel >= s_ItemDataHandL.size()) && (s_ItemDataHandL[CHudVarTrueSel].altcount >= 1))
 				{
 					scBBIcon->GetNode("star")->SetPatternIndex(1);
 					if (IsUnleashedHUD && SWAOpenTimer <= 0)
@@ -1930,7 +1935,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 				}
 				break;
 			case UIPartHead:
-				if (s_ItemDataHead[CHudVarTrueSel].altcount >= 1)
+				if (!(CHudVarTrueSel >= s_ItemDataHead.size()) && (s_ItemDataHead[CHudVarTrueSel].altcount >= 1))
 				{
 					scBBIcon->GetNode("star")->SetPatternIndex(1);
 					if (IsUnleashedHUD && SWAOpenTimer <= 0)

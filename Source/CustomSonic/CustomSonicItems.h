@@ -12,7 +12,7 @@ struct ItemDataHead
 	int altselect;
 	int hideflags;
 };
-static std::vector<ItemDataHead> s_ItemDataHead;
+inline std::vector<ItemDataHead> s_ItemDataHead;
 
 struct ItemDataBody
 {
@@ -21,7 +21,7 @@ struct ItemDataBody
 	int altselect;
 	int hideflags;
 };
-static std::vector<ItemDataBody> s_ItemDataBody;
+inline std::vector<ItemDataBody> s_ItemDataBody;
 
 struct ItemDataShoes
 {
@@ -30,7 +30,7 @@ struct ItemDataShoes
 	int altselect;
 	int hideflags;
 };
-static std::vector<ItemDataShoes> s_ItemDataShoes;
+inline std::vector<ItemDataShoes> s_ItemDataShoes;
 
 struct ItemDataHandR
 {
@@ -39,7 +39,7 @@ struct ItemDataHandR
 	int altselect;
 	int hideflags;
 };
-static std::vector<ItemDataHandR> s_ItemDataHandR;
+inline std::vector<ItemDataHandR> s_ItemDataHandR;
 
 struct ItemDataHandL
 {
@@ -48,7 +48,7 @@ struct ItemDataHandL
 	int altselect;
 	int hideflags;
 };
-static std::vector<ItemDataHandL> s_ItemDataHandL;
+inline std::vector<ItemDataHandL> s_ItemDataHandL;
 
 int SelectHeadData = 0;
 int SelectBodyData = 0;

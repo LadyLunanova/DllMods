@@ -601,7 +601,7 @@ const char* CModelEyelidString(char* result)
 }
 const char* CMaterialBodyString(char* result)
 {
-	const char* texExtVar = "";
+	const char* texExtVar = "chr_sn_body_original";
 	const char* texExtOG = "chr_sn_body_original"; //OG
 	const char* texExtCustom = "chr_sn_body_custom"; //Custom
 	const char* texExtS4E2 = "chr_sn_body_s4e2"; //S4E2
@@ -661,7 +661,7 @@ const char* ArchiveHeadString(char* result)
 	else if ((isHeSimulator && HeSimulatorVariant))
 		texExtVar = texExt1;
 
-	sprintf(result, "ctp_head/%s%s", mapChar, texExtVar);
+	sprintf(result, "Customize/ctp_Head/%s%s", mapChar, texExtVar);
 	//printf("%s%s\n", mapChar, texExtVar);
 	return result;
 }
@@ -686,7 +686,7 @@ const char* ArchiveBodyString(char* result)
 	else if ((isBdDefault && BdDefaultVariant))
 		texExtVar = texExt1;
 
-	sprintf(result, "ctp_body/%s%s", mapChar, texExtVar);
+	sprintf(result, "Customize/ctp_Body/%s%s", mapChar, texExtVar);
 	//printf("%s%s\n", mapChar, texExtVar);
 	return result;
 }
@@ -739,7 +739,7 @@ const char* ArchiveShoeString(char* result)
 	else if (isSh06Gem && isSh06GemYellow)
 		texExtVar = texExt7;
 
-	sprintf(result, "ctp_shoes/%s%s", mapChar, texExtVar);
+	sprintf(result, "Customize/ctp_Shoes/%s%s", mapChar, texExtVar);
 	//printf("%s%s\n", mapChar, texExtVar);
 	return result;
 }
@@ -763,7 +763,7 @@ const char* ArchiveHandRString(char* result)
 	else if ((isHRSA2Bounce && HRSA2BounceVariant))
 		texExtVar = texExt1;
 
-	sprintf(result, "ctp_glove_r/%s%s", mapChar, texExtVar);
+	sprintf(result, "Customize/ctp_Hand_R/%s%s", mapChar, texExtVar);
 	//printf("%s%s\n", mapChar, texExtVar);
 	return result;
 }
@@ -782,7 +782,7 @@ const char* ArchiveHandLString(char* result)
 	const char* texExt8 = "_08";
 	const char* texExt9 = "_09";
 
-	sprintf(result, "ctp_glove_l/%s%s", mapChar, texExtVar);
+	sprintf(result, "Customize/ctp_Hand_L/%s%s", mapChar, texExtVar);
 	//printf("%s%s\n", mapChar, texExtVar);
 	return result;
 }
@@ -800,7 +800,7 @@ const char* ArchiveEyelidString(char* result)
 	else if (SelectEyelid == EyelidSkin)
 		texExtVar = texExt2;
 
-	sprintf(result, "bdy_body/%s", texExtVar);
+	sprintf(result, "Customize/bdy_Eyelid/%s", texExtVar);
 	//printf("%s%s\n", mapChar, texExtVar);
 	return result;
 }
@@ -902,9 +902,9 @@ public:
 
 		if (isLoadModel)
 		{
-			arHeadData = loadArchiveDatabase(ArchiveHeadString(HeBuffer), CModelHeadString(HeBuffer), "sonic_gm_body", CMaterialBodyString(HeBuffer));
-			arBodyData = loadArchiveDatabase(ArchiveBodyString(BdBuffer), CModelBodyString(BdBuffer), "sonic_gm_body", CMaterialBodyString(BdBuffer));
-			arEyelidData = loadArchiveDatabase(ArchiveEyelidString(HeBuffer), CModelEyelidString(HeBuffer), "sonic_gm_body", CMaterialBodyString(HeBuffer));
+			arHeadData = loadArchiveDatabase(ArchiveHeadString(HeBuffer), CModelHeadString(HeBuffer), "chr_sn_body_original", CMaterialBodyString(HeBuffer));
+			arBodyData = loadArchiveDatabase(ArchiveBodyString(BdBuffer), CModelBodyString(BdBuffer), "chr_sn_body_original", CMaterialBodyString(BdBuffer));
+			arEyelidData = loadArchiveDatabase(ArchiveEyelidString(HeBuffer), CModelEyelidString(HeBuffer), "chr_sn_body_original", CMaterialBodyString(HeBuffer));
 
 			m_spArShoesMdlData = loadArchiveDatabase(ArchiveShoeString(ShBuffer), CModelShoeString(ShBuffer), "", "").m_spArModelData;
 			m_spArHandRMdlData = loadArchiveDatabase(ArchiveHandRString(HRBuffer), CModelHandRString(HRBuffer), "", "").m_spArModelData;
@@ -1437,7 +1437,7 @@ void ItemVisibilityHandler()
 
 }
 
-void ReadJson(std::string jsonFilePath)
+void ReadJson(std::string jsonFilePath, int cCat)
 {
 	std::ifstream stream(jsonFilePath);
 	if (stream.is_open())

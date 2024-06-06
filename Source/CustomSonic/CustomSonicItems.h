@@ -5,16 +5,11 @@ using nlohmann::json;
 
 ////------Item Setup------////
 
-int itemCountHead = 0;
-int itemCountBody = 0;
-int itemCountShoes = 0;
-int itemCountHandR = 0;
-int itemCountHandL = 0;
-
 struct ItemDataHead
 {
 	std::string name;
 	int altcount;
+	int altselect;
 	int hideflags;
 };
 static std::vector<ItemDataHead> s_ItemDataHead;
@@ -23,6 +18,7 @@ struct ItemDataBody
 {
 	std::string name;
 	int altcount;
+	int altselect;
 	int hideflags;
 };
 static std::vector<ItemDataBody> s_ItemDataBody;
@@ -31,6 +27,7 @@ struct ItemDataShoes
 {
 	std::string name;
 	int altcount;
+	int altselect;
 	int hideflags;
 };
 static std::vector<ItemDataShoes> s_ItemDataShoes;
@@ -39,6 +36,7 @@ struct ItemDataHandR
 {
 	std::string name;
 	int altcount;
+	int altselect;
 	int hideflags;
 };
 static std::vector<ItemDataHandR> s_ItemDataHandR;
@@ -47,148 +45,156 @@ struct ItemDataHandL
 {
 	std::string name;
 	int altcount;
+	int altselect;
 	int hideflags;
 };
 static std::vector<ItemDataHandL> s_ItemDataHandL;
 
+int SelectHeadData = 0;
+int SelectBodyData = 0;
+int SelectShoesData = 0;
+int SelectHandRData = 0;
+int SelectHandLData = 0;
+
 ////------Hardcoded Item Setup------////
-enum SelectShoeType
-{
-	ShDefault, //Has Lightspeed variant
-	ShClassic,
-	ShSA1,
-	ShSA1LightS,
-	ShSA2Beta, //Has Lightspeed variant
-	ShSA2Soap, //Has Lightspeed and racing variants
-	ShRiders,
-	Sh06,
-	Sh06Gem, //has 7 color alts
-	ShArchie,
-	ShExCal,  //TBA
-	ShSUAirboost,
-	ShSULightS,
-	ShSUStomp,
-	ShSUWallJmp,
-	ShSUWerehog,
-	ShSUZoney,
-	ShSimulator,
-	ShLink,
-	ShBoom,
-	ShSpeedSlugger, //TBA
-	ShSpeedPirate, //TBA
-	ShSmash, //TBA
-	Sh2020Running, //TBA
-	Sh2020Horse, //TBA
-	Sh2020Karate, //TBA
-	ShPumas,
-	ShSFDeluxe,
-	ShSFKorone,
-	ShSFMonsterHunter,
-	ShPrmNewYoke, //TBA
-	ShPrmBoscageMaze, //TBA
-	ShPrmNoPlace, //TBA
-	ShOverflow00,
-	ShOverflow01,
-	ShOverflow02,
-};
-enum SelectBodyType
-{
-	BdDefault, //Blue Arms
-	BdSA2Racing,
-	BdWildFire, //Blue Arms
-	BdExCal,  //TBA
-	BdSimulator,
-	BdLink,
-	BdScarf, //Blue Arms
-	BdSpeedSlugger, //TBA
-	BdSpeedPirate, //TBA
-	Bd2020SwimVest,
-	Bd2020SurfSuit,
-	Bd2020Horse,
-	Bd2020Running, //TBA
-	Bd2020Fence, //TBA
-	BdMovieSkin, //Blue Arms
-	BdSFMonsterHunter,
-	BdSFMonsterHunterF,
-	BdSFHoliday,
-	BdOverflow00,
-	BdOverflow01,
-	BdOverflow02,
-};
-enum SelectHeadType
-{
-	HeDefault,
-	HeSA1Sunglass,
-	HeRiders,
-	HeHeadphones,
-	HeExCal,  //TBA
-	HeSimulator,
-	HeLink,
-	HeBoom,
-	HeSpeedSlugger, //TBA
-	HeSpeedPirate, //TBA
-	HeSFMonsterHunter,
-	HeSFMonsterHunterF,
-	HeSFHoliday,
-	HeOverflow00,
-	HeOverflow01,
-	HeOverflow02,
-};
-enum SelectHandLType
-{
-	HLDefault,
-	HLSA1Crystal,
-	HLSA2FlameRing,
-	HLSA2Racing,
-	HLRiders,
-	HL06Bounce,
-	HLExCal,  //TBA
-	HLChip,
-	HLSimulator,
-	HLLink,
-	HLBoom,
-	HLSpeedSlugger, //TBA
-	HLSpeedPirate, //TBA
-	HLSmash, //TBA
-	HL2020Karate, //TBA
-	HLSFDeluxe,
-	HLSFKorone,
-	HLSFMonsterHunter,
-	HLPrmNewYoke, //TBA
-	HLPrmBoscageMaze, //TBA
-	HLPrmNoPlace, //TBA
-	HLOverflow00,
-	HLOverflow01,
-	HLOverflow02,
-};
-enum SelectHandRType
-{
-	HRDefault,
-	HRSA2Bounce,
-	HRSA2Racing,
-	HRRiders,
-	HRRidersArkCosmos,
-	HR06Homing,
-	HRSecretRing,
-	HRGauntlet,
-	HRExCal,  //TBA
-	HRSimulator,
-	HRLink,
-	HRBoom,
-	HRSpeedSlugger, //TBA
-	HRSpeedPirate, //TBA
-	HRSmash, //TBA
-	HR2020Karate, //TBA
-	HRSFDeluxe,
-	HRSFKorone,
-	HRSFMonsterHunter,
-	HRPrmNewYoke, //TBA
-	HRPrmBoscageMaze, //TBA
-	HRPrmNoPlace, //TBA
-	HROverflow00,
-	HROverflow01,
-	HROverflow02,
-};
+
+//enum SelectShoeType
+//{
+//	ShDefault, //Has Lightspeed variant
+//	ShClassic,
+//	ShSA1,
+//	ShSA1LightS,
+//	ShSA2Beta, //Has Lightspeed variant
+//	ShSA2Soap, //Has Lightspeed and racing variants
+//	ShRiders,
+//	Sh06,
+//	Sh06Gem, //has 7 color alts
+//	ShArchie,
+//	ShExCal,  //TBA
+//	ShSUAirboost,
+//	ShSULightS,
+//	ShSUStomp,
+//	ShSUWallJmp,
+//	ShSUWerehog,
+//	ShSUZoney,
+//	ShSimulator,
+//	ShLink,
+//	ShBoom,
+//	ShSpeedSlugger, //TBA
+//	ShSpeedPirate, //TBA
+//	ShSmash, //TBA
+//	Sh2020Running, //TBA
+//	Sh2020Horse, //TBA
+//	Sh2020Karate, //TBA
+//	ShPumas,
+//	ShSFDeluxe,
+//	ShSFKorone,
+//	ShSFMonsterHunter,
+//	ShPrmNewYoke, //TBA
+//	ShPrmBoscageMaze, //TBA
+//	ShPrmNoPlace, //TBA
+//	ShOverflow00,
+//	ShOverflow01,
+//	ShOverflow02,
+//};
+//enum SelectBodyType
+//{
+//	BdDefault, //Blue Arms
+//	BdSA2Racing,
+//	BdWildFire, //Blue Arms
+//	BdExCal,  //TBA
+//	BdSimulator,
+//	BdLink,
+//	BdScarf, //Blue Arms
+//	BdSpeedSlugger, //TBA
+//	BdSpeedPirate, //TBA
+//	Bd2020SwimVest,
+//	Bd2020SurfSuit,
+//	Bd2020Horse,
+//	Bd2020Running, //TBA
+//	Bd2020Fence, //TBA
+//	BdMovieSkin, //Blue Arms
+//	BdSFMonsterHunter,
+//	BdSFMonsterHunterF,
+//	BdSFHoliday,
+//	BdOverflow00,
+//	BdOverflow01,
+//	BdOverflow02,
+//};
+//enum SelectHeadType
+//{
+//	HeDefault,
+//	HeSA1Sunglass,
+//	HeRiders,
+//	HeHeadphones,
+//	HeExCal,  //TBA
+//	HeSimulator,
+//	HeLink,
+//	HeBoom,
+//	HeSpeedSlugger, //TBA
+//	HeSpeedPirate, //TBA
+//	HeSFMonsterHunter,
+//	HeSFMonsterHunterF,
+//	HeSFHoliday,
+//	HeOverflow00,
+//	HeOverflow01,
+//	HeOverflow02,
+//};
+//enum SelectHandLType
+//{
+//	HLDefault,
+//	HLSA1Crystal,
+//	HLSA2FlameRing,
+//	HLSA2Racing,
+//	HLRiders,
+//	HL06Bounce,
+//	HLExCal,  //TBA
+//	HLChip,
+//	HLSimulator,
+//	HLLink,
+//	HLBoom,
+//	HLSpeedSlugger, //TBA
+//	HLSpeedPirate, //TBA
+//	HLSmash, //TBA
+//	HL2020Karate, //TBA
+//	HLSFDeluxe,
+//	HLSFKorone,
+//	HLSFMonsterHunter,
+//	HLPrmNewYoke, //TBA
+//	HLPrmBoscageMaze, //TBA
+//	HLPrmNoPlace, //TBA
+//	HLOverflow00,
+//	HLOverflow01,
+//	HLOverflow02,
+//};
+//enum SelectHandRType
+//{
+//	HRDefault,
+//	HRSA2Bounce,
+//	HRSA2Racing,
+//	HRRiders,
+//	HRRidersArkCosmos,
+//	HR06Homing,
+//	HRSecretRing,
+//	HRGauntlet,
+//	HRExCal,  //TBA
+//	HRSimulator,
+//	HRLink,
+//	HRBoom,
+//	HRSpeedSlugger, //TBA
+//	HRSpeedPirate, //TBA
+//	HRSmash, //TBA
+//	HR2020Karate, //TBA
+//	HRSFDeluxe,
+//	HRSFKorone,
+//	HRSFMonsterHunter,
+//	HRPrmNewYoke, //TBA
+//	HRPrmBoscageMaze, //TBA
+//	HRPrmNoPlace, //TBA
+//	HROverflow00,
+//	HROverflow01,
+//	HROverflow02,
+//};
 enum SelectSonicBodyType
 {
 	SBSnMaterial,
@@ -202,150 +208,150 @@ enum SelectSonicBodyType
 	SBOverflow08,
 };
 
-SelectShoeType SelectShoes = SelectShoeType::ShDefault;
-SelectBodyType SelectBody = SelectBodyType::BdDefault;
-SelectHeadType SelectHead = SelectHeadType::HeDefault;
-SelectHandLType SelectHandL = SelectHandLType::HLDefault;
-SelectHandRType SelectHandR = SelectHandRType::HRDefault;
+//SelectShoeType SelectShoes = SelectShoeType::ShDefault;
+//SelectBodyType SelectBody = SelectBodyType::BdDefault;
+//SelectHeadType SelectHead = SelectHeadType::HeDefault;
+//SelectHandLType SelectHandL = SelectHandLType::HLDefault;
+//SelectHandRType SelectHandR = SelectHandRType::HRDefault;
 SelectSonicBodyType SelectSonicBody = SelectSonicBodyType::SBSnMaterial;
 
-static std::map<int, const char*> MAP_FILE_SHOE =
-{
-	{ ShDefault,			"ShDefault"},
-	{ ShClassic,			"ShClassic" },
-	{ ShSA1,				"ShSA1" },
-	{ ShSA1LightS,			"ShSA1LightS" },
-	{ ShSA2Beta,			"ShSA2Beta" },
-	{ ShSA2Soap,			"ShSA2Soap" },
-	{ ShRiders,				"ShRiders" },
-	{ Sh06,					"Sh06" },
-	{ Sh06Gem,				"Sh06Gem" },
-	{ ShArchie,				"ShArchie" },
-	{ ShExCal,				"ShExCal" },
-	{ ShSUAirboost,			"ShSUAirboost" },
-	{ ShSULightS,			"ShSULightS" },
-	{ ShSUStomp,			"ShSUStomp" },
-	{ ShSUWallJmp,			"ShSUWallJmp" },
-	{ ShSUWerehog,			"ShSUWerehog" },
-	{ ShSUZoney,			"ShSUZoney" },
-	{ ShSimulator,			"ShSimulator" },
-	{ ShLink,				"ShLink" },
-	{ ShBoom,				"ShBoom" },
-	{ ShSpeedSlugger,		"ShSpeedSlugger" },
-	{ ShSpeedPirate,		"ShSpeedPirate" },
-	{ ShSmash,				"ShSmash" },
-	{ Sh2020Running,		"Sh2020Running" },
-	{ Sh2020Horse,			"Sh2020Horse" },
-	{ Sh2020Karate,			"Sh2020Karate" },
-	{ ShPumas,				"ShPumas" },
-	{ ShSFDeluxe,			"ShSFDeluxe" },
-	{ ShSFKorone,			"ShSFKorone" },
-	{ ShSFMonsterHunter,	"ShSFMonsterHunter" },
-	{ ShPrmNewYoke,			"ShPrmNewYoke" },
-	{ ShPrmBoscageMaze,		"ShPrmBoscageMaze" },
-	{ ShPrmNoPlace,			"ShPrmNoPlace" },
-	{ ShOverflow00,			"Null" },
-	{ ShOverflow01,			"Null" },
-	{ ShOverflow02,			"Null" },
-};
-static std::map<int, const char*> MAP_FILE_BODY =
-{
-	{ BdDefault,			"BdDefault"},
-	{ BdSA2Racing,			"BdSA2Racing" },
-	{ BdWildFire,			"BdWildFire" },
-	{ BdExCal,				"BdExCal" },
-	{ BdSimulator,			"BdSimulator" },
-	{ BdLink,				"BdLink" },
-	{ BdScarf,				"BdScarf" },
-	{ BdSpeedSlugger,		"BdSpeedSlugger" },
-	{ BdSpeedPirate,		"BdSpeedPirate" },
-	{ Bd2020SwimVest,		"Bd2020SwimVest" },
-	{ Bd2020SurfSuit,		"Bd2020SurfSuit" },
-	{ Bd2020Horse,			"Bd2020Horse" },
-	{ Bd2020Running,		"Bd2020Running" },
-	{ Bd2020Fence,			"Bd2020Fence" },
-	{ BdMovieSkin,			"BdMovieSkin" },
-	{ BdSFMonsterHunter,	"BdSFMonsterHunter" },
-	{ BdSFMonsterHunterF,	"BdSFMonsterHunterF" },
-	{ BdSFHoliday,			"BdSFHoliday" },
-	{ BdOverflow00,			"Null" },
-	{ BdOverflow01,			"Null" },
-	{ BdOverflow02,			"Null" },
-};
-static std::map<int, const char*> MAP_FILE_HEAD =
-{
-	{ HeDefault,			"HeDefault"},
-	{ HeSA1Sunglass,		"HeSA1Sunglass" },
-	{ HeRiders,				"HeRiders" },
-	{ HeHeadphones,			"HeHeadphones" },
-	{ HeExCal,				"HeExCal" },
-	{ HeSimulator,			"HeSimulator" },
-	{ HeLink,				"HeLink" },
-	{ HeBoom,				"HeBoom" },
-	{ HeSpeedSlugger,		"HeSpeedSlugger" },
-	{ HeSpeedPirate,		"HeSpeedPirate" },
-	{ HeSFMonsterHunter,	"HeSFMonsterHunter" },
-	{ HeSFMonsterHunterF,	"HeSFMonsterHunterF" },
-	{ HeSFHoliday,			"HeSFHoliday" },
-	{ HeOverflow00,			"Null" },
-	{ HeOverflow01,			"Null" },
-	{ HeOverflow02,			"Null" },
-};
-static std::map<int, const char*> MAP_FILE_HANDL =
-{
-	{ HLDefault,			"HLDefault"},
-	{ HLSA1Crystal,			"HLSA1Crystal"},
-	{ HLSA2FlameRing,		"HLSA2FlameRing"},
-	{ HLSA2Racing,			"HLSA2Racing"},
-	{ HLRiders,				"HLRiders"},
-	{ HL06Bounce,			"HL06Bounce"},
-	{ HLExCal,				"HLExCal"},
-	{ HLChip,				"HLChip"},
-	{ HLSimulator, 			"HLSimulator"},
-	{ HLLink,				"HLLink"},
-	{ HLBoom,				"HLBoom"},
-	{ HLSpeedSlugger, 		"HLSpeedSlugger"},
-	{ HLSpeedPirate, 		"HLSpeedPirate"},
-	{ HLSmash, 				"HLSmash"},
-	{ HL2020Karate, 		"HL2020Karate"},
-	{ HLSFDeluxe, 			"HLSFDeluxe"},
-	{ HLSFKorone,			"HLSFKorone"},
-	{ HLSFMonsterHunter, 	"HLSFMonsterHunter"},
-	{ HLPrmNewYoke, 		"HLPrmNewYoke"},
-	{ HLPrmBoscageMaze, 	"HLPrmBoscageMaze"},
-	{ HLPrmNoPlace, 		"HLPrmNoPlace"},
-	{ HLOverflow00,			"Null" },
-	{ HLOverflow01,			"Null" },
-	{ HLOverflow02,			"Null" },
-};
-static std::map<int, const char*> MAP_FILE_HANDR =
-{
-	{ HRDefault,			"HRDefault"},
-	{ HRSA2Bounce,			"HRSA2Bounce"},
-	{ HRSA2Racing,			"HRSA2Racing"},
-	{ HRRiders,				"HRRiders"},
-	{ HRRidersArkCosmos,	"HRRidersArkCosmos"},
-	{ HR06Homing,			"HR06Homing"},
-	{ HRSecretRing,			"HRSecretRing"},
-	{ HRGauntlet,			"HRGauntlet"},
-	{ HRExCal,				"HRExCal"},
-	{ HRSimulator, 			"HRSimulator"},
-	{ HRLink,				"HRLink"},
-	{ HRBoom,				"HRBoom"},
-	{ HRSpeedSlugger, 		"HRSpeedSlugger"},
-	{ HRSpeedPirate, 		"HRSpeedPirate"},
-	{ HRSmash, 				"HRSmash"},
-	{ HR2020Karate, 		"HR2020Karate"},
-	{ HRSFDeluxe, 			"HRSFDeluxe"},
-	{ HRSFKorone,			"HRSFKorone"},
-	{ HRSFMonsterHunter, 	"HRSFMonsterHunter"},
-	{ HRPrmNewYoke, 		"HRPrmNewYoke"},
-	{ HRPrmBoscageMaze, 	"HRPrmBoscageMaze"},
-	{ HRPrmNoPlace, 		"HRPrmNoPlace"},
-	{ HROverflow00,			"Null" },
-	{ HROverflow01,			"Null" },
-	{ HROverflow02,			"Null" },
-};
+//static std::map<int, const char*> MAP_FILE_SHOE =
+//{
+//	{ ShDefault,			"ShDefault"},
+//	{ ShClassic,			"ShClassic" },
+//	{ ShSA1,				"ShSA1" },
+//	{ ShSA1LightS,			"ShSA1LightS" },
+//	{ ShSA2Beta,			"ShSA2Beta" },
+//	{ ShSA2Soap,			"ShSA2Soap" },
+//	{ ShRiders,				"ShRiders" },
+//	{ Sh06,					"Sh06" },
+//	{ Sh06Gem,				"Sh06Gem" },
+//	{ ShArchie,				"ShArchie" },
+//	{ ShExCal,				"ShExCal" },
+//	{ ShSUAirboost,			"ShSUAirboost" },
+//	{ ShSULightS,			"ShSULightS" },
+//	{ ShSUStomp,			"ShSUStomp" },
+//	{ ShSUWallJmp,			"ShSUWallJmp" },
+//	{ ShSUWerehog,			"ShSUWerehog" },
+//	{ ShSUZoney,			"ShSUZoney" },
+//	{ ShSimulator,			"ShSimulator" },
+//	{ ShLink,				"ShLink" },
+//	{ ShBoom,				"ShBoom" },
+//	{ ShSpeedSlugger,		"ShSpeedSlugger" },
+//	{ ShSpeedPirate,		"ShSpeedPirate" },
+//	{ ShSmash,				"ShSmash" },
+//	{ Sh2020Running,		"Sh2020Running" },
+//	{ Sh2020Horse,			"Sh2020Horse" },
+//	{ Sh2020Karate,			"Sh2020Karate" },
+//	{ ShPumas,				"ShPumas" },
+//	{ ShSFDeluxe,			"ShSFDeluxe" },
+//	{ ShSFKorone,			"ShSFKorone" },
+//	{ ShSFMonsterHunter,	"ShSFMonsterHunter" },
+//	{ ShPrmNewYoke,			"ShPrmNewYoke" },
+//	{ ShPrmBoscageMaze,		"ShPrmBoscageMaze" },
+//	{ ShPrmNoPlace,			"ShPrmNoPlace" },
+//	{ ShOverflow00,			"Null" },
+//	{ ShOverflow01,			"Null" },
+//	{ ShOverflow02,			"Null" },
+//};
+//static std::map<int, const char*> MAP_FILE_BODY =
+//{
+//	{ BdDefault,			"BdDefault"},
+//	{ BdSA2Racing,			"BdSA2Racing" },
+//	{ BdWildFire,			"BdWildFire" },
+//	{ BdExCal,				"BdExCal" },
+//	{ BdSimulator,			"BdSimulator" },
+//	{ BdLink,				"BdLink" },
+//	{ BdScarf,				"BdScarf" },
+//	{ BdSpeedSlugger,		"BdSpeedSlugger" },
+//	{ BdSpeedPirate,		"BdSpeedPirate" },
+//	{ Bd2020SwimVest,		"Bd2020SwimVest" },
+//	{ Bd2020SurfSuit,		"Bd2020SurfSuit" },
+//	{ Bd2020Horse,			"Bd2020Horse" },
+//	{ Bd2020Running,		"Bd2020Running" },
+//	{ Bd2020Fence,			"Bd2020Fence" },
+//	{ BdMovieSkin,			"BdMovieSkin" },
+//	{ BdSFMonsterHunter,	"BdSFMonsterHunter" },
+//	{ BdSFMonsterHunterF,	"BdSFMonsterHunterF" },
+//	{ BdSFHoliday,			"BdSFHoliday" },
+//	{ BdOverflow00,			"Null" },
+//	{ BdOverflow01,			"Null" },
+//	{ BdOverflow02,			"Null" },
+//};
+//static std::map<int, const char*> MAP_FILE_HEAD =
+//{
+//	{ HeDefault,			"HeDefault"},
+//	{ HeSA1Sunglass,		"HeSA1Sunglass" },
+//	{ HeRiders,				"HeRiders" },
+//	{ HeHeadphones,			"HeHeadphones" },
+//	{ HeExCal,				"HeExCal" },
+//	{ HeSimulator,			"HeSimulator" },
+//	{ HeLink,				"HeLink" },
+//	{ HeBoom,				"HeBoom" },
+//	{ HeSpeedSlugger,		"HeSpeedSlugger" },
+//	{ HeSpeedPirate,		"HeSpeedPirate" },
+//	{ HeSFMonsterHunter,	"HeSFMonsterHunter" },
+//	{ HeSFMonsterHunterF,	"HeSFMonsterHunterF" },
+//	{ HeSFHoliday,			"HeSFHoliday" },
+//	{ HeOverflow00,			"Null" },
+//	{ HeOverflow01,			"Null" },
+//	{ HeOverflow02,			"Null" },
+//};
+//static std::map<int, const char*> MAP_FILE_HANDL =
+//{
+//	{ HLDefault,			"HLDefault"},
+//	{ HLSA1Crystal,			"HLSA1Crystal"},
+//	{ HLSA2FlameRing,		"HLSA2FlameRing"},
+//	{ HLSA2Racing,			"HLSA2Racing"},
+//	{ HLRiders,				"HLRiders"},
+//	{ HL06Bounce,			"HL06Bounce"},
+//	{ HLExCal,				"HLExCal"},
+//	{ HLChip,				"HLChip"},
+//	{ HLSimulator, 			"HLSimulator"},
+//	{ HLLink,				"HLLink"},
+//	{ HLBoom,				"HLBoom"},
+//	{ HLSpeedSlugger, 		"HLSpeedSlugger"},
+//	{ HLSpeedPirate, 		"HLSpeedPirate"},
+//	{ HLSmash, 				"HLSmash"},
+//	{ HL2020Karate, 		"HL2020Karate"},
+//	{ HLSFDeluxe, 			"HLSFDeluxe"},
+//	{ HLSFKorone,			"HLSFKorone"},
+//	{ HLSFMonsterHunter, 	"HLSFMonsterHunter"},
+//	{ HLPrmNewYoke, 		"HLPrmNewYoke"},
+//	{ HLPrmBoscageMaze, 	"HLPrmBoscageMaze"},
+//	{ HLPrmNoPlace, 		"HLPrmNoPlace"},
+//	{ HLOverflow00,			"Null" },
+//	{ HLOverflow01,			"Null" },
+//	{ HLOverflow02,			"Null" },
+//};
+//static std::map<int, const char*> MAP_FILE_HANDR =
+//{
+//	{ HRDefault,			"HRDefault"},
+//	{ HRSA2Bounce,			"HRSA2Bounce"},
+//	{ HRSA2Racing,			"HRSA2Racing"},
+//	{ HRRiders,				"HRRiders"},
+//	{ HRRidersArkCosmos,	"HRRidersArkCosmos"},
+//	{ HR06Homing,			"HR06Homing"},
+//	{ HRSecretRing,			"HRSecretRing"},
+//	{ HRGauntlet,			"HRGauntlet"},
+//	{ HRExCal,				"HRExCal"},
+//	{ HRSimulator, 			"HRSimulator"},
+//	{ HRLink,				"HRLink"},
+//	{ HRBoom,				"HRBoom"},
+//	{ HRSpeedSlugger, 		"HRSpeedSlugger"},
+//	{ HRSpeedPirate, 		"HRSpeedPirate"},
+//	{ HRSmash, 				"HRSmash"},
+//	{ HR2020Karate, 		"HR2020Karate"},
+//	{ HRSFDeluxe, 			"HRSFDeluxe"},
+//	{ HRSFKorone,			"HRSFKorone"},
+//	{ HRSFMonsterHunter, 	"HRSFMonsterHunter"},
+//	{ HRPrmNewYoke, 		"HRPrmNewYoke"},
+//	{ HRPrmBoscageMaze, 	"HRPrmBoscageMaze"},
+//	{ HRPrmNoPlace, 		"HRPrmNoPlace"},
+//	{ HROverflow00,			"Null" },
+//	{ HROverflow01,			"Null" },
+//	{ HROverflow02,			"Null" },
+//};
 static std::map<int, const char*> MAP_FILE_SONICBODY =
 {
 	{ SBSnMaterial,			"SBSnMaterial" },
@@ -485,148 +491,67 @@ void MsgJumpBall(int BallType);
 
 const char* CModelHeadString(char* result)
 {
-	auto mapChar = MAP_FILE_HEAD[SelectHead];
-	const char* texExtVar = "";
-	const char* texExt0 = "_00";
-	const char* texExt1 = "_01";
-	const char* texExt2 = "_02";
-	const char* texExt3 = "_03";
-	const char* texExt4 = "_04";
-	const char* texExt5 = "_05";
-	const char* texExt6 = "_06";
-	const char* texExt7 = "_07";
-	const char* texExt8 = "_08";
-	const char* texExt9 = "_09";
-	bool isHeSimulator = (SelectHead == HeSimulator);
+	auto mapChar = s_ItemDataHead[SelectHeadData].name;
+	auto mapAltCount = s_ItemDataHead[SelectHeadData].altcount;
+	auto mapAltSelect = s_ItemDataHead[SelectHeadData].altselect;
 
-	if ((isHeSimulator && !HeSimulatorVariant))
-		texExtVar = texExt0;
-	else if ((isHeSimulator && HeSimulatorVariant))
-		texExtVar = texExt1;
+	if (mapAltCount >= 1)
+		sprintf(result, "chr_Sn_%s_%02d", mapChar.c_str(), mapAltSelect);
+	else
+		sprintf(result, "chr_Sn_%s", mapChar.c_str());
 
-	sprintf(result, "chr_Sn_%s%s", mapChar, texExtVar);
-	//printf("chr_Sn_%s%s\n", mapChar, texExtVar);
 	return result;
 }
 const char* CModelBodyString(char* result)
 {
-	auto mapChar = MAP_FILE_BODY[SelectBody];
-	const char* texExtVar = "";
-	const char* texExt0 = "_00";
-	const char* texExt1 = "_01";
-	const char* texExt2 = "_02";
-	const char* texExt3 = "_03";
-	const char* texExt4 = "_04";
-	const char* texExt5 = "_05";
-	const char* texExt6 = "_06";
-	const char* texExt7 = "_07";
-	const char* texExt8 = "_08";
-	const char* texExt9 = "_09";
-	bool isBdDefault = (SelectBody == BdDefault);
+	auto mapChar = s_ItemDataBody[SelectBodyData].name;
+	auto mapAltCount = s_ItemDataBody[SelectBodyData].altcount;
+	auto mapAltSelect = s_ItemDataBody[SelectBodyData].altselect;
 
-	if ((isBdDefault && !BdDefaultVariant))
-		texExtVar = texExt0;
-	else if ((isBdDefault && BdDefaultVariant))
-		texExtVar = texExt1;
+	if (mapAltCount >= 1)
+		sprintf(result, "chr_Sn_%s_%02d", mapChar.c_str(), mapAltSelect);
+	else
+		sprintf(result, "chr_Sn_%s", mapChar.c_str());
 
-	sprintf(result, "chr_Sn_%s%s", mapChar, texExtVar);
-	//printf("chr_Sn_%s%s\n", mapChar, texExtVar);
 	return result;
 }
 const char* CModelHandLString(char* result)
 {
-	auto mapChar = MAP_FILE_HANDL[SelectHandL];
-	const char* texExtVar = "";
-	const char* texExt0 = "_00";
-	const char* texExt1 = "_01";
-	const char* texExt2 = "_02";
-	const char* texExt3 = "_03";
-	const char* texExt4 = "_04";
-	const char* texExt5 = "_05";
-	const char* texExt6 = "_06";
-	const char* texExt7 = "_07";
-	const char* texExt8 = "_08";
-	const char* texExt9 = "_09";
+	auto mapChar = s_ItemDataHandL[SelectHandLData].name;
+	auto mapAltCount = s_ItemDataHandL[SelectHandLData].altcount;
+	auto mapAltSelect = s_ItemDataHandL[SelectHandLData].altselect;
 
-	sprintf(result, "chr_Sn_%s%s", mapChar, texExtVar);
-	//printf("chr_Sn_%s%s\n", mapChar, texExtVar);
+	if (mapAltCount >= 1)
+		sprintf(result, "chr_Sn_%s_%02d", mapChar.c_str(), mapAltSelect);
+	else
+		sprintf(result, "chr_Sn_%s", mapChar.c_str());
+
 	return result;
 }
 const char* CModelHandRString(char* result)
 {
-	auto mapChar = MAP_FILE_HANDR[SelectHandR];
-	const char* texExtVar = "";
-	const char* texExt0 = "_00";
-	const char* texExt1 = "_01";
-	const char* texExt2 = "_02";
-	const char* texExt3 = "_03";
-	const char* texExt4 = "_04";
-	const char* texExt5 = "_05";
-	const char* texExt6 = "_06";
-	const char* texExt7 = "_07";
-	const char* texExt8 = "_08";
-	const char* texExt9 = "_09";
-	bool isHRSA2Bounce = (SelectHandR == HRSA2Bounce);
-	if ((isHRSA2Bounce && !HRSA2BounceVariant))
-		texExtVar = texExt0;
-	else if ((isHRSA2Bounce && HRSA2BounceVariant))
-		texExtVar = texExt1;
+	auto mapChar = s_ItemDataHandR[SelectHandRData].name;
+	auto mapAltCount = s_ItemDataHandR[SelectHandRData].altcount;
+	auto mapAltSelect = s_ItemDataHandR[SelectHandRData].altselect;
 
-	sprintf(result, "chr_Sn_%s%s", mapChar, texExtVar);
-	//printf("chr_Sn_%s%s\n", mapChar, texExtVar);
+	if (mapAltCount >= 1)
+		sprintf(result, "chr_Sn_%s_%02d", mapChar.c_str(), mapAltSelect);
+	else
+		sprintf(result, "chr_Sn_%s", mapChar.c_str());
+
 	return result;
 }
 const char* CModelShoeString(char* result)
 {
-	auto mapChar = MAP_FILE_SHOE[SelectShoes];
-	const char* texExtVar = "";
-	const char* texExt0 = "_00";
-	const char* texExt1 = "_01";
-	const char* texExt2 = "_02";
-	const char* texExt3 = "_03";
-	const char* texExt4 = "_04";
-	const char* texExt5 = "_05";
-	const char* texExt6 = "_06";
-	const char* texExt7 = "_07";
-	const char* texExt8 = "_08";
-	const char* texExt9 = "_09";
-	bool isShDefault = (SelectShoes == ShDefault);
-	bool isShDefaultLightS = (ShDefaultVariant == DefaultLightS);
-	bool isShSA2Beta = (SelectShoes == ShSA2Beta);
-	bool isShSA2BetaLightS = (ShSA2BetaVariant == SA2BetaLightS);
-	bool isShSA2Soap = (SelectShoes == ShSA2Soap);
-	bool isShSA2SoapDefault = (ShSA2SoapVariant == SA2Soap);
-	bool isShSA2SoapLightS = (ShSA2SoapVariant == SA2SoapLightS);
-	bool isShSA2SoapRacing = (ShSA2SoapVariant == SA2SoapRacing);
-	bool isSh06Gem = (SelectShoes == Sh06Gem);
-	bool isSh06GemDefault = (Sh06GemVariant == GemDefault);
-	bool isSh06GemRed = (Sh06GemVariant == GemRed);
-	bool isSh06GemBlue = (Sh06GemVariant == GemBlue);
-	bool isSh06GemGreen = (Sh06GemVariant == GemGreen);
-	bool isSh06GemPurple = (Sh06GemVariant == GemPurple);
-	bool isSh06GemSky = (Sh06GemVariant == GemSky);
-	bool isSh06GemWhite = (Sh06GemVariant == GemWhite);
-	bool isSh06GemYellow = (Sh06GemVariant == GemYellow);
+	auto mapChar = s_ItemDataShoes[SelectShoesData].name;
+	auto mapAltCount = s_ItemDataShoes[SelectShoesData].altcount;
+	auto mapAltSelect = s_ItemDataShoes[SelectShoesData].altselect;
 
-	if ((isShDefault && !isShDefaultLightS) || (isShSA2Beta && !isShSA2BetaLightS) || (isShSA2Soap && !isShSA2SoapDefault) || (isSh06Gem && isSh06GemDefault))
-		texExtVar = texExt0;
-	else if ((isShDefault && isShDefaultLightS) || (isShSA2Beta && isShSA2BetaLightS) || (isShSA2Soap && isShSA2SoapLightS) || (isSh06Gem && isSh06GemRed))
-		texExtVar = texExt1;
-	else if ((isShSA2Soap && isShSA2SoapRacing) || (isSh06Gem && isSh06GemBlue))
-		texExtVar = texExt2;
-	else if (isSh06Gem && isSh06GemGreen)
-		texExtVar = texExt3;
-	else if (isSh06Gem && isSh06GemPurple)
-		texExtVar = texExt4;
-	else if (isSh06Gem && isSh06GemSky)
-		texExtVar = texExt5;
-	else if (isSh06Gem && isSh06GemWhite)
-		texExtVar = texExt6;
-	else if (isSh06Gem && isSh06GemYellow)
-		texExtVar = texExt7;
+	if (mapAltCount >= 1)
+		sprintf(result, "chr_Sn_%s_%02d", mapChar.c_str(), mapAltSelect);
+	else
+		sprintf(result, "chr_Sn_%s", mapChar.c_str());
 
-	sprintf(result, "chr_Sn_%s%s", mapChar, texExtVar);
-	//printf("chr_Sn_%s%s\n", mapChar, texExtVar);
 	return result;
 }
 const char* CModelEyelidString(char* result)
@@ -647,6 +572,7 @@ const char* CModelEyelidString(char* result)
 	//printf("chr_Sn_%s%s\n", texExtVar);
 	return result;
 }
+
 const char* CMaterialBodyString(char* result)
 {
 	const char* texExtVar = "chr_sn_body_original";
@@ -690,148 +616,67 @@ const char* CMaterialBodyString(char* result)
 
 const char* ArchiveHeadString(char* result)
 {
-	auto mapChar = MAP_FILE_HEAD[SelectHead];
-	const char* texExtVar = "";
-	const char* texExt0 = "_00";
-	const char* texExt1 = "_01";
-	const char* texExt2 = "_02";
-	const char* texExt3 = "_03";
-	const char* texExt4 = "_04";
-	const char* texExt5 = "_05";
-	const char* texExt6 = "_06";
-	const char* texExt7 = "_07";
-	const char* texExt8 = "_08";
-	const char* texExt9 = "_09";
-	bool isHeSimulator = (SelectHead == HeSimulator);
+	auto mapChar = s_ItemDataHead[SelectHeadData].name;
+	auto mapAltCount = s_ItemDataHead[SelectHeadData].altcount;
+	auto mapAltSelect = s_ItemDataHead[SelectHeadData].altselect;
 
-	if ((isHeSimulator && !HeSimulatorVariant))
-		texExtVar = texExt0;
-	else if ((isHeSimulator && HeSimulatorVariant))
-		texExtVar = texExt1;
+	if (mapAltCount >= 1)
+		sprintf(result, "Customize/ctp_Head/%s_%02d", mapChar.c_str(), mapAltSelect);
+	else
+		sprintf(result, "Customize/ctp_Head/%s", mapChar.c_str());
 
-	sprintf(result, "Customize/ctp_Head/%s%s", mapChar, texExtVar);
-	//printf("%s%s\n", mapChar, texExtVar);
 	return result;
 }
 const char* ArchiveBodyString(char* result)
 {
-	auto mapChar = MAP_FILE_BODY[SelectBody];
-	const char* texExtVar = "";
-	const char* texExt0 = "_00";
-	const char* texExt1 = "_01";
-	const char* texExt2 = "_02";
-	const char* texExt3 = "_03";
-	const char* texExt4 = "_04";
-	const char* texExt5 = "_05";
-	const char* texExt6 = "_06";
-	const char* texExt7 = "_07";
-	const char* texExt8 = "_08";
-	const char* texExt9 = "_09";
-	bool isBdDefault = (SelectBody == BdDefault);
+	auto mapChar = s_ItemDataBody[SelectBodyData].name;
+	auto mapAltCount = s_ItemDataBody[SelectBodyData].altcount;
+	auto mapAltSelect = s_ItemDataBody[SelectBodyData].altselect;
 
-	if ((isBdDefault && !BdDefaultVariant))
-		texExtVar = texExt0;
-	else if ((isBdDefault && BdDefaultVariant))
-		texExtVar = texExt1;
+	if (mapAltCount >= 1)
+		sprintf(result, "Customize/ctp_Body/%s_%02d", mapChar.c_str(), mapAltSelect);
+	else
+		sprintf(result, "Customize/ctp_Body/%s", mapChar.c_str());
 
-	sprintf(result, "Customize/ctp_Body/%s%s", mapChar, texExtVar);
-	//printf("%s%s\n", mapChar, texExtVar);
 	return result;
 }
 const char* ArchiveShoeString(char* result)
 {
-	auto mapChar = MAP_FILE_SHOE[SelectShoes];
-	const char* texExtVar = "";
-	const char* texExt0 = "_00";
-	const char* texExt1 = "_01";
-	const char* texExt2 = "_02";
-	const char* texExt3 = "_03";
-	const char* texExt4 = "_04";
-	const char* texExt5 = "_05";
-	const char* texExt6 = "_06";
-	const char* texExt7 = "_07";
-	const char* texExt8 = "_08";
-	const char* texExt9 = "_09";
-	bool isShDefault = (SelectShoes == ShDefault);
-	bool isShDefaultLightS = (ShDefaultVariant == DefaultLightS);
-	bool isShSA2Beta = (SelectShoes == ShSA2Beta);
-	bool isShSA2BetaLightS = (ShSA2BetaVariant == SA2BetaLightS);
-	bool isShSA2Soap = (SelectShoes == ShSA2Soap);
-	bool isShSA2SoapDefault = (ShSA2SoapVariant == SA2Soap);
-	bool isShSA2SoapLightS = (ShSA2SoapVariant == SA2SoapLightS);
-	bool isShSA2SoapRacing = (ShSA2SoapVariant == SA2SoapRacing);
-	bool isSh06Gem = (SelectShoes == Sh06Gem);
-	bool isSh06GemDefault = (Sh06GemVariant == GemDefault);
-	bool isSh06GemRed = (Sh06GemVariant == GemRed);
-	bool isSh06GemBlue = (Sh06GemVariant == GemBlue);
-	bool isSh06GemGreen = (Sh06GemVariant == GemGreen);
-	bool isSh06GemPurple = (Sh06GemVariant == GemPurple);
-	bool isSh06GemSky = (Sh06GemVariant == GemSky);
-	bool isSh06GemWhite = (Sh06GemVariant == GemWhite);
-	bool isSh06GemYellow = (Sh06GemVariant == GemYellow);
+	auto mapChar = s_ItemDataShoes[SelectShoesData].name;
+	auto mapAltCount = s_ItemDataShoes[SelectShoesData].altcount;
+	auto mapAltSelect = s_ItemDataShoes[SelectShoesData].altselect;
 
-	if ((isShDefault && !isShDefaultLightS) || (isShSA2Beta && !isShSA2BetaLightS) || (isShSA2Soap && !isShSA2SoapDefault) || (isSh06Gem && isSh06GemDefault))
-		texExtVar = texExt0;
-	else if ((isShDefault && isShDefaultLightS) || (isShSA2Beta && isShSA2BetaLightS) || (isShSA2Soap && isShSA2SoapLightS) || (isSh06Gem && isSh06GemRed))
-		texExtVar = texExt1;
-	else if ((isShSA2Soap && isShSA2SoapRacing) || (isSh06Gem && isSh06GemBlue))
-		texExtVar = texExt2;
-	else if (isSh06Gem && isSh06GemGreen)
-		texExtVar = texExt3;
-	else if (isSh06Gem && isSh06GemPurple)
-		texExtVar = texExt4;
-	else if (isSh06Gem && isSh06GemSky)
-		texExtVar = texExt5;
-	else if (isSh06Gem && isSh06GemWhite)
-		texExtVar = texExt6;
-	else if (isSh06Gem && isSh06GemYellow)
-		texExtVar = texExt7;
+	if (mapAltCount >= 1)
+		sprintf(result, "Customize/ctp_Shoes/%s_%02d", mapChar.c_str(), mapAltSelect);
+	else
+		sprintf(result, "Customize/ctp_Shoes/%s", mapChar.c_str());
 
-	sprintf(result, "Customize/ctp_Shoes/%s%s", mapChar, texExtVar);
-	//printf("%s%s\n", mapChar, texExtVar);
 	return result;
 }
 const char* ArchiveHandRString(char* result)
 {
-	auto mapChar = MAP_FILE_HANDR[SelectHandR];
-	const char* texExtVar = "";
-	const char* texExt0 = "_00";
-	const char* texExt1 = "_01";
-	const char* texExt2 = "_02";
-	const char* texExt3 = "_03";
-	const char* texExt4 = "_04";
-	const char* texExt5 = "_05";
-	const char* texExt6 = "_06";
-	const char* texExt7 = "_07";
-	const char* texExt8 = "_08";
-	const char* texExt9 = "_09";
-	bool isHRSA2Bounce = (SelectHandR == HRSA2Bounce);
-	if ((isHRSA2Bounce && !HRSA2BounceVariant))
-		texExtVar = texExt0;
-	else if ((isHRSA2Bounce && HRSA2BounceVariant))
-		texExtVar = texExt1;
+	auto mapChar = s_ItemDataHandR[SelectHandRData].name;
+	auto mapAltCount = s_ItemDataHandR[SelectHandRData].altcount;
+	auto mapAltSelect = s_ItemDataHandR[SelectHandRData].altselect;
 
-	sprintf(result, "Customize/ctp_Hand_R/%s%s", mapChar, texExtVar);
-	//printf("%s%s\n", mapChar, texExtVar);
+	if (mapAltCount >= 1)
+		sprintf(result, "Customize/ctp_Hand_R/%s_%02d", mapChar.c_str(), mapAltSelect);
+	else
+		sprintf(result, "Customize/ctp_Hand_R/%s", mapChar.c_str());
+
 	return result;
 }
 const char* ArchiveHandLString(char* result)
 {
-	auto mapChar = MAP_FILE_HANDL[SelectHandL];
-	const char* texExtVar = "";
-	const char* texExt0 = "_00";
-	const char* texExt1 = "_01";
-	const char* texExt2 = "_02";
-	const char* texExt3 = "_03";
-	const char* texExt4 = "_04";
-	const char* texExt5 = "_05";
-	const char* texExt6 = "_06";
-	const char* texExt7 = "_07";
-	const char* texExt8 = "_08";
-	const char* texExt9 = "_09";
+	auto mapChar = s_ItemDataHandL[SelectHandLData].name;
+	auto mapAltCount = s_ItemDataHandL[SelectHandLData].altcount;
+	auto mapAltSelect = s_ItemDataHandL[SelectHandLData].altselect;
 
-	sprintf(result, "Customize/ctp_Hand_L/%s%s", mapChar, texExtVar);
-	//printf("%s%s\n", mapChar, texExtVar);
+	if (mapAltCount >= 1)
+		sprintf(result, "Customize/ctp_Hand_L/%s_%02d", mapChar.c_str(), mapAltSelect);
+	else
+		sprintf(result, "Customize/ctp_Hand_L/%s", mapChar.c_str());
+
 	return result;
 }
 const char* ArchiveEyelidString(char* result)
@@ -1471,7 +1316,7 @@ void ItemVisibilityHandler()
 	*/
 
 	//Send Wildfire VFX
-	if (SelectBody == BdWildFire)
+	if (SelectBodyData == 1)
 		MsgWildFire(1);
 	else
 		MsgWildFire(0);
@@ -1496,30 +1341,53 @@ void ReadJson(std::string jsonFilePath, int cCat)
 		switch (cCat)
 		{
 		case 0:
-			itemCountHead = json.size();
-
 			for (const auto& obj : json)
 			{
 				auto& itemData = s_ItemDataHead.emplace_back();
-
 				itemData.name = obj["name"];
 				itemData.altcount = obj["altcount"];
 				itemData.hideflags = obj["hideflags"];
-
+				itemData.altselect = 0;
 			}
 			break;
 		case 1:
-			//printf("%d", json.size());
-			itemCountBody = json.size();
-
 			for (const auto& obj : json)
 			{
-				std::string names = obj["name"].get<std::string>();
-				int altcounts = obj["altcount"].get<int>();
-				int hideflags = obj["hideflags"].get<int>();
-				//char buffer[1024];
-				//sprintf(buffer, "%s, %d, %d", names.c_str(), altcounts, hideflags);
-				//MessageBoxA(nullptr, buffer, "Item", 0);
+				auto& itemData = s_ItemDataBody.emplace_back();
+				itemData.name = obj["name"];
+				itemData.altcount = obj["altcount"];
+				itemData.hideflags = obj["hideflags"];
+				itemData.altselect = 0;
+			}
+			break;
+		case 2:
+			for (const auto& obj : json)
+			{
+				auto& itemData = s_ItemDataShoes.emplace_back();
+				itemData.name = obj["name"];
+				itemData.altcount = obj["altcount"];
+				itemData.hideflags = obj["hideflags"];
+				itemData.altselect = 0;
+			}
+			break;
+		case 3:
+			for (const auto& obj : json)
+			{
+				auto& itemData = s_ItemDataHandR.emplace_back();
+				itemData.name = obj["name"];
+				itemData.altcount = obj["altcount"];
+				itemData.hideflags = obj["hideflags"];
+				itemData.altselect = 0;
+			}
+			break;
+		case 4:
+			for (const auto& obj : json)
+			{
+				auto& itemData = s_ItemDataHandL.emplace_back();
+				itemData.name = obj["name"];
+				itemData.altcount = obj["altcount"];
+				itemData.hideflags = obj["hideflags"];
+				itemData.altselect = 0;
 			}
 			break;
 		}

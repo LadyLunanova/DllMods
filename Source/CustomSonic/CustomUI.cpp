@@ -128,6 +128,8 @@ void CHudUIOpen(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo&
 	auto rowY2 = 0.5515f;
 	auto rowY3 = 0.7046f;
 
+	CHudVarHeMaxScroll = ((((s_ItemDataHead.size() + 2) / 3 - 3) >= 1) ? ((s_ItemDataHead.size() + 2) / 3 - 3) : (0));
+
 	ReadINI(saveFilePath);
 	prevblur = *ENABLE_BLUR;
 	*ENABLE_BLUR = false;
@@ -365,62 +367,66 @@ void CHudUIOpen(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo&
 
 void CHudUISelect()
 {
-	//SWAOpenTimer = 10;
-	isLoadModel = true;
+	//isLoadModel = true;
 	switch (CHudTabSel)
 	{
 	case UIPartShoes:
-		if (CHudVarTrueSel >= ShOverflow00)
+		if (CHudVarTrueSel >= s_ItemDataShoes.size())
 			CHudUISFXSelect(false);
 		else
 		{
 			CHudUISFXSelect(true);
 			CHudUICursorAnim();
-			SelectShoes = (enum SelectShoeType)CHudVarTrueSel;
+			SelectShoesData = CHudVarTrueSel;
+			isLoadModel = true;
 		}
 		return;
 		break;
 	case UIPartBody:
-		if (CHudVarTrueSel >= BdOverflow00)
+		if (CHudVarTrueSel >= s_ItemDataBody.size())
 			CHudUISFXSelect(false);
 		else
 		{
 			CHudUISFXSelect(true);
 			CHudUICursorAnim();
-			SelectBody = (enum SelectBodyType)CHudVarTrueSel;
+			SelectBodyData = CHudVarTrueSel;
+			isLoadModel = true;
 		}
 		return;
 		break;
 	case UIPartHead:
-		if (CHudVarTrueSel >= HeOverflow00)
+		if (CHudVarTrueSel >= s_ItemDataHead.size())
 			CHudUISFXSelect(false);
 		else
 		{
 			CHudUISFXSelect(true);
 			CHudUICursorAnim();
-			SelectHead = (enum SelectHeadType)CHudVarTrueSel;
+			SelectHeadData = CHudVarTrueSel;
+			isLoadModel = true;
 		}
 		return;
 		break;
 	case UIPartHandL:
-		if (CHudVarTrueSel >= HLOverflow00)
+		if (CHudVarTrueSel >= s_ItemDataHandL.size())
 			CHudUISFXSelect(false);
 		else
 		{
 			CHudUISFXSelect(true);
 			CHudUICursorAnim();
-			SelectHandL = (enum SelectHandLType)CHudVarTrueSel;
+			SelectHandLData = CHudVarTrueSel;
+			isLoadModel = true;
 		}
 		return;
 		break;
 	case UIPartHandR:
-		if (CHudVarTrueSel >= HROverflow00)
+		if (CHudVarTrueSel >= s_ItemDataHandR.size())
 			CHudUISFXSelect(false);
 		else
 		{
 			CHudUISFXSelect(true);
 			CHudUICursorAnim();
-			SelectHandR = (enum SelectHandRType)CHudVarTrueSel;
+			SelectHandRData = CHudVarTrueSel;
+			isLoadModel = true;
 		}
 		return;
 		break;
@@ -438,6 +444,7 @@ void CHudUISelect()
 					SelectSnSonMat = (SelectSnSonMatType)(SelectSnSonMat + 1);
 				else
 					SelectSnSonMat = SnMatOriginal;
+				isLoadModel = true;
 				return;
 				break;
 			case (enum SelectSonicBodyType)SBSsnMaterial:
@@ -449,6 +456,7 @@ void CHudUISelect()
 				break;
 			case (enum SelectSonicBodyType)SBEyelids:
 				
+				isLoadModel = true;
 				return;
 				break;
 			case (enum SelectSonicBodyType)SBSuperHead:
@@ -488,19 +496,13 @@ void CHudUIMove(int Type)
 			case 0:
 			case 1:
 			case 2:
-				if (CHudVarScroll <= 0)
-				{
-					CHudVarVisSel += 6;
-					CHudVarScroll = CHudVarShMaxScroll;
-				}
-				else if (CHudVarScroll > 0)
+				if (CHudVarScroll > 0)
 					CHudVarScroll--;
 				break;
 			default:
 				CHudVarVisSel -= 3;
 				break;
 			}
-			//CHudVarScroll--;
 			return;
 			break;
 		case 1: //Down
@@ -509,49 +511,41 @@ void CHudUIMove(int Type)
 			case 6:
 			case 7:
 			case 8:
-				if (CHudVarScroll >= CHudVarShMaxScroll)
-				{
-					CHudVarVisSel -= 6;
-					CHudVarScroll = 0;
-				}
-				else if (CHudVarScroll < CHudVarShMaxScroll)
+				if (CHudVarScroll < CHudVarShMaxScroll)
 					CHudVarScroll++;
 				break;
 			default:
 				CHudVarVisSel += 3;
 				break;
 			}
-			//CHudVarScroll++;
 			return;
 			break;
 		case 2: //Left
-			if (CHudVarVisSel <= 0 && CHudVarScroll <= 0)
+			switch (CHudVarVisSel)
 			{
-				CHudVarScroll = CHudVarShMaxScroll;
-				CHudVarVisSel = 8;
-			}
-			else if (CHudVarVisSel <= 0 && CHudVarScroll > 0)
-			{
-				CHudVarScroll--;
+			case 0:
+			case 3:
+			case 6:
 				CHudVarVisSel += 2;
-			}
-			else
+				break;
+			default:
 				CHudVarVisSel--;
+				break;
+			}
 			return;
 			break;
 		case 3: //Right
-			if (CHudVarVisSel >= 8 && CHudVarScroll >= CHudVarShMaxScroll)
+			switch (CHudVarVisSel)
 			{
-				CHudVarScroll = 0;
-				CHudVarVisSel = 0;
-			}
-			else if (CHudVarVisSel >= 8 && CHudVarScroll < CHudVarShMaxScroll)
-			{
-				CHudVarScroll++;
+			case 2:
+			case 5:
+			case 8:
 				CHudVarVisSel -= 2;
-			}
-			else
+				break;
+			default:
 				CHudVarVisSel++;
+				break;
+			}
 			return;
 			break;
 		}
@@ -566,12 +560,7 @@ void CHudUIMove(int Type)
 			case 0:
 			case 1:
 			case 2:
-				if (CHudVarScroll <= 0)
-				{
-					CHudVarVisSel += 6;
-					CHudVarScroll = CHudVarBdMaxScroll;
-				}
-				else if (CHudVarScroll > 0)
+				if (CHudVarScroll > 0)
 					CHudVarScroll--;
 				break;
 			default:
@@ -586,12 +575,7 @@ void CHudUIMove(int Type)
 			case 6:
 			case 7:
 			case 8:
-				if (CHudVarScroll >= CHudVarBdMaxScroll)
-				{
-					CHudVarVisSel -= 6;
-					CHudVarScroll = 0;
-				}
-				else if (CHudVarScroll < CHudVarBdMaxScroll)
+				if (CHudVarScroll < CHudVarBdMaxScroll)
 					CHudVarScroll++;
 				break;
 			default:
@@ -601,33 +585,31 @@ void CHudUIMove(int Type)
 			return;
 			break;
 		case 2: //Left
-			if (CHudVarVisSel <= 0 && CHudVarScroll <= 0)
+			switch (CHudVarVisSel)
 			{
-				CHudVarScroll = CHudVarBdMaxScroll;
-				CHudVarVisSel = 8;
-			}
-			else if (CHudVarVisSel <= 0 && CHudVarScroll > 0)
-			{
-				CHudVarScroll--;
+			case 0:
+			case 3:
+			case 6:
 				CHudVarVisSel += 2;
-			}
-			else
+				break;
+			default:
 				CHudVarVisSel--;
+				break;
+			}
 			return;
 			break;
 		case 3: //Right
-			if (CHudVarVisSel >= 8 && CHudVarScroll >= CHudVarBdMaxScroll)
+			switch (CHudVarVisSel)
 			{
-				CHudVarScroll = 0;
-				CHudVarVisSel = 0;
-			}
-			else if (CHudVarVisSel >= 8 && CHudVarScroll < CHudVarBdMaxScroll)
-			{
-				CHudVarScroll++;
+			case 2:
+			case 5:
+			case 8:
 				CHudVarVisSel -= 2;
-			}
-			else
+				break;
+			default:
 				CHudVarVisSel++;
+				break;
+			}
 			return;
 			break;
 		}
@@ -642,12 +624,7 @@ void CHudUIMove(int Type)
 			case 0:
 			case 1:
 			case 2:
-				if (CHudVarScroll <= 0)
-				{
-					CHudVarVisSel += 6;
-					CHudVarScroll = CHudVarHeMaxScroll;
-				}
-				else if (CHudVarScroll > 0)
+				if (CHudVarScroll > 0)
 					CHudVarScroll--;
 				break;
 			default:
@@ -662,12 +639,7 @@ void CHudUIMove(int Type)
 			case 6:
 			case 7:
 			case 8:
-				if (CHudVarScroll >= CHudVarHeMaxScroll)
-				{
-					CHudVarVisSel -= 6;
-					CHudVarScroll = 0;
-				}
-				else if (CHudVarScroll < CHudVarHeMaxScroll)
+				if (CHudVarScroll < CHudVarHeMaxScroll)
 					CHudVarScroll++;
 				break;
 			default:
@@ -677,33 +649,31 @@ void CHudUIMove(int Type)
 			return;
 			break;
 		case 2: //Left
-			if (CHudVarVisSel <= 0 && CHudVarScroll <= 0)
+			switch (CHudVarVisSel)
 			{
-				CHudVarScroll = CHudVarHeMaxScroll;
-				CHudVarVisSel = 8;
-			}
-			else if (CHudVarVisSel <= 0 && CHudVarScroll > 0)
-			{
-				CHudVarScroll--;
+			case 0:
+			case 3:
+			case 6:
 				CHudVarVisSel += 2;
-			}
-			else
+				break;
+			default:
 				CHudVarVisSel--;
+				break;
+			}
 			return;
 			break;
 		case 3: //Right
-			if (CHudVarVisSel >= 8 && CHudVarScroll >= CHudVarHeMaxScroll)
+			switch (CHudVarVisSel)
 			{
-				CHudVarScroll = 0;
-				CHudVarVisSel = 0;
-			}
-			else if (CHudVarVisSel >= 8 && CHudVarScroll < CHudVarHeMaxScroll)
-			{
-				CHudVarScroll++;
+			case 2:
+			case 5:
+			case 8:
 				CHudVarVisSel -= 2;
-			}
-			else
+				break;
+			default:
 				CHudVarVisSel++;
+				break;
+			}
 			return;
 			break;
 		}
@@ -718,12 +688,7 @@ void CHudUIMove(int Type)
 			case 0:
 			case 1:
 			case 2:
-				if (CHudVarScroll <= 0)
-				{
-					CHudVarVisSel += 6;
-					CHudVarScroll = CHudVarHLMaxScroll;
-				}
-				else if (CHudVarScroll > 0)
+				if (CHudVarScroll > 0)
 					CHudVarScroll--;
 				break;
 			default:
@@ -738,12 +703,7 @@ void CHudUIMove(int Type)
 			case 6:
 			case 7:
 			case 8:
-				if (CHudVarScroll >= CHudVarHLMaxScroll)
-				{
-					CHudVarVisSel -= 6;
-					CHudVarScroll = 0;
-				}
-				else if (CHudVarScroll < CHudVarHLMaxScroll)
+				if (CHudVarScroll < CHudVarHLMaxScroll)
 					CHudVarScroll++;
 				break;
 			default:
@@ -753,33 +713,31 @@ void CHudUIMove(int Type)
 			return;
 			break;
 		case 2: //Left
-			if (CHudVarVisSel <= 0 && CHudVarScroll <= 0)
+			switch (CHudVarVisSel)
 			{
-				CHudVarScroll = CHudVarHLMaxScroll;
-				CHudVarVisSel = 8;
-			}
-			else if (CHudVarVisSel <= 0 && CHudVarScroll > 0)
-			{
-				CHudVarScroll--;
+			case 0:
+			case 3:
+			case 6:
 				CHudVarVisSel += 2;
-			}
-			else
+				break;
+			default:
 				CHudVarVisSel--;
+				break;
+			}
 			return;
 			break;
 		case 3: //Right
-			if (CHudVarVisSel >= 8 && CHudVarScroll >= CHudVarHLMaxScroll)
+			switch (CHudVarVisSel)
 			{
-				CHudVarScroll = 0;
-				CHudVarVisSel = 0;
-			}
-			else if (CHudVarVisSel >= 8 && CHudVarScroll < CHudVarHLMaxScroll)
-			{
-				CHudVarScroll++;
+			case 2:
+			case 5:
+			case 8:
 				CHudVarVisSel -= 2;
-			}
-			else
+				break;
+			default:
 				CHudVarVisSel++;
+				break;
+			}
 			return;
 			break;
 		}
@@ -794,12 +752,7 @@ void CHudUIMove(int Type)
 			case 0:
 			case 1:
 			case 2:
-				if (CHudVarScroll <= 0)
-				{
-					CHudVarVisSel += 6;
-					CHudVarScroll = CHudVarHRMaxScroll;
-				}
-				else if (CHudVarScroll > 0)
+				if (CHudVarScroll > 0)
 					CHudVarScroll--;
 				break;
 			default:
@@ -814,12 +767,7 @@ void CHudUIMove(int Type)
 			case 6:
 			case 7:
 			case 8:
-				if (CHudVarScroll >= CHudVarHRMaxScroll)
-				{
-					CHudVarVisSel -= 6;
-					CHudVarScroll = 0;
-				}
-				else if (CHudVarScroll < CHudVarHRMaxScroll)
+				if (CHudVarScroll < CHudVarHRMaxScroll)
 					CHudVarScroll++;
 				break;
 			default:
@@ -829,33 +777,31 @@ void CHudUIMove(int Type)
 			return;
 			break;
 		case 2: //Left
-			if (CHudVarVisSel <= 0 && CHudVarScroll <= 0)
+			switch (CHudVarVisSel)
 			{
-				CHudVarScroll = CHudVarHRMaxScroll;
-				CHudVarVisSel = 8;
-			}
-			else if (CHudVarVisSel <= 0 && CHudVarScroll > 0)
-			{
-				CHudVarScroll--;
+			case 0:
+			case 3:
+			case 6:
 				CHudVarVisSel += 2;
-			}
-			else
+				break;
+			default:
 				CHudVarVisSel--;
+				break;
+			}
 			return;
 			break;
 		case 3: //Right
-			if (CHudVarVisSel >= 8 && CHudVarScroll >= CHudVarHRMaxScroll)
+			switch (CHudVarVisSel)
 			{
-				CHudVarScroll = 0;
-				CHudVarVisSel = 0;
-			}
-			else if (CHudVarVisSel >= 8 && CHudVarScroll < CHudVarHRMaxScroll)
-			{
-				CHudVarScroll++;
+			case 2:
+			case 5:
+			case 8:
 				CHudVarVisSel -= 2;
-			}
-			else
+				break;
+			default:
 				CHudVarVisSel++;
+				break;
+			}
 			return;
 			break;
 		}
@@ -945,170 +891,87 @@ void CHudUIMove(int Type)
 
 void CHudUIAlt()
 {
-	printf("Head Item Count: %d\n", s_ItemDataHead.size());
-	for (size_t i = 0; i < s_ItemDataHead.size(); i++)
-	{
-		auto& itemData = s_ItemDataHead[i];
-		printf("\n");
-		printf("Item Name: ");
-		printf(itemData.name.c_str());
-		printf("\n");
-		printf("Alt Count: %d\n", itemData.altcount);
-		printf("Hide Flag: %d\n", itemData.hideflags);
-	}
+	//printf("Head Item Count: %d\n", s_ItemDataHead.size());
+	//for (size_t i = 0; i < s_ItemDataHead.size(); i++)
+	//{
+	//	auto& itemData = s_ItemDataHead[i];
+	//	printf("\n");
+	//	printf("Item Name: ");
+	//	printf(itemData.name.c_str());
+	//	printf("\n");
+	//	printf("Alt Count: %d\n", itemData.altcount);
+	//	printf("Hide Flag: %d\n", itemData.hideflags);
+	//}
 
 	switch (CHudTabSel)
 	{
 	case UIPartShoes:
-		switch (CHudVarTrueSel)
+		if (s_ItemDataShoes[CHudVarTrueSel].altcount >= 1)
 		{
-		case ShDefault:
-			switch (ShDefaultVariant)
-			{
-			case DefaultDefault:
-				ShDefaultVariant = DefaultLightS;
-				break;
-			case DefaultLightS:
-				ShDefaultVariant = DefaultDefault;
-				break;
-			}
+			if (!(s_ItemDataShoes[CHudVarTrueSel].altselect >= s_ItemDataShoes[CHudVarTrueSel].altcount))
+				s_ItemDataShoes[CHudVarTrueSel].altselect++;
+			else
+				s_ItemDataShoes[CHudVarTrueSel].altselect = 0;
 			CHudUISFXAlt();
 			CHudUICursorAnim();
 			isLoadModel = true;
-			return;
-			break;
-		case ShSA2Beta:
-			switch (ShSA2BetaVariant)
-			{
-			case SA2Beta:
-				ShSA2BetaVariant = SA2BetaLightS;
-				break;
-			case SA2BetaLightS:
-				ShSA2BetaVariant = SA2Beta;
-				break;
-			}
-			CHudUISFXAlt();
-			CHudUICursorAnim();
-			isLoadModel = true;
-			return;
-			break;
-		case ShSA2Soap:
-			switch (ShSA2SoapVariant)
-			{
-			case SA2Soap:
-				ShSA2SoapVariant = SA2SoapLightS;
-				break;
-			case SA2SoapLightS:
-				ShSA2SoapVariant = SA2SoapRacing;
-				break;
-			case SA2SoapRacing:
-				ShSA2SoapVariant = SA2Soap;
-				break;
-			}
-			CHudUISFXAlt();
-			CHudUICursorAnim();
-			isLoadModel = true;
-			return;
-			break;
-		case Sh06Gem:
-			switch (Sh06GemVariant)
-			{
-			case GemDefault:
-				Sh06GemVariant = GemRed;
-				break;
-			case GemRed:
-				Sh06GemVariant = GemBlue;
-				break;
-			case GemBlue:
-				Sh06GemVariant = GemGreen;
-				break;
-			case GemGreen:
-				Sh06GemVariant = GemPurple;
-				break;
-			case GemPurple:
-				Sh06GemVariant = GemSky;
-				break;
-			case GemSky:
-				Sh06GemVariant = GemWhite;
-				break;
-			case GemWhite:
-				Sh06GemVariant = GemYellow;
-				break;
-			case GemYellow:
-				Sh06GemVariant = GemDefault;
-				break;
-			}
-			CHudUISFXAlt();
-			CHudUICursorAnim();
-			isLoadModel = true;
-			return;
-			break;
 		}
 		return;
 		break;
 	case UIPartBody:
-		switch (CHudVarTrueSel)
+		if (s_ItemDataBody[CHudVarTrueSel].altcount >= 1)
 		{
-		case BdDefault:
-			if (BdDefaultVariant == false) BdDefaultVariant = true; else BdDefaultVariant = false;
+			if (!(s_ItemDataBody[CHudVarTrueSel].altselect >= s_ItemDataBody[CHudVarTrueSel].altcount))
+				s_ItemDataBody[CHudVarTrueSel].altselect++;
+			else
+				s_ItemDataBody[CHudVarTrueSel].altselect = 0;
 			CHudUISFXAlt();
 			CHudUICursorAnim();
 			isLoadModel = true;
-			return;
-			break;
-		case BdWildFire:
-			if (BdWildFireVariant == false) BdWildFireVariant = true; else BdWildFireVariant = false;
-			CHudUISFXAlt();
-			CHudUICursorAnim();
-			isLoadModel = true;
-			return;
-			break;
-		case BdScarf:
-			if (BdScarfVariant == false) BdScarfVariant = true; else BdScarfVariant = false;
-			CHudUISFXAlt();
-			CHudUICursorAnim();
-			isLoadModel = true;
-			return;
-			break;
-		case BdMovieSkin:
-			if (BdMovieVariant == false) BdMovieVariant = true; else BdMovieVariant = false;
-			CHudUISFXAlt();
-			CHudUICursorAnim();
-			isLoadModel = true;
-			return;
-			break;
 		}
 		return;
 		break;
 	case UIPartHead:
-		switch (CHudVarTrueSel)
+		if (s_ItemDataHead[CHudVarTrueSel].altcount >= 1)
 		{
-		case HeSimulator:
-			if (HeSimulatorVariant == false) HeSimulatorVariant = true; else HeSimulatorVariant = false;
+			if (!(s_ItemDataHead[CHudVarTrueSel].altselect >= s_ItemDataHead[CHudVarTrueSel].altcount))
+				s_ItemDataHead[CHudVarTrueSel].altselect++;
+			else
+				s_ItemDataHead[CHudVarTrueSel].altselect = 0;
 			CHudUISFXAlt();
 			CHudUICursorAnim();
 			isLoadModel = true;
-			return;
-			break;
 		}
 		return;
 		break;
 	case UIPartHandR:
-		switch (CHudVarTrueSel)
+		if (s_ItemDataHandR[CHudVarTrueSel].altcount >= 1)
 		{
-		case HRSA2Bounce:
-			if (HRSA2BounceVariant == false) HRSA2BounceVariant = true; else HRSA2BounceVariant = false;
+			if (!(s_ItemDataHandR[CHudVarTrueSel].altselect >= s_ItemDataHandR[CHudVarTrueSel].altcount))
+				s_ItemDataHandR[CHudVarTrueSel].altselect++;
+			else
+				s_ItemDataHandR[CHudVarTrueSel].altselect = 0;
 			CHudUISFXAlt();
 			CHudUICursorAnim();
 			isLoadModel = true;
-			return;
-			break;
+		}
+		return;
+		break;
+	case UIPartHandL:
+		if (s_ItemDataHandL[CHudVarTrueSel].altcount >= 1)
+		{
+			if (!(s_ItemDataHandL[CHudVarTrueSel].altselect >= s_ItemDataHandL[CHudVarTrueSel].altcount))
+				s_ItemDataHandL[CHudVarTrueSel].altselect++;
+			else
+				s_ItemDataHandL[CHudVarTrueSel].altselect = 0;
+			CHudUISFXAlt();
+			CHudUICursorAnim();
+			isLoadModel = true;
 		}
 		return;
 		break;
 	}
 
-	
 }
 
 void CHudUISwitch(int Type)
@@ -1429,175 +1292,207 @@ void CHudUITexsetData(Sonic::CGameObject* This, int texSetID, const char* texStr
 {
 	auto texList = static_cast<Sonic::CCsdTexListMirage*>(prFittingScreenBB->m_rcTexList.Get());
 	auto ui_cat_item_alt_sel = boost::make_shared<hh::mr::CTextureData>();
+	auto ui_cat_item_null = boost::make_shared<hh::mr::CTextureData>();
 	ui_cat_item_alt_sel->m_spPictureData = hh::mr::CMirageDatabaseWrapper(This->m_pMember->m_pGameDocument->m_pMember->m_spDatabase.get()).GetPictureData(texString);
+	ui_cat_item_null->m_spPictureData = hh::mr::CMirageDatabaseWrapper(This->m_pMember->m_pGameDocument->m_pMember->m_spDatabase.get()).GetPictureData("ui_Null_00");
 
-	texList->m_spTexsetData->m_TextureList[texSetID] = ui_cat_item_alt_sel;
+	if (ui_cat_item_alt_sel == nullptr)
+		texList->m_spTexsetData->m_TextureList[texSetID] = ui_cat_item_null;
+	else
+		texList->m_spTexsetData->m_TextureList[texSetID] = ui_cat_item_alt_sel;
 }
 
-const char* CHudUIThumbShoeString(int id, char* result)
+const char* CHudUIThumbHeadString(int id, char* result)
 {
-	auto mapChar = MAP_FILE_SHOE[ShDefault + (CHudVarScroll * 3) + id];
-	auto mapInt = (ShDefault + (CHudVarScroll * 3) + id);
-	const char* texExtUI = "ui_";
+	if (((CHudVarScroll * 3) + id) >= s_ItemDataHead.size())
+	{
+		sprintf(result, "ui_Null_00");
+		return result;
+	}
+	auto mapChar = s_ItemDataHead[(CHudVarScroll * 3) + id].name;
+	auto mapInt = s_ItemDataHead[(CHudVarScroll * 3) + id].altselect;
 	const char* texExtOn = "_On";
 	const char* texExtOff = "_Off";
-	const char* texExtVar = "_00";
-	const char* texExt0 = "_00";
-	const char* texExt1 = "_01";
-	const char* texExt2 = "_02";
-	const char* texExt3 = "_03";
-	const char* texExt4 = "_04";
-	const char* texExt5 = "_05";
-	const char* texExt6 = "_06";
-	const char* texExt7 = "_07";
-	const char* texExt8 = "_08";
-	const char* texExt9 = "_09";
-	bool active = (mapInt == SelectShoes);
-	bool isShDefault = (mapInt == ShDefault);
-	bool isShDefaultLightS = (ShDefaultVariant == DefaultLightS);
-	bool isShSA2Beta = (mapInt == ShSA2Beta);
-	bool isShSA2BetaLightS = (ShSA2BetaVariant == SA2BetaLightS);
-	bool isShSA2Soap = (mapInt == ShSA2Soap);
-	bool isShSA2SoapLightS = (ShSA2SoapVariant == SA2SoapLightS);
-	bool isShSA2SoapRacing = (ShSA2SoapVariant == SA2SoapRacing);
-	bool isSh06Gem = (mapInt == Sh06Gem);
-	bool isSh06GemRed = (Sh06GemVariant == GemRed);
-	bool isSh06GemBlue = (Sh06GemVariant == GemBlue);
-	bool isSh06GemGreen = (Sh06GemVariant == GemGreen);
-	bool isSh06GemPurple = (Sh06GemVariant == GemPurple);
-	bool isSh06GemSky = (Sh06GemVariant == GemSky);
-	bool isSh06GemWhite = (Sh06GemVariant == GemWhite);
-	bool isSh06GemYellow = (Sh06GemVariant == GemYellow);
-
-	if ((isShDefault && isShDefaultLightS) || (isShSA2Beta && isShSA2BetaLightS) || (isShSA2Soap && isShSA2SoapLightS) || (isSh06Gem && isSh06GemRed))
-		texExtVar = texExt1;
-	else if ((isShSA2Soap && isShSA2SoapRacing) || (isSh06Gem && isSh06GemBlue))
-		texExtVar = texExt2;
-	else if (isSh06Gem && isSh06GemGreen)
-		texExtVar = texExt3;
-	else if (isSh06Gem && isSh06GemPurple)
-		texExtVar = texExt4;
-	else if (isSh06Gem && isSh06GemSky)
-		texExtVar = texExt5;
-	else if (isSh06Gem && isSh06GemWhite)
-		texExtVar = texExt6;
-	else if (isSh06Gem && isSh06GemYellow)
-		texExtVar = texExt7;
-
-	sprintf(result, "%s%s%s%s", texExtUI, mapChar, texExtVar, active ? texExtOn : texExtOff);
-
+	bool active = ((CHudVarScroll * 3) + id == SelectHeadData);
+	sprintf(result, "ui_%s_%02d%s", mapChar.c_str(), mapInt, active ? texExtOn : texExtOff);
 	return result;
 }
 const char* CHudUIThumbBodyString(int id, char* result)
 {
-	auto mapChar = MAP_FILE_BODY[BdDefault + (CHudVarScroll * 3) + id];
-	auto mapInt = (BdDefault + (CHudVarScroll * 3) + id);
-	const char* texExtUI = "ui_";
-	const char* texExtOn = "_On";
-	const char* texExtOff = "_Off";
-	const char* texExtVar = "_00";
-	const char* texExt0 = "_00";
-	const char* texExt1 = "_01";
-	const char* texExt2 = "_02";
-	const char* texExt3 = "_03";
-	const char* texExt4 = "_04";
-	const char* texExt5 = "_05";
-	const char* texExt6 = "_06";
-	const char* texExt7 = "_07";
-	const char* texExt8 = "_08";
-	const char* texExt9 = "_09";
-	bool active = (mapInt == SelectBody);
-	bool isBdDefault = (mapInt == BdDefault);
-
-	if ((isBdDefault && BdDefaultVariant))
-		texExtVar = texExt1;
-
-	sprintf(result, "%s%s%s%s", texExtUI, mapChar, texExtVar, active ? texExtOn : texExtOff);
-
-	return result;
-}
-const char* CHudUIThumbHeadString(int id, char* result)
-{
-	auto mapChar = MAP_FILE_HEAD[HeDefault + (CHudVarScroll * 3) + id];
-	auto mapInt = (HeDefault + (CHudVarScroll * 3) + id);
-	const char* texExtUI = "ui_";
-	const char* texExtOn = "_On";
-	const char* texExtOff = "_Off";
-	const char* texExtVar = "_00";
-	const char* texExt0 = "_00";
-	const char* texExt1 = "_01";
-	const char* texExt2 = "_02";
-	const char* texExt3 = "_03";
-	const char* texExt4 = "_04";
-	const char* texExt5 = "_05";
-	const char* texExt6 = "_06";
-	const char* texExt7 = "_07";
-	const char* texExt8 = "_08";
-	const char* texExt9 = "_09";
-	bool active = (mapInt == SelectHead);
-	bool isHeSimulator = (mapInt == HeSimulator);
-
-	if ((isHeSimulator && HeSimulatorVariant))
-		texExtVar = texExt1;
-
-	sprintf(result, "%s%s%s%s", texExtUI, mapChar, texExtVar, active ? texExtOn : texExtOff);
-
-	return result;
-}
-const char* CHudUIThumbHandLString(int id, char* result)
-{
-	auto mapChar = MAP_FILE_HANDL[HLDefault + (CHudVarScroll * 3) + id];
-	auto mapInt = (HLDefault + (CHudVarScroll * 3) + id);
-	const char* texExtUI = "ui_";
-	const char* texExtOn = "_On";
-	const char* texExtOff = "_Off";
-	const char* texExtVar = "_00";
-	const char* texExt0 = "_00";
-	const char* texExt1 = "_01";
-	const char* texExt2 = "_02";
-	const char* texExt3 = "_03";
-	const char* texExt4 = "_04";
-	const char* texExt5 = "_05";
-	const char* texExt6 = "_06";
-	const char* texExt7 = "_07";
-	const char* texExt8 = "_08";
-	const char* texExt9 = "_09";
-	bool active = (mapInt == SelectHandL);
-	//bool isHLDefault = (mapInt == HLDefault);
-
-	//if ((isHLDefault && HLDefaultVariant))
+	//auto mapChar = MAP_FILE_BODY[BdDefault + (CHudVarScroll * 3) + id];
+	//auto mapInt = (BdDefault + (CHudVarScroll * 3) + id);
+	//const char* texExtUI = "ui_";
+	//const char* texExtOn = "_On";
+	//const char* texExtOff = "_Off";
+	//const char* texExtVar = "_00";
+	//const char* texExt0 = "_00";
+	//const char* texExt1 = "_01";
+	//const char* texExt2 = "_02";
+	//const char* texExt3 = "_03";
+	//const char* texExt4 = "_04";
+	//const char* texExt5 = "_05";
+	//const char* texExt6 = "_06";
+	//const char* texExt7 = "_07";
+	//const char* texExt8 = "_08";
+	//const char* texExt9 = "_09";
+	//bool active = (mapInt == SelectBody);
+	//bool isBdDefault = (mapInt == BdDefault);
+	//if ((isBdDefault && BdDefaultVariant))
 	//	texExtVar = texExt1;
+	//sprintf(result, "%s%s%s%s", texExtUI, mapChar, texExtVar, active ? texExtOn : texExtOff);
+	//return result;
 
-	sprintf(result, "%s%s%s%s", texExtUI, mapChar, texExtVar, active ? texExtOn : texExtOff);
+	if (((CHudVarScroll * 3) + id) >= s_ItemDataBody.size())
+	{
+		sprintf(result, "ui_Null_00");
+		return result;
+	}
+	auto mapChar = s_ItemDataBody[(CHudVarScroll * 3) + id].name;
+	auto mapInt = s_ItemDataBody[(CHudVarScroll * 3) + id].altselect;
+	const char* texExtOn = "_On";
+	const char* texExtOff = "_Off";
+	bool active = ((CHudVarScroll * 3) + id == SelectBodyData);
+	sprintf(result, "ui_%s_%02d%s", mapChar.c_str(), mapInt, active ? texExtOn : texExtOff);
+	return result;
+}
+const char* CHudUIThumbShoeString(int id, char* result)
+{
+	//auto mapChar = MAP_FILE_SHOE[ShDefault + (CHudVarScroll * 3) + id];
+	//auto mapInt = (ShDefault + (CHudVarScroll * 3) + id);
+	//const char* texExtUI = "ui_";
+	//const char* texExtOn = "_On";
+	//const char* texExtOff = "_Off";
+	//const char* texExtVar = "_00";
+	//const char* texExt0 = "_00";
+	//const char* texExt1 = "_01";
+	//const char* texExt2 = "_02";
+	//const char* texExt3 = "_03";
+	//const char* texExt4 = "_04";
+	//const char* texExt5 = "_05";
+	//const char* texExt6 = "_06";
+	//const char* texExt7 = "_07";
+	//const char* texExt8 = "_08";
+	//const char* texExt9 = "_09";
+	//bool active = (mapInt == SelectShoes);
+	//bool isShDefault = (mapInt == ShDefault);
+	//bool isShDefaultLightS = (ShDefaultVariant == DefaultLightS);
+	//bool isShSA2Beta = (mapInt == ShSA2Beta);
+	//bool isShSA2BetaLightS = (ShSA2BetaVariant == SA2BetaLightS);
+	//bool isShSA2Soap = (mapInt == ShSA2Soap);
+	//bool isShSA2SoapLightS = (ShSA2SoapVariant == SA2SoapLightS);
+	//bool isShSA2SoapRacing = (ShSA2SoapVariant == SA2SoapRacing);
+	//bool isSh06Gem = (mapInt == Sh06Gem);
+	//bool isSh06GemRed = (Sh06GemVariant == GemRed);
+	//bool isSh06GemBlue = (Sh06GemVariant == GemBlue);
+	//bool isSh06GemGreen = (Sh06GemVariant == GemGreen);
+	//bool isSh06GemPurple = (Sh06GemVariant == GemPurple);
+	//bool isSh06GemSky = (Sh06GemVariant == GemSky);
+	//bool isSh06GemWhite = (Sh06GemVariant == GemWhite);
+	//bool isSh06GemYellow = (Sh06GemVariant == GemYellow);
+	//if ((isShDefault && isShDefaultLightS) || (isShSA2Beta && isShSA2BetaLightS) || (isShSA2Soap && isShSA2SoapLightS) || (isSh06Gem && isSh06GemRed))
+	//	texExtVar = texExt1;
+	//else if ((isShSA2Soap && isShSA2SoapRacing) || (isSh06Gem && isSh06GemBlue))
+	//	texExtVar = texExt2;
+	//else if (isSh06Gem && isSh06GemGreen)
+	//	texExtVar = texExt3;
+	//else if (isSh06Gem && isSh06GemPurple)
+	//	texExtVar = texExt4;
+	//else if (isSh06Gem && isSh06GemSky)
+	//	texExtVar = texExt5;
+	//else if (isSh06Gem && isSh06GemWhite)
+	//	texExtVar = texExt6;
+	//else if (isSh06Gem && isSh06GemYellow)
+	//	texExtVar = texExt7;
+	//sprintf(result, "%s%s%s%s", texExtUI, mapChar, texExtVar, active ? texExtOn : texExtOff);
+	//return result;
 
+	if (((CHudVarScroll * 3) + id) >= s_ItemDataShoes.size())
+	{
+		sprintf(result, "ui_Null_00");
+		return result;
+	}
+	auto mapChar = s_ItemDataShoes[(CHudVarScroll * 3) + id].name;
+	auto mapInt = s_ItemDataShoes[(CHudVarScroll * 3) + id].altselect;
+	const char* texExtOn = "_On";
+	const char* texExtOff = "_Off";
+	bool active = ((CHudVarScroll * 3) + id == SelectShoesData);
+	sprintf(result, "ui_%s_%02d%s", mapChar.c_str(), mapInt, active ? texExtOn : texExtOff);
 	return result;
 }
 const char* CHudUIThumbHandRString(int id, char* result)
 {
-	auto mapChar = MAP_FILE_HANDR[HRDefault + (CHudVarScroll * 3) + id];
-	auto mapInt = (HRDefault + (CHudVarScroll * 3) + id);
-	const char* texExtUI = "ui_";
+	//auto mapChar = MAP_FILE_HANDR[HRDefault + (CHudVarScroll * 3) + id];
+	//auto mapInt = (HRDefault + (CHudVarScroll * 3) + id);
+	//const char* texExtUI = "ui_";
+	//const char* texExtOn = "_On";
+	//const char* texExtOff = "_Off";
+	//const char* texExtVar = "_00";
+	//const char* texExt0 = "_00";
+	//const char* texExt1 = "_01";
+	//const char* texExt2 = "_02";
+	//const char* texExt3 = "_03";
+	//const char* texExt4 = "_04";
+	//const char* texExt5 = "_05";
+	//const char* texExt6 = "_06";
+	//const char* texExt7 = "_07";
+	//const char* texExt8 = "_08";
+	//const char* texExt9 = "_09";
+	//bool active = (mapInt == SelectHandR);
+	//bool isHRSA2Bounce = (mapInt == HRSA2Bounce);
+	//if ((isHRSA2Bounce && HRSA2BounceVariant))
+	//	texExtVar = texExt1;
+	//sprintf(result, "%s%s%s%s", texExtUI, mapChar, texExtVar, active ? texExtOn : texExtOff);
+	//return result;
+
+	if (((CHudVarScroll * 3) + id) >= s_ItemDataHandR.size())
+	{
+		sprintf(result, "ui_Null_00");
+		return result;
+	}
+	auto mapChar = s_ItemDataHandR[(CHudVarScroll * 3) + id].name;
+	auto mapInt = s_ItemDataHandR[(CHudVarScroll * 3) + id].altselect;
 	const char* texExtOn = "_On";
 	const char* texExtOff = "_Off";
-	const char* texExtVar = "_00";
-	const char* texExt0 = "_00";
-	const char* texExt1 = "_01";
-	const char* texExt2 = "_02";
-	const char* texExt3 = "_03";
-	const char* texExt4 = "_04";
-	const char* texExt5 = "_05";
-	const char* texExt6 = "_06";
-	const char* texExt7 = "_07";
-	const char* texExt8 = "_08";
-	const char* texExt9 = "_09";
-	bool active = (mapInt == SelectHandR);
-	bool isHRSA2Bounce = (mapInt == HRSA2Bounce);
+	bool active = ((CHudVarScroll * 3) + id == SelectHandRData);
+	sprintf(result, "ui_%s_%02d%s", mapChar.c_str(), mapInt, active ? texExtOn : texExtOff);
+	return result;
+}
+const char* CHudUIThumbHandLString(int id, char* result)
+{
+	//auto mapChar = MAP_FILE_HANDL[HLDefault + (CHudVarScroll * 3) + id];
+	//auto mapInt = (HLDefault + (CHudVarScroll * 3) + id);
+	//const char* texExtUI = "ui_";
+	//const char* texExtOn = "_On";
+	//const char* texExtOff = "_Off";
+	//const char* texExtVar = "_00";
+	//const char* texExt0 = "_00";
+	//const char* texExt1 = "_01";
+	//const char* texExt2 = "_02";
+	//const char* texExt3 = "_03";
+	//const char* texExt4 = "_04";
+	//const char* texExt5 = "_05";
+	//const char* texExt6 = "_06";
+	//const char* texExt7 = "_07";
+	//const char* texExt8 = "_08";
+	//const char* texExt9 = "_09";
+	//bool active = (mapInt == SelectHandL);
+	//bool isHLDefault = (mapInt == HLDefault);
+	//if ((isHLDefault && HLDefaultVariant))
+	//	texExtVar = texExt1;
+	//sprintf(result, "%s%s%s%s", texExtUI, mapChar, texExtVar, active ? texExtOn : texExtOff);
+	//return result;
 
-	if ((isHRSA2Bounce && HRSA2BounceVariant))
-		texExtVar = texExt1;
-
-	sprintf(result, "%s%s%s%s", texExtUI, mapChar, texExtVar, active ? texExtOn : texExtOff);
-
+	if (((CHudVarScroll * 3) + id) >= s_ItemDataHandL.size())
+	{
+		sprintf(result, "ui_Null_00");
+		return result;
+	}
+	auto mapChar = s_ItemDataHandL[(CHudVarScroll * 3) + id].name;
+	auto mapInt = s_ItemDataHandL[(CHudVarScroll * 3) + id].altselect;
+	const char* texExtOn = "_On";
+	const char* texExtOff = "_Off";
+	bool active = ((CHudVarScroll * 3) + id == SelectHandLData);
+	sprintf(result, "ui_%s_%02d%s", mapChar.c_str(), mapInt, active ? texExtOn : texExtOff);
 	return result;
 }
 const char* CHudUIThumbSonicBodyString(int id, char* result)
@@ -1683,12 +1578,6 @@ void CHudUIThumbManager(Sonic::CGameObject* This)
 		return;
 		break;
 	}
-	
-	//auto ui_sh_ShDefault_00_On = boost::make_shared<hh::mr::CTextureData>();
-	//ui_sh_ShDefault_00_On->m_spPictureData = hh::mr::CMirageDatabaseWrapper(This->m_pMember->m_pGameDocument->m_pMember->m_spDatabase.get()).GetPictureData(MAP_THUMB_SHOE[ShDefault]);
-	//auto texList = static_cast<Sonic::CCsdTexListMirage*>(prFittingScreenBB->m_rcTexList.Get());
-	// ((ShDefault + (CHudVarScroll * 3) + 0) == SelectShoes)
-	//CHudUITexsetData(This,  6, MAP_THUMB_SHOE[ShDefault + (CHudVarScroll * 3) + 0]);
 
 }
 
@@ -1985,69 +1874,73 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 			switch (CHudTabSel)
 			{
 			case UIPartShoes:
-				switch (CHudVarTrueSel)
+				if (s_ItemDataShoes[CHudVarTrueSel].altcount >= 1)
 				{
-				case ShDefault:
-				case ShSA2Beta:
-				case ShSA2Soap:
-				case Sh06Gem:
 					scBBIcon->GetNode("star")->SetPatternIndex(1);
 					if (IsUnleashedHUD && SWAOpenTimer <= 0)
 						scSWAAlt->SetHideFlag(false);
-					break;
-				default:
+				}
+				else
+				{
 					scBBIcon->GetNode("star")->SetPatternIndex(0);
 					if (IsUnleashedHUD && SWAOpenTimer <= 0)
 						scSWAAlt->SetHideFlag(true);
-					break;
 				}
 				break;
 			case UIPartBody:
-				switch (CHudVarTrueSel)
+				if (s_ItemDataBody[CHudVarTrueSel].altcount >= 1)
 				{
-				case BdDefault:
-				case BdWildFire:
-				case BdScarf:
-				case BdMovieSkin:
 					scBBIcon->GetNode("star")->SetPatternIndex(1);
 					if (IsUnleashedHUD && SWAOpenTimer <= 0)
 						scSWAAlt->SetHideFlag(false);
-					break;
-				default:
+				}
+				else
+				{
 					scBBIcon->GetNode("star")->SetPatternIndex(0);
 					if (IsUnleashedHUD && SWAOpenTimer <= 0)
 						scSWAAlt->SetHideFlag(true);
-					break;
 				}
 				break;
 			case UIPartHandR:
-				switch (CHudVarTrueSel)
+				if (s_ItemDataHandR[CHudVarTrueSel].altcount >= 1)
 				{
-				case HRSA2Bounce:
 					scBBIcon->GetNode("star")->SetPatternIndex(1);
 					if (IsUnleashedHUD && SWAOpenTimer <= 0)
 						scSWAAlt->SetHideFlag(false);
-					break;
-				default:
+				}
+				else
+				{
 					scBBIcon->GetNode("star")->SetPatternIndex(0);
 					if (IsUnleashedHUD && SWAOpenTimer <= 0)
 						scSWAAlt->SetHideFlag(true);
-					break;
+				}
+				break;
+			case UIPartHandL:
+				if (s_ItemDataHandL[CHudVarTrueSel].altcount >= 1)
+				{
+					scBBIcon->GetNode("star")->SetPatternIndex(1);
+					if (IsUnleashedHUD && SWAOpenTimer <= 0)
+						scSWAAlt->SetHideFlag(false);
+				}
+				else
+				{
+					scBBIcon->GetNode("star")->SetPatternIndex(0);
+					if (IsUnleashedHUD && SWAOpenTimer <= 0)
+						scSWAAlt->SetHideFlag(true);
 				}
 				break;
 			case UIPartHead:
-				switch (CHudVarTrueSel)
+				if (s_ItemDataHead[CHudVarTrueSel].altcount >= 1)
 				{
-				case HeSimulator:
 					scBBIcon->GetNode("star")->SetPatternIndex(1);
 					if (IsUnleashedHUD && SWAOpenTimer <= 0)
 						scSWAAlt->SetHideFlag(false);
-					break;
-				default:
+				}
+				else
+				{
 					scBBIcon->GetNode("star")->SetPatternIndex(0);
 					if (IsUnleashedHUD && SWAOpenTimer <= 0)
 						scSWAAlt->SetHideFlag(true);
-					break;
 				}
 				break;
 			default:
@@ -2056,7 +1949,6 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 					scSWAAlt->SetHideFlag(true);
 				break;
 			}
-
 
 
 			////------Menu Input Handling------////
@@ -2098,7 +1990,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 				CHudUISwitch(1);
 			}
 
-			////------Directional Movement Handle
+			////------Cursor Movement Handle
 			if (scenecheck && !IsInMenuExit && !IsInMenuChange && scBBIcon == !nullptr)
 			{
 				if ((PressedUp && scBBIcon->m_MotionFrame >= 3) || (PushedUp && scBBIcon->m_MotionFrame >= 12))
@@ -2149,11 +2041,9 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 	//{
 	//	if (!obDebugTxtUI) //Create UI project if it doesn't exist
 	//		CreateDebugTxtUI(This, Edx, in_rUpdateInfo);
-
 	//	DebugSelect = 0;
 	//	DebugScrollCount = 0;
 	//	DebugOpen = true;
-
 	//	scDebugTxtVisSel = prDebugTxtScreen->CreateScene("deco_text");
 	//	scDebugTxtVisSel->SetMotion("Intro_Anim");
 	//	scDebugTxtVisSel->SetPosition(0.7 * arX, 0.05 * arY);
@@ -2237,8 +2127,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 	//	//	break;
 	//	//}
 	//	//scDebugSelector->SetPosition(0.75 * arX, 0.1 * arY);
-	
-
+	//
 	//	//if (PressedY && DebugOpen)
 	//	//{
 	//	//	//DebugSelect = DebugListStart;

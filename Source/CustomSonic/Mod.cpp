@@ -31,10 +31,10 @@ EXPORT void Init(ModInfo_t* modInfo)
 	//MessageBoxA(nullptr, "Init Halt", "Window", 0);
 	ReadConfig();
 	ReadJson(jsonFilePathHead, 0);
-	//ReadJson(jsonFilePathBody, 1);
-	//ReadJson(jsonFilePathShoes, 2);
-	//ReadJson(jsonFilePathHandR, 3);
-	//ReadJson(jsonFilePathHandL, 4);
+	ReadJson(jsonFilePathBody, 1);
+	ReadJson(jsonFilePathShoes, 2);
+	ReadJson(jsonFilePathHandR, 3);
+	ReadJson(jsonFilePathHandL, 4);
 }
 EXPORT void PostInit()
 {

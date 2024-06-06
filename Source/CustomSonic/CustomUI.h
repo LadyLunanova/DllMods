@@ -224,23 +224,24 @@ void WriteINI(FILE* iniFile)
 	printf("\n");
 	char buffer[512]{};
 	snprintf(buffer, 512,
-		"%s\n%s%d\n%s%d\n%s%d\n%s%d\n%s%d\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%d\n%s%d\n%s%d\n%s%d\n%s%d\n%s%d\n%s%d\n%s%d\n%s%d\n%s%d\n",
+		"%s\n"
+		"%s%02d"
+		"%s%02d"
+		"%s%02d"
+		"%s%02d"
+		"%s%02d"
+		"%s%02d"
+		"%s%02d"
+		"%s%02d"
+		"%s%02d"
+		"%s%02d"
+		"%s%02d",
 		"[Select]",
-		"SelectShoes=", SelectShoes,
-		"ShDefaultVariant=", ShDefaultVariant,
-		"ShSA2BetaVariant=", ShSA2BetaVariant,
-		"ShSA2SoapVariant=", ShSA2SoapVariant,
-		"Sh06GemVariant=", Sh06GemVariant,
-		"BdDefaultVariant=", BdDefaultVariant ? "True" : "False",
-		"BdWildFireVariant=", BdWildFireVariant ? "True" : "False",
-		"BdScarfVariant=", BdScarfVariant ? "True" : "False",
-		"BdMovieVariant=", BdMovieVariant ? "True" : "False",
-		"HeSimulatorVariant=", HeSimulatorVariant ? "True" : "False",
-		"HRSA2BounceVariant=", HRSA2BounceVariant ? "True" : "False",
-		"SelectBody=", SelectBody,
-		"SelectHead=", SelectHead,
-		"SelectHandL=", SelectHandL,
-		"SelectHandR=", SelectHandR,
+		"SelectShoes=", SelectShoesData,
+		"SelectBody=", SelectBodyData,
+		"SelectHead=", SelectHeadData,
+		"SelectHandL=", SelectHandLData,
+		"SelectHandR=", SelectHandRData,
 		"SelectSnSonMat=", SelectSnSonMat,
 		"SelectSsnSonMat=", SelectSsnSonMat,
 		"SelectEyelid=", SelectEyelid,
@@ -264,21 +265,11 @@ void ReadINI(std::string saveFilePath)
 		fclose(pFile);
 		reader = new INIReader(saveFilePath);
 	}
-	SelectShoes = (SelectShoeType)reader->GetInteger("Select", "SelectShoes", SelectShoes);
-	ShDefaultVariant = (ShDefaultVariantType)reader->GetInteger("Select", "ShDefaultVariant", ShDefaultVariant);
-	ShSA2BetaVariant = (ShSA2BetaVariantType)reader->GetInteger("Select", "ShSA2BetaVariant", ShSA2BetaVariant);
-	ShSA2SoapVariant = (ShSA2SoapVariantType)reader->GetInteger("Select", "ShSA2SoapVariant", ShSA2SoapVariant);
-	Sh06GemVariant = (Sh06GemVariantType)reader->GetInteger("Select", "Sh06GemVariant", Sh06GemVariant);
-	BdDefaultVariant = reader->GetBoolean("Select", "BdDefaultVariant", BdDefaultVariant);
-	BdWildFireVariant = reader->GetBoolean("Select", "BdWildFireVariant", BdWildFireVariant);
-	BdScarfVariant = reader->GetBoolean("Select", "BdScarfVariant", BdScarfVariant);
-	BdMovieVariant = reader->GetBoolean("Select", "BdMovieVariant", BdMovieVariant);
-	HeSimulatorVariant = reader->GetBoolean("Select", "HeSimulatorVariant", HeSimulatorVariant);
-	HRSA2BounceVariant = reader->GetBoolean("Select", "HRSA2BounceVariant", HRSA2BounceVariant);
-	SelectBody = (SelectBodyType)reader->GetInteger("Select", "SelectBody", SelectBody);
-	SelectHead = (SelectHeadType)reader->GetInteger("Select", "SelectHead", SelectHead);
-	SelectHandL = (SelectHandLType)reader->GetInteger("Select", "SelectHandL", SelectHandL);
-	SelectHandR = (SelectHandRType)reader->GetInteger("Select", "SelectHandR", SelectHandR);
+	SelectShoesData = reader->GetInteger("Select", "SelectShoes", SelectShoesData);
+	SelectBodyData = reader->GetInteger("Select", "SelectBody", SelectBodyData);
+	SelectHeadData = reader->GetInteger("Select", "SelectHead", SelectHeadData);
+	SelectHandLData = reader->GetInteger("Select", "SelectHandL", SelectHandLData);
+	SelectHandRData = reader->GetInteger("Select", "SelectHandR", SelectHandRData);
 	SelectSnSonMat = (SelectSnSonMatType)reader->GetInteger("Select", "SelectSnSonMat", SelectSnSonMat);
 	SelectSsnSonMat = (SelectSsnSonMatType)reader->GetInteger("Select", "SelectSsnSonMat", SelectSsnSonMat);
 	SelectEyelid = (SelectEyelidType)reader->GetInteger("Select", "SelectEyelid", SelectEyelid);

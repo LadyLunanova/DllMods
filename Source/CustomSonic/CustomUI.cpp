@@ -945,7 +945,18 @@ void CHudUIMove(int Type)
 
 void CHudUIAlt()
 {
-	//isLoadModel = true;
+	printf("Head Item Count: %d\n", s_ItemDataHead.size());
+	for (size_t i = 0; i < s_ItemDataHead.size(); i++)
+	{
+		auto& itemData = s_ItemDataHead[i];
+		printf("\n");
+		printf("Item Name: ");
+		printf(itemData.name.c_str());
+		printf("\n");
+		printf("Alt Count: %d\n", itemData.altcount);
+		printf("Hide Flag: %d\n", itemData.hideflags);
+	}
+
 	switch (CHudTabSel)
 	{
 	case UIPartShoes:
@@ -1096,6 +1107,8 @@ void CHudUIAlt()
 		return;
 		break;
 	}
+
+	
 }
 
 void CHudUISwitch(int Type)

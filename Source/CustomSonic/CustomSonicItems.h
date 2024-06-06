@@ -4,6 +4,54 @@
 using nlohmann::json;
 
 ////------Item Setup------////
+
+int itemCountHead = 0;
+int itemCountBody = 0;
+int itemCountShoes = 0;
+int itemCountHandR = 0;
+int itemCountHandL = 0;
+
+struct ItemDataHead
+{
+	std::string name;
+	int altcount;
+	int hideflags;
+};
+static std::vector<ItemDataHead> s_ItemDataHead;
+
+struct ItemDataBody
+{
+	std::string name;
+	int altcount;
+	int hideflags;
+};
+static std::vector<ItemDataBody> s_ItemDataBody;
+
+struct ItemDataShoes
+{
+	std::string name;
+	int altcount;
+	int hideflags;
+};
+static std::vector<ItemDataShoes> s_ItemDataShoes;
+
+struct ItemDataHandR
+{
+	std::string name;
+	int altcount;
+	int hideflags;
+};
+static std::vector<ItemDataHandR> s_ItemDataHandR;
+
+struct ItemDataHandL
+{
+	std::string name;
+	int altcount;
+	int hideflags;
+};
+static std::vector<ItemDataHandL> s_ItemDataHandL;
+
+////------Hardcoded Item Setup------////
 enum SelectShoeType
 {
 	ShDefault, //Has Lightspeed variant
@@ -1445,16 +1493,36 @@ void ReadJson(std::string jsonFilePath, int cCat)
 		json json;
 		stream >> json;
 
-		printf("%d", json.size());
-
-		for (const auto& obj : json)
+		switch (cCat)
 		{
-			char buffer[1024];
-			std::string names = obj["name"].get<std::string>();
-			int altcounts = obj["altcount"].get<int>();
-			int hideflags = obj["hideflags"].get<int>();
-			//sprintf(buffer, "%s, %d, %d", names.c_str(), altcounts, hideflags);
-			//MessageBoxA(nullptr, buffer, "Item", 0);
+		case 0:
+			itemCountHead = json.size();
+
+			for (const auto& obj : json)
+			{
+				auto& itemData = s_ItemDataHead.emplace_back();
+
+				itemData.name = obj["name"];
+				itemData.altcount = obj["altcount"];
+				itemData.hideflags = obj["hideflags"];
+
+			}
+			break;
+		case 1:
+			//printf("%d", json.size());
+			itemCountBody = json.size();
+
+			for (const auto& obj : json)
+			{
+				std::string names = obj["name"].get<std::string>();
+				int altcounts = obj["altcount"].get<int>();
+				int hideflags = obj["hideflags"].get<int>();
+				//char buffer[1024];
+				//sprintf(buffer, "%s, %d, %d", names.c_str(), altcounts, hideflags);
+				//MessageBoxA(nullptr, buffer, "Item", 0);
+			}
+			break;
 		}
+
 	}
 }

@@ -225,23 +225,33 @@ void WriteINI(FILE* iniFile)
 	char buffer[512]{};
 	snprintf(buffer, 512,
 		"%s\n"
-		"%s%02d"
-		"%s%02d"
-		"%s%02d"
-		"%s%02d"
-		"%s%02d"
-		"%s%02d"
-		"%s%02d"
-		"%s%02d"
-		"%s%02d"
-		"%s%02d"
-		"%s%02d",
+		"%s%02d\n"
+		"%s%02d\n"
+		"%s%02d\n"
+		"%s%02d\n"
+		"%s%02d\n"
+		"%s%02d\n"
+		"%s%02d\n"
+		"%s%02d\n"
+		"%s%02d\n"
+		"%s%02d\n"
+		"%s%02d\n"
+		"%s%02d\n"
+		"%s%02d\n"
+		"%s%02d\n"
+		"%s%02d\n"
+		"%s%02d\n",
 		"[Select]",
 		"SelectShoes=", SelectShoesData,
 		"SelectBody=", SelectBodyData,
 		"SelectHead=", SelectHeadData,
 		"SelectHandL=", SelectHandLData,
 		"SelectHandR=", SelectHandRData,
+		"SelectAltShoes=", s_ItemDataShoes[SelectShoesData].altselect,
+		"SelectAltBody=", s_ItemDataBody[SelectBodyData].altselect,
+		"SelectAltHead=", s_ItemDataHead[SelectHeadData].altselect,
+		"SelectAltHandL=", s_ItemDataHandL[SelectHandLData].altselect,
+		"SelectAltHandR=", s_ItemDataHandR[SelectHandRData].altselect,
 		"SelectSnSonMat=", SelectSnSonMat,
 		"SelectSsnSonMat=", SelectSsnSonMat,
 		"SelectEyelid=", SelectEyelid,
@@ -270,6 +280,11 @@ void ReadINI(std::string saveFilePath)
 	SelectHeadData = reader->GetInteger("Select", "SelectHead", SelectHeadData);
 	SelectHandLData = reader->GetInteger("Select", "SelectHandL", SelectHandLData);
 	SelectHandRData = reader->GetInteger("Select", "SelectHandR", SelectHandRData);
+	s_ItemDataShoes[SelectShoesData].altselect = reader->GetInteger("Select", "SelectAltShoes", s_ItemDataShoes[SelectShoesData].altselect);
+	s_ItemDataBody[SelectBodyData].altselect = reader->GetInteger("Select", "SelectAltBody", s_ItemDataBody[SelectBodyData].altselect);
+	s_ItemDataHead[SelectHeadData].altselect = reader->GetInteger("Select", "SelectAltHead", s_ItemDataHead[SelectHeadData].altselect);
+	s_ItemDataHandL[SelectHandLData].altselect = reader->GetInteger("Select", "SelectAltHandL", s_ItemDataHandL[SelectHandLData].altselect);
+	s_ItemDataHandR[SelectHandRData].altselect = reader->GetInteger("Select", "SelectAltHandR", s_ItemDataHandR[SelectHandRData].altselect);
 	SelectSnSonMat = (SelectSnSonMatType)reader->GetInteger("Select", "SelectSnSonMat", SelectSnSonMat);
 	SelectSsnSonMat = (SelectSsnSonMatType)reader->GetInteger("Select", "SelectSsnSonMat", SelectSsnSonMat);
 	SelectEyelid = (SelectEyelidType)reader->GetInteger("Select", "SelectEyelid", SelectEyelid);

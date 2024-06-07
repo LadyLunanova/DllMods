@@ -28,7 +28,6 @@ struct ItemDataShoes
 	std::string name;
 	int altcount;
 	int altselect;
-	int hideflags;
 };
 inline std::vector<ItemDataShoes> s_ItemDataShoes;
 
@@ -37,7 +36,6 @@ struct ItemDataHandR
 	std::string name;
 	int altcount;
 	int altselect;
-	int hideflags;
 };
 inline std::vector<ItemDataHandR> s_ItemDataHandR;
 
@@ -46,7 +44,6 @@ struct ItemDataHandL
 	std::string name;
 	int altcount;
 	int altselect;
-	int hideflags;
 };
 inline std::vector<ItemDataHandL> s_ItemDataHandL;
 
@@ -58,143 +55,6 @@ int SelectHandLData = 0;
 
 ////------Hardcoded Item Setup------////
 
-//enum SelectShoeType
-//{
-//	ShDefault, //Has Lightspeed variant
-//	ShClassic,
-//	ShSA1,
-//	ShSA1LightS,
-//	ShSA2Beta, //Has Lightspeed variant
-//	ShSA2Soap, //Has Lightspeed and racing variants
-//	ShRiders,
-//	Sh06,
-//	Sh06Gem, //has 7 color alts
-//	ShArchie,
-//	ShExCal,  //TBA
-//	ShSUAirboost,
-//	ShSULightS,
-//	ShSUStomp,
-//	ShSUWallJmp,
-//	ShSUWerehog,
-//	ShSUZoney,
-//	ShSimulator,
-//	ShLink,
-//	ShBoom,
-//	ShSpeedSlugger, //TBA
-//	ShSpeedPirate, //TBA
-//	ShSmash, //TBA
-//	Sh2020Running, //TBA
-//	Sh2020Horse, //TBA
-//	Sh2020Karate, //TBA
-//	ShPumas,
-//	ShSFDeluxe,
-//	ShSFKorone,
-//	ShSFMonsterHunter,
-//	ShPrmNewYoke, //TBA
-//	ShPrmBoscageMaze, //TBA
-//	ShPrmNoPlace, //TBA
-//	ShOverflow00,
-//	ShOverflow01,
-//	ShOverflow02,
-//};
-//enum SelectBodyType
-//{
-//	BdDefault, //Blue Arms
-//	BdSA2Racing,
-//	BdWildFire, //Blue Arms
-//	BdExCal,  //TBA
-//	BdSimulator,
-//	BdLink,
-//	BdScarf, //Blue Arms
-//	BdSpeedSlugger, //TBA
-//	BdSpeedPirate, //TBA
-//	Bd2020SwimVest,
-//	Bd2020SurfSuit,
-//	Bd2020Horse,
-//	Bd2020Running, //TBA
-//	Bd2020Fence, //TBA
-//	BdMovieSkin, //Blue Arms
-//	BdSFMonsterHunter,
-//	BdSFMonsterHunterF,
-//	BdSFHoliday,
-//	BdOverflow00,
-//	BdOverflow01,
-//	BdOverflow02,
-//};
-//enum SelectHeadType
-//{
-//	HeDefault,
-//	HeSA1Sunglass,
-//	HeRiders,
-//	HeHeadphones,
-//	HeExCal,  //TBA
-//	HeSimulator,
-//	HeLink,
-//	HeBoom,
-//	HeSpeedSlugger, //TBA
-//	HeSpeedPirate, //TBA
-//	HeSFMonsterHunter,
-//	HeSFMonsterHunterF,
-//	HeSFHoliday,
-//	HeOverflow00,
-//	HeOverflow01,
-//	HeOverflow02,
-//};
-//enum SelectHandLType
-//{
-//	HLDefault,
-//	HLSA1Crystal,
-//	HLSA2FlameRing,
-//	HLSA2Racing,
-//	HLRiders,
-//	HL06Bounce,
-//	HLExCal,  //TBA
-//	HLChip,
-//	HLSimulator,
-//	HLLink,
-//	HLBoom,
-//	HLSpeedSlugger, //TBA
-//	HLSpeedPirate, //TBA
-//	HLSmash, //TBA
-//	HL2020Karate, //TBA
-//	HLSFDeluxe,
-//	HLSFKorone,
-//	HLSFMonsterHunter,
-//	HLPrmNewYoke, //TBA
-//	HLPrmBoscageMaze, //TBA
-//	HLPrmNoPlace, //TBA
-//	HLOverflow00,
-//	HLOverflow01,
-//	HLOverflow02,
-//};
-//enum SelectHandRType
-//{
-//	HRDefault,
-//	HRSA2Bounce,
-//	HRSA2Racing,
-//	HRRiders,
-//	HRRidersArkCosmos,
-//	HR06Homing,
-//	HRSecretRing,
-//	HRGauntlet,
-//	HRExCal,  //TBA
-//	HRSimulator,
-//	HRLink,
-//	HRBoom,
-//	HRSpeedSlugger, //TBA
-//	HRSpeedPirate, //TBA
-//	HRSmash, //TBA
-//	HR2020Karate, //TBA
-//	HRSFDeluxe,
-//	HRSFKorone,
-//	HRSFMonsterHunter,
-//	HRPrmNewYoke, //TBA
-//	HRPrmBoscageMaze, //TBA
-//	HRPrmNoPlace, //TBA
-//	HROverflow00,
-//	HROverflow01,
-//	HROverflow02,
-//};
 enum SelectSonicBodyType
 {
 	SBSnMaterial,
@@ -208,150 +68,8 @@ enum SelectSonicBodyType
 	SBOverflow08,
 };
 
-//SelectShoeType SelectShoes = SelectShoeType::ShDefault;
-//SelectBodyType SelectBody = SelectBodyType::BdDefault;
-//SelectHeadType SelectHead = SelectHeadType::HeDefault;
-//SelectHandLType SelectHandL = SelectHandLType::HLDefault;
-//SelectHandRType SelectHandR = SelectHandRType::HRDefault;
 SelectSonicBodyType SelectSonicBody = SelectSonicBodyType::SBSnMaterial;
 
-//static std::map<int, const char*> MAP_FILE_SHOE =
-//{
-//	{ ShDefault,			"ShDefault"},
-//	{ ShClassic,			"ShClassic" },
-//	{ ShSA1,				"ShSA1" },
-//	{ ShSA1LightS,			"ShSA1LightS" },
-//	{ ShSA2Beta,			"ShSA2Beta" },
-//	{ ShSA2Soap,			"ShSA2Soap" },
-//	{ ShRiders,				"ShRiders" },
-//	{ Sh06,					"Sh06" },
-//	{ Sh06Gem,				"Sh06Gem" },
-//	{ ShArchie,				"ShArchie" },
-//	{ ShExCal,				"ShExCal" },
-//	{ ShSUAirboost,			"ShSUAirboost" },
-//	{ ShSULightS,			"ShSULightS" },
-//	{ ShSUStomp,			"ShSUStomp" },
-//	{ ShSUWallJmp,			"ShSUWallJmp" },
-//	{ ShSUWerehog,			"ShSUWerehog" },
-//	{ ShSUZoney,			"ShSUZoney" },
-//	{ ShSimulator,			"ShSimulator" },
-//	{ ShLink,				"ShLink" },
-//	{ ShBoom,				"ShBoom" },
-//	{ ShSpeedSlugger,		"ShSpeedSlugger" },
-//	{ ShSpeedPirate,		"ShSpeedPirate" },
-//	{ ShSmash,				"ShSmash" },
-//	{ Sh2020Running,		"Sh2020Running" },
-//	{ Sh2020Horse,			"Sh2020Horse" },
-//	{ Sh2020Karate,			"Sh2020Karate" },
-//	{ ShPumas,				"ShPumas" },
-//	{ ShSFDeluxe,			"ShSFDeluxe" },
-//	{ ShSFKorone,			"ShSFKorone" },
-//	{ ShSFMonsterHunter,	"ShSFMonsterHunter" },
-//	{ ShPrmNewYoke,			"ShPrmNewYoke" },
-//	{ ShPrmBoscageMaze,		"ShPrmBoscageMaze" },
-//	{ ShPrmNoPlace,			"ShPrmNoPlace" },
-//	{ ShOverflow00,			"Null" },
-//	{ ShOverflow01,			"Null" },
-//	{ ShOverflow02,			"Null" },
-//};
-//static std::map<int, const char*> MAP_FILE_BODY =
-//{
-//	{ BdDefault,			"BdDefault"},
-//	{ BdSA2Racing,			"BdSA2Racing" },
-//	{ BdWildFire,			"BdWildFire" },
-//	{ BdExCal,				"BdExCal" },
-//	{ BdSimulator,			"BdSimulator" },
-//	{ BdLink,				"BdLink" },
-//	{ BdScarf,				"BdScarf" },
-//	{ BdSpeedSlugger,		"BdSpeedSlugger" },
-//	{ BdSpeedPirate,		"BdSpeedPirate" },
-//	{ Bd2020SwimVest,		"Bd2020SwimVest" },
-//	{ Bd2020SurfSuit,		"Bd2020SurfSuit" },
-//	{ Bd2020Horse,			"Bd2020Horse" },
-//	{ Bd2020Running,		"Bd2020Running" },
-//	{ Bd2020Fence,			"Bd2020Fence" },
-//	{ BdMovieSkin,			"BdMovieSkin" },
-//	{ BdSFMonsterHunter,	"BdSFMonsterHunter" },
-//	{ BdSFMonsterHunterF,	"BdSFMonsterHunterF" },
-//	{ BdSFHoliday,			"BdSFHoliday" },
-//	{ BdOverflow00,			"Null" },
-//	{ BdOverflow01,			"Null" },
-//	{ BdOverflow02,			"Null" },
-//};
-//static std::map<int, const char*> MAP_FILE_HEAD =
-//{
-//	{ HeDefault,			"HeDefault"},
-//	{ HeSA1Sunglass,		"HeSA1Sunglass" },
-//	{ HeRiders,				"HeRiders" },
-//	{ HeHeadphones,			"HeHeadphones" },
-//	{ HeExCal,				"HeExCal" },
-//	{ HeSimulator,			"HeSimulator" },
-//	{ HeLink,				"HeLink" },
-//	{ HeBoom,				"HeBoom" },
-//	{ HeSpeedSlugger,		"HeSpeedSlugger" },
-//	{ HeSpeedPirate,		"HeSpeedPirate" },
-//	{ HeSFMonsterHunter,	"HeSFMonsterHunter" },
-//	{ HeSFMonsterHunterF,	"HeSFMonsterHunterF" },
-//	{ HeSFHoliday,			"HeSFHoliday" },
-//	{ HeOverflow00,			"Null" },
-//	{ HeOverflow01,			"Null" },
-//	{ HeOverflow02,			"Null" },
-//};
-//static std::map<int, const char*> MAP_FILE_HANDL =
-//{
-//	{ HLDefault,			"HLDefault"},
-//	{ HLSA1Crystal,			"HLSA1Crystal"},
-//	{ HLSA2FlameRing,		"HLSA2FlameRing"},
-//	{ HLSA2Racing,			"HLSA2Racing"},
-//	{ HLRiders,				"HLRiders"},
-//	{ HL06Bounce,			"HL06Bounce"},
-//	{ HLExCal,				"HLExCal"},
-//	{ HLChip,				"HLChip"},
-//	{ HLSimulator, 			"HLSimulator"},
-//	{ HLLink,				"HLLink"},
-//	{ HLBoom,				"HLBoom"},
-//	{ HLSpeedSlugger, 		"HLSpeedSlugger"},
-//	{ HLSpeedPirate, 		"HLSpeedPirate"},
-//	{ HLSmash, 				"HLSmash"},
-//	{ HL2020Karate, 		"HL2020Karate"},
-//	{ HLSFDeluxe, 			"HLSFDeluxe"},
-//	{ HLSFKorone,			"HLSFKorone"},
-//	{ HLSFMonsterHunter, 	"HLSFMonsterHunter"},
-//	{ HLPrmNewYoke, 		"HLPrmNewYoke"},
-//	{ HLPrmBoscageMaze, 	"HLPrmBoscageMaze"},
-//	{ HLPrmNoPlace, 		"HLPrmNoPlace"},
-//	{ HLOverflow00,			"Null" },
-//	{ HLOverflow01,			"Null" },
-//	{ HLOverflow02,			"Null" },
-//};
-//static std::map<int, const char*> MAP_FILE_HANDR =
-//{
-//	{ HRDefault,			"HRDefault"},
-//	{ HRSA2Bounce,			"HRSA2Bounce"},
-//	{ HRSA2Racing,			"HRSA2Racing"},
-//	{ HRRiders,				"HRRiders"},
-//	{ HRRidersArkCosmos,	"HRRidersArkCosmos"},
-//	{ HR06Homing,			"HR06Homing"},
-//	{ HRSecretRing,			"HRSecretRing"},
-//	{ HRGauntlet,			"HRGauntlet"},
-//	{ HRExCal,				"HRExCal"},
-//	{ HRSimulator, 			"HRSimulator"},
-//	{ HRLink,				"HRLink"},
-//	{ HRBoom,				"HRBoom"},
-//	{ HRSpeedSlugger, 		"HRSpeedSlugger"},
-//	{ HRSpeedPirate, 		"HRSpeedPirate"},
-//	{ HRSmash, 				"HRSmash"},
-//	{ HR2020Karate, 		"HR2020Karate"},
-//	{ HRSFDeluxe, 			"HRSFDeluxe"},
-//	{ HRSFKorone,			"HRSFKorone"},
-//	{ HRSFMonsterHunter, 	"HRSFMonsterHunter"},
-//	{ HRPrmNewYoke, 		"HRPrmNewYoke"},
-//	{ HRPrmBoscageMaze, 	"HRPrmBoscageMaze"},
-//	{ HRPrmNoPlace, 		"HRPrmNoPlace"},
-//	{ HROverflow00,			"Null" },
-//	{ HROverflow01,			"Null" },
-//	{ HROverflow02,			"Null" },
-//};
 static std::map<int, const char*> MAP_FILE_SONICBODY =
 {
 	{ SBSnMaterial,			"SBSnMaterial" },
@@ -364,48 +82,6 @@ static std::map<int, const char*> MAP_FILE_SONICBODY =
 	{ SBOverflow07,			"Null" },
 	{ SBOverflow08,			"Null" },
 };
-
-////------Variant Setup------////
-
-enum ShDefaultVariantType
-{
-	DefaultDefault,
-	DefaultLightS,
-};
-enum ShSA2BetaVariantType
-{
-	SA2Beta,
-	SA2BetaLightS,
-};
-enum ShSA2SoapVariantType
-{
-	SA2Soap,
-	SA2SoapLightS,
-	SA2SoapRacing,
-};
-enum Sh06GemVariantType
-{
-	GemDefault,
-	GemRed,
-	GemBlue,
-	GemGreen,
-	GemPurple,
-	GemSky,
-	GemWhite,
-	GemYellow,
-};
-
-ShDefaultVariantType ShDefaultVariant = ShDefaultVariantType::DefaultDefault;
-ShSA2BetaVariantType ShSA2BetaVariant = ShSA2BetaVariantType::SA2Beta;
-ShSA2SoapVariantType ShSA2SoapVariant = ShSA2SoapVariantType::SA2Soap;
-Sh06GemVariantType Sh06GemVariant = Sh06GemVariantType::GemDefault;
-
-bool BdDefaultVariant = false;
-bool BdWildFireVariant = false;
-bool BdScarfVariant = false;
-bool BdMovieVariant = false;
-bool HeSimulatorVariant = false;
-bool HRSA2BounceVariant = false;
 
 ////------Special Setup------////
 
@@ -474,17 +150,11 @@ SelectSsnHeadType SelectSsnHead = SelectSsnHeadType::SsnFormDefault;
 SelectSsnFormType SelectSsnForm = SelectSsnFormType::SsnFormSuper;
 SelectEyelidType SelectEyelid = SelectEyelidType::EyelidDefault;
 SelectJumpBallType SelectJumpBall = SelectJumpBallType::JumpBallDefault;
-bool NoBallJump = true;
+//bool NoBallJump = true;
 
 int HyperFrameCycle = 0;
 bool isRenderableCreated = false;
 bool isLoadModel = true;
-
-bool m_IsModelHide = false;
-void MsgModelHide(bool Enabled)
-{
-	m_IsModelHide = Enabled;
-}
 
 void MsgWildFire(int Enabled);
 void MsgJumpBall(int BallType);
@@ -517,49 +187,67 @@ const char* CModelBodyString(char* result)
 }
 const char* CModelHandLString(char* result)
 {
+	auto mapBodyHideFlag = s_ItemDataBody[SelectBodyData].hideflags;
 	auto mapChar = s_ItemDataHandL[SelectHandLData].name;
 	auto mapAltCount = s_ItemDataHandL[SelectHandLData].altcount;
 	auto mapAltSelect = s_ItemDataHandL[SelectHandLData].altselect;
 
-	if (mapAltCount >= 1)
-		sprintf(result, "chr_Sn_%s_%02d", mapChar.c_str(), mapAltSelect);
+	if (mapBodyHideFlag == 0 || mapBodyHideFlag == 3)
+	{
+		if (mapAltCount >= 1)
+			sprintf(result, "chr_Sn_%s_%02d", mapChar.c_str(), mapAltSelect);
+		else
+			sprintf(result, "chr_Sn_%s", mapChar.c_str());
+	}
 	else
-		sprintf(result, "chr_Sn_%s", mapChar.c_str());
+		sprintf(result, "");
 
 	return result;
 }
 const char* CModelHandRString(char* result)
 {
+	auto mapBodyHideFlag = s_ItemDataBody[SelectBodyData].hideflags;
 	auto mapChar = s_ItemDataHandR[SelectHandRData].name;
 	auto mapAltCount = s_ItemDataHandR[SelectHandRData].altcount;
 	auto mapAltSelect = s_ItemDataHandR[SelectHandRData].altselect;
 
-	if (mapAltCount >= 1)
-		sprintf(result, "chr_Sn_%s_%02d", mapChar.c_str(), mapAltSelect);
+	if (mapBodyHideFlag == 0 || mapBodyHideFlag == 4)
+	{
+		if (mapAltCount >= 1)
+			sprintf(result, "chr_Sn_%s_%02d", mapChar.c_str(), mapAltSelect);
+		else
+			sprintf(result, "chr_Sn_%s", mapChar.c_str());
+	}
 	else
-		sprintf(result, "chr_Sn_%s", mapChar.c_str());
+		sprintf(result, "");
 
 	return result;
 }
 const char* CModelShoeString(char* result)
 {
+	auto mapBodyHideFlag = s_ItemDataBody[SelectBodyData].hideflags;
 	auto mapChar = s_ItemDataShoes[SelectShoesData].name;
 	auto mapAltCount = s_ItemDataShoes[SelectShoesData].altcount;
 	auto mapAltSelect = s_ItemDataShoes[SelectShoesData].altselect;
 
-	if (mapAltCount >= 1)
-		sprintf(result, "chr_Sn_%s_%02d", mapChar.c_str(), mapAltSelect);
+	if (mapBodyHideFlag == 0 || mapBodyHideFlag == 3 || mapBodyHideFlag == 4)
+	{
+		if (mapAltCount >= 1)
+			sprintf(result, "chr_Sn_%s_%02d", mapChar.c_str(), mapAltSelect);
+		else
+			sprintf(result, "chr_Sn_%s", mapChar.c_str());
+	}
 	else
-		sprintf(result, "chr_Sn_%s", mapChar.c_str());
+		sprintf(result, "");
 
 	return result;
 }
 const char* CModelEyelidString(char* result)
 {
 	const char* texExtVar = "";
-	const char* texExt0 = "EyeDefault";
-	const char* texExt1 = "EyeLash";
-	const char* texExt2 = "EyeSkin";
+	const char* texExt0 = "BdyEyeDefault";
+	const char* texExt1 = "BdyEyeLash";
+	const char* texExt2 = "BdyEyeSkin";
 
 	if (SelectEyelid == EyelidDefault)
 		texExtVar = texExt0;
@@ -570,6 +258,19 @@ const char* CModelEyelidString(char* result)
 
 	sprintf(result, "chr_Sn_%s", texExtVar);
 	//printf("chr_Sn_%s%s\n", texExtVar);
+	return result;
+}
+const char* CModelBaseHeadString(char* result)
+{
+	auto mapHeadHideFlag = s_ItemDataHead[SelectHeadData].hideflags;
+	const char* texExtVis = "BdyHead";
+	const char* texExtInv = "";
+
+	if (mapHeadHideFlag != 0)
+		sprintf(result, "chr_Sn_%s", texExtInv);
+	else
+		sprintf(result, "chr_Sn_%s", texExtVis);
+
 	return result;
 }
 
@@ -642,49 +343,68 @@ const char* ArchiveBodyString(char* result)
 }
 const char* ArchiveShoeString(char* result)
 {
+	auto mapBodyHideFlag = s_ItemDataBody[SelectBodyData].hideflags;
 	auto mapChar = s_ItemDataShoes[SelectShoesData].name;
 	auto mapAltCount = s_ItemDataShoes[SelectShoesData].altcount;
 	auto mapAltSelect = s_ItemDataShoes[SelectShoesData].altselect;
 
-	if (mapAltCount >= 1)
-		sprintf(result, "Customize/ctp_Shoes/%s_%02d", mapChar.c_str(), mapAltSelect);
+	if (mapBodyHideFlag == 0 || mapBodyHideFlag == 3 || mapBodyHideFlag == 4)
+	{
+		if (mapAltCount >= 1)
+			sprintf(result, "Customize/ctp_Shoes/%s_%02d", mapChar.c_str(), mapAltSelect);
+		else
+			sprintf(result, "Customize/ctp_Shoes/%s", mapChar.c_str());
+	}
 	else
-		sprintf(result, "Customize/ctp_Shoes/%s", mapChar.c_str());
+		sprintf(result, "");
+	
 
 	return result;
 }
 const char* ArchiveHandRString(char* result)
 {
+	auto mapBodyHideFlag = s_ItemDataBody[SelectBodyData].hideflags;
 	auto mapChar = s_ItemDataHandR[SelectHandRData].name;
 	auto mapAltCount = s_ItemDataHandR[SelectHandRData].altcount;
 	auto mapAltSelect = s_ItemDataHandR[SelectHandRData].altselect;
 
-	if (mapAltCount >= 1)
-		sprintf(result, "Customize/ctp_Hand_R/%s_%02d", mapChar.c_str(), mapAltSelect);
+	if (mapBodyHideFlag == 0 || mapBodyHideFlag == 4)
+	{
+		if (mapAltCount >= 1)
+			sprintf(result, "Customize/ctp_Hand_R/%s_%02d", mapChar.c_str(), mapAltSelect);
+		else
+			sprintf(result, "Customize/ctp_Hand_R/%s", mapChar.c_str());
+	}
 	else
-		sprintf(result, "Customize/ctp_Hand_R/%s", mapChar.c_str());
+		sprintf(result, "");
 
 	return result;
 }
 const char* ArchiveHandLString(char* result)
 {
+	auto mapBodyHideFlag = s_ItemDataBody[SelectBodyData].hideflags;
 	auto mapChar = s_ItemDataHandL[SelectHandLData].name;
 	auto mapAltCount = s_ItemDataHandL[SelectHandLData].altcount;
 	auto mapAltSelect = s_ItemDataHandL[SelectHandLData].altselect;
 
-	if (mapAltCount >= 1)
-		sprintf(result, "Customize/ctp_Hand_L/%s_%02d", mapChar.c_str(), mapAltSelect);
+	if (mapBodyHideFlag == 0 || mapBodyHideFlag == 3)
+	{
+		if (mapAltCount >= 1)
+			sprintf(result, "Customize/ctp_Hand_L/%s_%02d", mapChar.c_str(), mapAltSelect);
+		else
+			sprintf(result, "Customize/ctp_Hand_L/%s", mapChar.c_str());
+	}
 	else
-		sprintf(result, "Customize/ctp_Hand_L/%s", mapChar.c_str());
+		sprintf(result, "");
 
 	return result;
 }
 const char* ArchiveEyelidString(char* result)
 {
 	const char* texExtVar = "";
-	const char* texExt0 = "EyeDefault";
-	const char* texExt1 = "EyeLash";
-	const char* texExt2 = "EyeSkin";
+	const char* texExt0 = "BdyEyeDefault";
+	const char* texExt1 = "BdyEyeLash";
+	const char* texExt2 = "BdyEyeSkin";
 
 	if (SelectEyelid == EyelidDefault)
 		texExtVar = texExt0;
@@ -693,8 +413,21 @@ const char* ArchiveEyelidString(char* result)
 	else if (SelectEyelid == EyelidSkin)
 		texExtVar = texExt2;
 
-	sprintf(result, "Customize/bdy_Eyelid/%s", texExtVar);
-	//printf("%s%s\n", mapChar, texExtVar);
+
+	sprintf(result, "Customize/bdy_Body/%s", texExtVar);
+	return result;
+}
+const char* ArchiveBaseHeadString(char* result)
+{
+	auto mapHeadHideFlag = s_ItemDataHead[SelectHeadData].hideflags;
+	const char* texExtVis = "BdyHead";
+	const char* texExtInv = "";
+
+	if (mapHeadHideFlag != 0)
+		sprintf(result, "Customize/bdy_Body/%s", texExtInv);
+	else
+		sprintf(result, "Customize/bdy_Body/%s", texExtVis);
+
 	return result;
 }
 
@@ -703,12 +436,14 @@ class CustomizeSonicRenderable : public Sonic::CGameObject3D
 {
 public:
 	boost::shared_ptr<hh::mr::CSingleElement> m_spElementSnHead;
+	boost::shared_ptr<hh::mr::CSingleElement> m_spElementSnBaseHead;
 	boost::shared_ptr<hh::mr::CSingleElement> m_spElementSnBody;
 	boost::shared_ptr<hh::mr::CSingleElement> m_spElementSnShoes;
 	boost::shared_ptr<hh::mr::CSingleElement> m_spElementSnHandR;
 	boost::shared_ptr<hh::mr::CSingleElement> m_spElementSnHandL;
 	boost::shared_ptr<hh::mr::CSingleElement> m_spElementSnEyelid;
 	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spArHeadMdlData;
+	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spArBaseHeadMdlData;
 	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spArBodyMdlData;
 	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spArShoesMdlData;
 	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spArHandRMdlData;
@@ -717,6 +452,8 @@ public:
 	boost::shared_ptr<Hedgehog::Database::CDatabase> m_spArDatabase;
 	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spArHeadMatData;
 	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spArHeadReplaceMatData;
+	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spArBaseHeadMatData;
+	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spArBaseHeadReplaceMatData;
 	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spArBodyMatData;
 	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spArBodyReplaceMatData;
 	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spArEyelidMatData;
@@ -790,12 +527,14 @@ public:
 		char HRBuffer[256];
 		char EyeBuffer[256];
 		arDataStruct arHeadData;
+		arDataStruct arBaseHeadData;
 		arDataStruct arBodyData;
 		arDataStruct arEyelidData;
 
 		if (isLoadModel)
 		{
 			arHeadData = loadArchiveDatabase(ArchiveHeadString(HeBuffer), CModelHeadString(HeBuffer), "chr_sn_body_original", CMaterialBodyString(HeBuffer));
+			arBaseHeadData = loadArchiveDatabase(ArchiveBaseHeadString(HeBuffer), CModelBaseHeadString(HeBuffer), "chr_sn_body_original", CMaterialBodyString(HeBuffer));
 			arBodyData = loadArchiveDatabase(ArchiveBodyString(BdBuffer), CModelBodyString(BdBuffer), "chr_sn_body_original", CMaterialBodyString(BdBuffer));
 			arEyelidData = loadArchiveDatabase(ArchiveEyelidString(HeBuffer), CModelEyelidString(HeBuffer), "chr_sn_body_original", CMaterialBodyString(HeBuffer));
 
@@ -806,6 +545,10 @@ public:
 			m_spArHeadMdlData = arHeadData.m_spArModelData;
 			m_spArHeadMatData = arHeadData.m_spArMaterialData;
 			m_spArHeadReplaceMatData = arHeadData.m_spArReplaceMaterialData;
+
+			m_spArBaseHeadMdlData = arBaseHeadData.m_spArModelData;
+			m_spArBaseHeadMatData = arBaseHeadData.m_spArMaterialData;
+			m_spArBaseHeadReplaceMatData = arBaseHeadData.m_spArReplaceMaterialData;
 
 			m_spArBodyMdlData = arBodyData.m_spArModelData;
 			m_spArBodyMatData = arBodyData.m_spArMaterialData;
@@ -849,11 +592,22 @@ public:
 			addCustomRenderModel(m_spElementSnEyelid, m_spArEyelidMdlData);
 			m_spArEyelidMdlData = nullptr;
 		}
+		if (m_spArBaseHeadMdlData != nullptr && m_spArBaseHeadMdlData->IsMadeAll())
+		{
+			addCustomRenderModel(m_spElementSnBaseHead, m_spArBaseHeadMdlData);
+			m_spArBaseHeadMdlData = nullptr;
+		}
 		if (m_spArHeadMatData != nullptr && m_spArHeadMatData->IsMadeAll() && m_spArHeadReplaceMatData != nullptr && m_spArHeadReplaceMatData->IsMadeAll())
 		{
 			addCustomRenderMaterial(m_spElementSnHead, m_spArHeadMatData, m_spArHeadReplaceMatData);
 			m_spArHeadMatData = nullptr;
 			m_spArHeadReplaceMatData = nullptr;
+		}
+		if (m_spArBaseHeadMatData != nullptr && m_spArBaseHeadMatData->IsMadeAll() && m_spArBaseHeadReplaceMatData != nullptr && m_spArBaseHeadReplaceMatData->IsMadeAll())
+		{
+			addCustomRenderMaterial(m_spElementSnBaseHead, m_spArBaseHeadMatData, m_spArBaseHeadReplaceMatData);
+			m_spArBaseHeadMatData = nullptr;
+			m_spArBaseHeadReplaceMatData = nullptr;
 		}
 		if (m_spArBodyMatData != nullptr && m_spArBodyMatData->IsMadeAll() && m_spArBodyReplaceMatData != nullptr && m_spArBodyReplaceMatData->IsMadeAll())
 		{
@@ -909,6 +663,10 @@ public:
 		{
 			m_spElementSnEyelid->m_Enabled = !pPlayer_Invisible;
 		}
+		if (m_spElementSnBaseHead != nullptr)
+		{
+			m_spElementSnBaseHead->m_Enabled = !pPlayer_Invisible;
+		}
 
 		auto input = Sonic::CInputState::GetInstance()->GetPadState();
 		bool PressedY = input.IsTapped(Sonic::eKeyState_Y);
@@ -918,17 +676,6 @@ public:
 		bool PressedDown = input.IsTapped(Sonic::eKeyState_DpadDown);
 
 		loadCustomRenderModel();
-
-		//if (PressedY)
-		//{
-		//	RemoveRenderables();
-		//	addCustomRenderModel(CModelHeadString(HeBuffer), m_spElementSnHead);
-		//	addCustomRenderModel(CModelBodyString(BdBuffer), m_spElementSnBody);
-		//	addCustomRenderModel(CModelHandRString(HRBuffer), m_spElementSnHandR);
-		//	addCustomRenderModel(CModelHandLString(HLBuffer), m_spElementSnHandL);
-		//	addCustomRenderModel(CModelShoeString(ShBuffer), m_spElementSnShoes);
-		//	addCustomRenderModel(CModelEyelidString(EyeBuffer), m_spElementSnEyelid);
-		//}
 	}
 
 	void KillCallback() override
@@ -1316,10 +1063,10 @@ void ItemVisibilityHandler()
 	*/
 
 	//Send Wildfire VFX
-	if (SelectBodyData == 1)
-		MsgWildFire(1);
-	else
-		MsgWildFire(0);
+	//if (SelectBodyData == 1)
+	//	MsgWildFire(1);
+	//else
+	//	MsgWildFire(0);
 
 	MsgJumpBall(SelectJumpBall);
 
@@ -1366,7 +1113,6 @@ void ReadJson(std::string jsonFilePath, int cCat)
 				auto& itemData = s_ItemDataShoes.emplace_back();
 				itemData.name = obj["name"];
 				itemData.altcount = obj["altcount"];
-				itemData.hideflags = obj["hideflags"];
 				itemData.altselect = 0;
 			}
 			break;
@@ -1376,7 +1122,6 @@ void ReadJson(std::string jsonFilePath, int cCat)
 				auto& itemData = s_ItemDataHandR.emplace_back();
 				itemData.name = obj["name"];
 				itemData.altcount = obj["altcount"];
-				itemData.hideflags = obj["hideflags"];
 				itemData.altselect = 0;
 			}
 			break;
@@ -1386,7 +1131,6 @@ void ReadJson(std::string jsonFilePath, int cCat)
 				auto& itemData = s_ItemDataHandL.emplace_back();
 				itemData.name = obj["name"];
 				itemData.altcount = obj["altcount"];
-				itemData.hideflags = obj["hideflags"];
 				itemData.altselect = 0;
 			}
 			break;

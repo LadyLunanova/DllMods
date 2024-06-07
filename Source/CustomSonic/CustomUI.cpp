@@ -147,7 +147,6 @@ void CHudUIOpen(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo&
 	if (!obBBCustomUI) //Create UI project if it doesn't exist
 		CreateFittingUI(This, Edx, in_rUpdateInfo);
 
-	//isLoadModel = true;
 	//Main UI
 	scBBGui = prFittingScreenBB->CreateScene("chara");
 	scBBGui->SetMotion("Intro_Anim");

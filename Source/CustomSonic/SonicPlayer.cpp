@@ -46,7 +46,7 @@ void MsgJumpBall(int BallType)
 {
 	PlayerSelectJumpBall = (PlayerSelectJumpBallType)BallType;
 }
-void MsgModelHide(bool Enabled);
+//void MsgModelHide(bool Enabled);
 void CreateCustomizeSonicRenderable();
 
 
@@ -568,12 +568,6 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 
 	if (IsModernSonic)
 	{
-		//if (!isRenderableCreated)
-		//{
-		//	obj_CustomizeSonicRenderable = boost::make_shared<CustomizeSonicRenderable>();
-		//	Sonic::CGameDocument::GetInstance()->AddGameObject(obj_CustomizeSonicRenderable);
-		//	isRenderableCreated = true;
-		//}
 
 		CreateCustomizeSonicRenderable();
 
@@ -635,7 +629,7 @@ HOOK(void, __fastcall, CSonicStateJumpBallStartState, 0x011BCBE0, hh::fnd::CStat
 		case (enum PlayerSelectJumpBallType)JumpBallForces:
 			obj_SonicJumpBallWarsRenderable = boost::make_shared<JumpballWarsAnimRenderable>();
 			Sonic::CGameDocument::GetInstance()->AddGameObject(obj_SonicJumpBallWarsRenderable);
-			MsgModelHide(true);
+			//MsgModelHide(true);
 			//Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sng_yh1_forcesspinattack", 1);  //Create Ball VFX
 			break;
 		case (enum PlayerSelectJumpBallType)JumpBallBetaSWA:
@@ -655,7 +649,7 @@ HOOK(void, __fastcall, CSonicStateJumpBallStartState, 0x011BCBE0, hh::fnd::CStat
 		case (enum PlayerSelectJumpBallType)JumpBallLW:
 			obj_SonicJumpBallLWRenderable = boost::make_shared<JumpballLWAnimRenderable>();
 			Sonic::CGameDocument::GetInstance()->AddGameObject(obj_SonicJumpBallLWRenderable);
-			MsgModelHide(true);
+			//MsgModelHide(true);
 			break;
 		default:
 			Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sng_yh1_spinattack", 1);  //Create Ball VFX
@@ -701,7 +695,7 @@ HOOK(void, __fastcall, CSonicStateJumpBallEndState, 0x011BCB60, hh::fnd::CStateM
 {
 	originalCSonicStateJumpBallEndState(This);
 	auto sonic = (Sonic::Player::CPlayerSpeedContext*)This->m_pContext;
-	MsgModelHide(false);
+	//MsgModelHide(false);
 	if (obj_SonicJumpBallLWRenderable)
 	{
 		obj_SonicJumpBallLWRenderable->SendMessageImm<Sonic::Message::MsgKill>(obj_SonicJumpBallLWRenderable->m_ActorID);

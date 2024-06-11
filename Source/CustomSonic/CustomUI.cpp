@@ -1295,207 +1295,107 @@ void CHudUITexsetData(Sonic::CGameObject* This, int texSetID, const char* texStr
 {
 	auto texList = static_cast<Sonic::CCsdTexListMirage*>(prFittingScreenBB->m_rcTexList.Get());
 	auto ui_cat_item_alt_sel = boost::make_shared<hh::mr::CTextureData>();
-	auto ui_cat_item_null = boost::make_shared<hh::mr::CTextureData>();
 	ui_cat_item_alt_sel->m_spPictureData = hh::mr::CMirageDatabaseWrapper(This->m_pMember->m_pGameDocument->m_pMember->m_spDatabase.get()).GetPictureData(texString);
-	ui_cat_item_null->m_spPictureData = hh::mr::CMirageDatabaseWrapper(This->m_pMember->m_pGameDocument->m_pMember->m_spDatabase.get()).GetPictureData("ui_Null_00");
 
-	if (ui_cat_item_alt_sel == nullptr)
-		texList->m_spTexsetData->m_TextureList[texSetID] = ui_cat_item_null;
-	else
-		texList->m_spTexsetData->m_TextureList[texSetID] = ui_cat_item_alt_sel;
+	if (ui_cat_item_alt_sel->m_spPictureData == nullptr)
+		ui_cat_item_alt_sel->m_spPictureData = hh::mr::CMirageDatabaseWrapper(This->m_pMember->m_pGameDocument->m_pMember->m_spDatabase.get()).GetPictureData("ui_NotFound");
+	
+	texList->m_spTexsetData->m_TextureList[texSetID] = ui_cat_item_alt_sel;
 }
 
 const char* CHudUIThumbHeadString(int id, char* result)
 {
 	if (((CHudVarScroll * 3) + id) >= s_ItemDataHead.size())
 	{
-		sprintf(result, "ui_Null_00");
+		sprintf(result, "ui_Null");
 		return result;
 	}
+	auto mapAltCount = s_ItemDataHead[(CHudVarScroll * 3) + id].altcount;
 	auto mapChar = s_ItemDataHead[(CHudVarScroll * 3) + id].name;
 	auto mapInt = s_ItemDataHead[(CHudVarScroll * 3) + id].altselect;
 	const char* texExtOn = "_On";
 	const char* texExtOff = "_Off";
 	bool active = ((CHudVarScroll * 3) + id == SelectHeadData);
-	sprintf(result, "ui_%s_%02d%s", mapChar.c_str(), mapInt, active ? texExtOn : texExtOff);
+	if (mapAltCount >= 1)
+		sprintf(result, "ui_%s_%02d%s", mapChar.c_str(), mapInt, active ? texExtOn : texExtOff);
+	else
+		sprintf(result, "ui_%s%s", mapChar.c_str(), active ? texExtOn : texExtOff);
 	return result;
 }
 const char* CHudUIThumbBodyString(int id, char* result)
 {
-	//auto mapChar = MAP_FILE_BODY[BdDefault + (CHudVarScroll * 3) + id];
-	//auto mapInt = (BdDefault + (CHudVarScroll * 3) + id);
-	//const char* texExtUI = "ui_";
-	//const char* texExtOn = "_On";
-	//const char* texExtOff = "_Off";
-	//const char* texExtVar = "_00";
-	//const char* texExt0 = "_00";
-	//const char* texExt1 = "_01";
-	//const char* texExt2 = "_02";
-	//const char* texExt3 = "_03";
-	//const char* texExt4 = "_04";
-	//const char* texExt5 = "_05";
-	//const char* texExt6 = "_06";
-	//const char* texExt7 = "_07";
-	//const char* texExt8 = "_08";
-	//const char* texExt9 = "_09";
-	//bool active = (mapInt == SelectBody);
-	//bool isBdDefault = (mapInt == BdDefault);
-	//if ((isBdDefault && BdDefaultVariant))
-	//	texExtVar = texExt1;
-	//sprintf(result, "%s%s%s%s", texExtUI, mapChar, texExtVar, active ? texExtOn : texExtOff);
-	//return result;
-
 	if (((CHudVarScroll * 3) + id) >= s_ItemDataBody.size())
 	{
-		sprintf(result, "ui_Null_00");
+		sprintf(result, "ui_Null");
 		return result;
 	}
+	auto mapAltCount = s_ItemDataBody[(CHudVarScroll * 3) + id].altcount;
 	auto mapChar = s_ItemDataBody[(CHudVarScroll * 3) + id].name;
 	auto mapInt = s_ItemDataBody[(CHudVarScroll * 3) + id].altselect;
 	const char* texExtOn = "_On";
 	const char* texExtOff = "_Off";
 	bool active = ((CHudVarScroll * 3) + id == SelectBodyData);
-	sprintf(result, "ui_%s_%02d%s", mapChar.c_str(), mapInt, active ? texExtOn : texExtOff);
+	if (mapAltCount >= 1)
+		sprintf(result, "ui_%s_%02d%s", mapChar.c_str(), mapInt, active ? texExtOn : texExtOff);
+	else
+		sprintf(result, "ui_%s%s", mapChar.c_str(), active ? texExtOn : texExtOff);
 	return result;
 }
 const char* CHudUIThumbShoeString(int id, char* result)
 {
-	//auto mapChar = MAP_FILE_SHOE[ShDefault + (CHudVarScroll * 3) + id];
-	//auto mapInt = (ShDefault + (CHudVarScroll * 3) + id);
-	//const char* texExtUI = "ui_";
-	//const char* texExtOn = "_On";
-	//const char* texExtOff = "_Off";
-	//const char* texExtVar = "_00";
-	//const char* texExt0 = "_00";
-	//const char* texExt1 = "_01";
-	//const char* texExt2 = "_02";
-	//const char* texExt3 = "_03";
-	//const char* texExt4 = "_04";
-	//const char* texExt5 = "_05";
-	//const char* texExt6 = "_06";
-	//const char* texExt7 = "_07";
-	//const char* texExt8 = "_08";
-	//const char* texExt9 = "_09";
-	//bool active = (mapInt == SelectShoes);
-	//bool isShDefault = (mapInt == ShDefault);
-	//bool isShDefaultLightS = (ShDefaultVariant == DefaultLightS);
-	//bool isShSA2Beta = (mapInt == ShSA2Beta);
-	//bool isShSA2BetaLightS = (ShSA2BetaVariant == SA2BetaLightS);
-	//bool isShSA2Soap = (mapInt == ShSA2Soap);
-	//bool isShSA2SoapLightS = (ShSA2SoapVariant == SA2SoapLightS);
-	//bool isShSA2SoapRacing = (ShSA2SoapVariant == SA2SoapRacing);
-	//bool isSh06Gem = (mapInt == Sh06Gem);
-	//bool isSh06GemRed = (Sh06GemVariant == GemRed);
-	//bool isSh06GemBlue = (Sh06GemVariant == GemBlue);
-	//bool isSh06GemGreen = (Sh06GemVariant == GemGreen);
-	//bool isSh06GemPurple = (Sh06GemVariant == GemPurple);
-	//bool isSh06GemSky = (Sh06GemVariant == GemSky);
-	//bool isSh06GemWhite = (Sh06GemVariant == GemWhite);
-	//bool isSh06GemYellow = (Sh06GemVariant == GemYellow);
-	//if ((isShDefault && isShDefaultLightS) || (isShSA2Beta && isShSA2BetaLightS) || (isShSA2Soap && isShSA2SoapLightS) || (isSh06Gem && isSh06GemRed))
-	//	texExtVar = texExt1;
-	//else if ((isShSA2Soap && isShSA2SoapRacing) || (isSh06Gem && isSh06GemBlue))
-	//	texExtVar = texExt2;
-	//else if (isSh06Gem && isSh06GemGreen)
-	//	texExtVar = texExt3;
-	//else if (isSh06Gem && isSh06GemPurple)
-	//	texExtVar = texExt4;
-	//else if (isSh06Gem && isSh06GemSky)
-	//	texExtVar = texExt5;
-	//else if (isSh06Gem && isSh06GemWhite)
-	//	texExtVar = texExt6;
-	//else if (isSh06Gem && isSh06GemYellow)
-	//	texExtVar = texExt7;
-	//sprintf(result, "%s%s%s%s", texExtUI, mapChar, texExtVar, active ? texExtOn : texExtOff);
-	//return result;
-
 	if (((CHudVarScroll * 3) + id) >= s_ItemDataShoes.size())
 	{
-		sprintf(result, "ui_Null_00");
+		sprintf(result, "ui_Null");
 		return result;
 	}
+	auto mapAltCount = s_ItemDataShoes[(CHudVarScroll * 3) + id].altcount;
 	auto mapChar = s_ItemDataShoes[(CHudVarScroll * 3) + id].name;
 	auto mapInt = s_ItemDataShoes[(CHudVarScroll * 3) + id].altselect;
 	const char* texExtOn = "_On";
 	const char* texExtOff = "_Off";
 	bool active = ((CHudVarScroll * 3) + id == SelectShoesData);
-	sprintf(result, "ui_%s_%02d%s", mapChar.c_str(), mapInt, active ? texExtOn : texExtOff);
+	if (mapAltCount >= 1)
+		sprintf(result, "ui_%s_%02d%s", mapChar.c_str(), mapInt, active ? texExtOn : texExtOff);
+	else
+		sprintf(result, "ui_%s%s", mapChar.c_str(), active ? texExtOn : texExtOff);
 	return result;
 }
 const char* CHudUIThumbHandRString(int id, char* result)
 {
-	//auto mapChar = MAP_FILE_HANDR[HRDefault + (CHudVarScroll * 3) + id];
-	//auto mapInt = (HRDefault + (CHudVarScroll * 3) + id);
-	//const char* texExtUI = "ui_";
-	//const char* texExtOn = "_On";
-	//const char* texExtOff = "_Off";
-	//const char* texExtVar = "_00";
-	//const char* texExt0 = "_00";
-	//const char* texExt1 = "_01";
-	//const char* texExt2 = "_02";
-	//const char* texExt3 = "_03";
-	//const char* texExt4 = "_04";
-	//const char* texExt5 = "_05";
-	//const char* texExt6 = "_06";
-	//const char* texExt7 = "_07";
-	//const char* texExt8 = "_08";
-	//const char* texExt9 = "_09";
-	//bool active = (mapInt == SelectHandR);
-	//bool isHRSA2Bounce = (mapInt == HRSA2Bounce);
-	//if ((isHRSA2Bounce && HRSA2BounceVariant))
-	//	texExtVar = texExt1;
-	//sprintf(result, "%s%s%s%s", texExtUI, mapChar, texExtVar, active ? texExtOn : texExtOff);
-	//return result;
-
 	if (((CHudVarScroll * 3) + id) >= s_ItemDataHandR.size())
 	{
-		sprintf(result, "ui_Null_00");
+		sprintf(result, "ui_Null");
 		return result;
 	}
+	auto mapAltCount = s_ItemDataHandR[(CHudVarScroll * 3) + id].altcount;
 	auto mapChar = s_ItemDataHandR[(CHudVarScroll * 3) + id].name;
 	auto mapInt = s_ItemDataHandR[(CHudVarScroll * 3) + id].altselect;
 	const char* texExtOn = "_On";
 	const char* texExtOff = "_Off";
 	bool active = ((CHudVarScroll * 3) + id == SelectHandRData);
-	sprintf(result, "ui_%s_%02d%s", mapChar.c_str(), mapInt, active ? texExtOn : texExtOff);
+	if (mapAltCount >= 1)
+		sprintf(result, "ui_%s_%02d%s", mapChar.c_str(), mapInt, active ? texExtOn : texExtOff);
+	else
+		sprintf(result, "ui_%s%s", mapChar.c_str(), active ? texExtOn : texExtOff);
 	return result;
 }
 const char* CHudUIThumbHandLString(int id, char* result)
 {
-	//auto mapChar = MAP_FILE_HANDL[HLDefault + (CHudVarScroll * 3) + id];
-	//auto mapInt = (HLDefault + (CHudVarScroll * 3) + id);
-	//const char* texExtUI = "ui_";
-	//const char* texExtOn = "_On";
-	//const char* texExtOff = "_Off";
-	//const char* texExtVar = "_00";
-	//const char* texExt0 = "_00";
-	//const char* texExt1 = "_01";
-	//const char* texExt2 = "_02";
-	//const char* texExt3 = "_03";
-	//const char* texExt4 = "_04";
-	//const char* texExt5 = "_05";
-	//const char* texExt6 = "_06";
-	//const char* texExt7 = "_07";
-	//const char* texExt8 = "_08";
-	//const char* texExt9 = "_09";
-	//bool active = (mapInt == SelectHandL);
-	//bool isHLDefault = (mapInt == HLDefault);
-	//if ((isHLDefault && HLDefaultVariant))
-	//	texExtVar = texExt1;
-	//sprintf(result, "%s%s%s%s", texExtUI, mapChar, texExtVar, active ? texExtOn : texExtOff);
-	//return result;
-
 	if (((CHudVarScroll * 3) + id) >= s_ItemDataHandL.size())
 	{
-		sprintf(result, "ui_Null_00");
+		sprintf(result, "ui_Null");
 		return result;
 	}
+	auto mapAltCount = s_ItemDataHandL[(CHudVarScroll * 3) + id].altcount;
 	auto mapChar = s_ItemDataHandL[(CHudVarScroll * 3) + id].name;
 	auto mapInt = s_ItemDataHandL[(CHudVarScroll * 3) + id].altselect;
 	const char* texExtOn = "_On";
 	const char* texExtOff = "_Off";
 	bool active = ((CHudVarScroll * 3) + id == SelectHandLData);
-	sprintf(result, "ui_%s_%02d%s", mapChar.c_str(), mapInt, active ? texExtOn : texExtOff);
+	if (mapAltCount >= 1)
+		sprintf(result, "ui_%s_%02d%s", mapChar.c_str(), mapInt, active ? texExtOn : texExtOff);
+	else
+		sprintf(result, "ui_%s%s", mapChar.c_str(), active ? texExtOn : texExtOff);
 	return result;
 }
 const char* CHudUIThumbSonicBodyString(int id, char* result)
@@ -1516,8 +1416,6 @@ const char* CHudUIThumbSonicBodyString(int id, char* result)
 	const char* texExt9 = "_09";
 
 	sprintf(result, "%s%s%s", texExtUI, mapChar, texExtVar);
-	//printf("%s%s%s", texExtUI, mapChar, texExtVar);
-
 	return result;
 }
 

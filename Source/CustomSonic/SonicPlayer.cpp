@@ -48,6 +48,7 @@ void MsgJumpBall(int BallType)
 }
 //void MsgModelHide(bool Enabled);
 void CreateCustomizeSonicRenderable();
+void KillCustomizeSonicRenderable();
 
 
 //////Renderables//////
@@ -550,11 +551,13 @@ void KillFireParticle(Sonic::Player::CPlayer* player)
 HOOK(void, __fastcall, MsgRestartStage, 0xE76810, Sonic::Player::CPlayer* This, void* Edx, hh::fnd::Message& message)
 {
 	KillFireParticle(This);
+	KillCustomizeSonicRenderable();
 	return originalMsgRestartStage(This, Edx, message);
 }
 void __fastcall CSonicRemoveCallback(Sonic::Player::CPlayer* This, void* Edx, void* A1)
 {
 	KillFireParticle(This);
+	KillCustomizeSonicRenderable();
 }
 
 HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed* This, void* _, const hh::fnd::SUpdateInfo& updateInfo)
@@ -565,10 +568,10 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	bool PressedRight = input.IsTapped(Sonic::eKeyState_DpadRight);
 	bool PressedY = input.IsTapped(Sonic::eKeyState_Y);
 	bool IsModernSonic = (Sonic::Player::CSonicClassicContext::GetInstance() == nullptr) && (Sonic::Player::CSonicSpContext::GetInstance() == nullptr);
+	bool IsSuper = sonic->m_pStateFlag->m_Flags[sonic->eStateFlag_InvokeSuperSonic];
 
 	if (IsModernSonic)
 	{
-
 		CreateCustomizeSonicRenderable();
 
 		if (WildFireActive == true)

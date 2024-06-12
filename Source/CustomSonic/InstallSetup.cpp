@@ -1,14 +1,14 @@
 #include "InstallSetup.h"
 
 //Setup
-void ItemVisibilityHandler();
+void OnFrameHandler();
 bool IsGensRT = false;
 
 //OnFrame
 EXPORT void OnFrame()
 {
 	//Model Visibility//
-	ItemVisibilityHandler();
+	OnFrameHandler();
 }
 
 void InstallSetup::applyPatches()

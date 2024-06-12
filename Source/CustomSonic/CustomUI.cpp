@@ -134,6 +134,27 @@ void CHudUIOpen(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo&
 	CHudVarHRMaxScroll = ((((s_ItemDataHandR.size() + 2) / 3 - 3) >= 1) ? ((s_ItemDataHandR.size() + 2) / 3 - 3) : (0));
 	CHudVarHLMaxScroll = ((((s_ItemDataHandL.size() + 2) / 3 - 3) >= 1) ? ((s_ItemDataHandL.size() + 2) / 3 - 3) : (0));
 
+	for (size_t i = 0; i < s_ItemDataHead.size(); i++)
+	{
+		s_ItemDataHead[i].altselect = 0;
+	}
+	for (size_t i = 0; i < s_ItemDataBody.size(); i++)
+	{
+		s_ItemDataBody[i].altselect = 0;
+	}
+	for (size_t i = 0; i < s_ItemDataShoes.size(); i++)
+	{
+		s_ItemDataShoes[i].altselect = 0;
+	}
+	for (size_t i = 0; i < s_ItemDataHandR.size(); i++)
+	{
+		s_ItemDataHandR[i].altselect = 0;
+	}
+	for (size_t i = 0; i < s_ItemDataHandL.size(); i++)
+	{
+		s_ItemDataHandL[i].altselect = 0;
+	}
+
 	ReadINI(saveFilePath);
 	prevblur = *ENABLE_BLUR;
 	*ENABLE_BLUR = false;

@@ -710,13 +710,13 @@ void KillCustomizeSonicRenderable()
 	}
 }
 
-void ItemVisibilityHandler()
+void OnFrameHandler()
 {
 	//Send Wildfire VFX
-	//if (SelectBodyData == 1)
-	//	MsgWildFire(1);
-	//else
-	//	MsgWildFire(0);
+	if (s_ItemDataBody[SelectBodyData].name == "BdWildFire")
+		MsgWildFire(1);
+	else
+		MsgWildFire(0);
 
 	MsgJumpBall(SelectJumpBall);
 

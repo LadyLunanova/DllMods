@@ -50,7 +50,6 @@ void MsgJumpBall(int BallType)
 void CreateCustomizeSonicRenderable();
 void KillCustomizeSonicRenderable();
 
-
 //////Renderables//////
 bool isSA1FlickerHide = false;
 static uint32_t pCAnimationStateMachineSetBlend = 0xCE0720;

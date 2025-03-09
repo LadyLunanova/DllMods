@@ -2,6 +2,8 @@
 Repository containing several code mod projects.
 
 # Releases
+## Unleashed Recompiled
+* [Trans Fem Sonic](https://gamebanana.com/mods/578861)
 ## Sonic Generations
 * [Customizable Sonic](https://gamebanana.com/mods/401661)
 * [Trans Fem Sonic](https://gamebanana.com/mods/384276)

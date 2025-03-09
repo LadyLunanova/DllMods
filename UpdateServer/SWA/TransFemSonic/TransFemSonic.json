@@ -1,0 +1,137 @@
+{
+	"Groups": [
+		{
+			"Name": "Main",
+			"DisplayName": "Options",
+			"Elements": [
+				{
+					"Name": "IncludeDir0",
+					"Description": [
+						"Choose which voice mod you want."
+					],
+					"DisplayName": "Voice Mod",
+					"Type": "SoundType",
+					"MinValue": null,
+					"MaxValue": null,
+					"DefaultValue": true
+				},
+				{
+					"Name": "IncludeDir1",
+					"Description": [
+						"Choose what type of blue trail you want."
+					],
+					"DisplayName": "Blue Trail",
+					"Type": "TrailType",
+					"MinValue": null,
+					"MaxValue": null,
+					"DefaultValue": true
+				},
+				{
+					"Name": "IncludeDir2",
+					"Description": [
+						"Choose the resolution for the lab thumbnails."
+					],
+					"DisplayName": "Thumbnail Resolution",
+					"Type": "ThumbType",
+					"MinValue": null,
+					"MaxValue": null,
+					"DefaultValue": true
+				}
+			]
+		}
+	],
+   "Enums":{
+	   "SoundType":[
+         {
+            "DisplayName":"Daytime",
+            "Value":"swa_sound_default",
+            "Description":[
+               "Replaces all daytime sonic dialogue with newly recorded lines.",
+            ]
+         },
+		 {
+            "DisplayName":"Daytime + Miku",
+            "Value":"swa_sound_miku",
+            "Description":[
+               "Replaces all daytime sonic dialogue with newly recorded lines.",
+			   "(Hatsune Miku Compatible Version)"
+            ]
+         },
+		 {
+            "DisplayName":"None",
+            "Value":"swa_dummy",
+            "Description":[
+               "Don't use any voice mod.",
+            ]
+         }
+      ],
+      "TrailType":[
+         {
+            "DisplayName":"Default",
+            "Value":"swa_dummy",
+            "Description":[
+               "Use Unleashed's default blue trail color.",
+            ]
+         },
+		 {
+            "DisplayName":"Trans",
+            "Value":"swa_homing_trans",
+            "Description":[
+               "Use the trans flag as trail color.",
+            ]
+         },
+		 {
+            "DisplayName":"Lesbian",
+            "Value":"swa_homing_lesb",
+            "Description":[
+               "Use the lesbian flag as trail color.",
+            ]
+         },
+		 {
+            "DisplayName":"Gay",
+            "Value":"swa_homing_gay",
+            "Description":[
+               "Use the gay/rainbow flag as trail color.",
+            ]
+         },
+		 {
+            "DisplayName":"Bi",
+            "Value":"swa_homing_bi",
+            "Description":[
+               "Use the bi flag as trail color.",
+            ]
+         },
+		 {
+            "DisplayName":"Pan",
+            "Value":"swa_homing_pan",
+            "Description":[
+               "Use the pan flag as trail color.",
+            ]
+         },
+		 {
+            "DisplayName":"Non-Binary",
+            "Value":"swa_homing_nb",
+            "Description":[
+               "Use the non-binary flag as trail color.",
+            ]
+         }
+      ],
+	  "ThumbType":[
+         {
+            "DisplayName":"Original",
+            "Value":"swa_inspire_sd",
+            "Description":[
+               "Use the original thumbnail resolution.",
+            ]
+         },
+		 {
+            "DisplayName":"HD",
+            "Value":"swa_inspire_hd",
+            "Description":[
+               "Use 1080p thumbnails.",
+            ]
+         }
+      ]
+   },
+   "IniFile":"mod.ini"
+}

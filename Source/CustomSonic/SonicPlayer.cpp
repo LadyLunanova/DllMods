@@ -84,8 +84,8 @@ public:
 	////Animation List
 	static inline hh::anim::SMotionInfo m_sAnimList[2]
 	{
-		hh::anim::SMotionInfo("START","spin_jp_start",1.0f,1),
-		hh::anim::SMotionInfo("LOOP","spin_nomal_loop",1.0f,0)
+		{ "START", "spin_jp_start", 1.0f, 1 },
+		{ "LOOP", "spin_nomal_loop", 1.0f, 0 }
 	};
 
 	void AddCallback(const Hedgehog::Base::THolder<Sonic::CWorld>& in_rWorldHolder,
@@ -162,7 +162,6 @@ public:
 	{
 		const int playerID = GetGameDocument()->m_pMember->m_PlayerIDs.begin()[0];
 		const Sonic::Player::CPlayerSpeed* pPlayer = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID));
-		const Sonic::Player::CPlayer* cpcontext = static_cast<Sonic::Player::CPlayer*>(m_pMessageManager->GetMessageActor(playerID));
 		pPlayer->m_spCharacterModel->m_Enabled = true;
 		MsgJumpModelHide(false);
 	}
@@ -185,7 +184,7 @@ public:
 	////Animation List
 	static inline hh::anim::SMotionInfo m_sAnimList[1]
 	{
-		hh::anim::SMotionInfo("LOOP","sns_spin_sa1_loop",1.4f,0)
+		{ "LOOP", "sns_spin_sa1_loop", 1.4f, 0 }
 	};
 
 	void AddCallback(const Hedgehog::Base::THolder<Sonic::CWorld>& in_rWorldHolder,
@@ -299,8 +298,8 @@ public:
 	////Animation List
 	static inline hh::anim::SMotionInfo m_sAnimList[2]
 	{
-		hh::anim::SMotionInfo("START","wars_spin_jump",1.0f,1),
-		hh::anim::SMotionInfo("LOOP","wars_spin_nomal_loop",1.0f,0)
+		{ "START", "wars_spin_jump", 1.0f, 1 },
+		{ "LOOP", "wars_spin_nomal_loop", 1.0f, 0 }
 	};
 
 	void AddCallback(const Hedgehog::Base::THolder<Sonic::CWorld>& in_rWorldHolder,

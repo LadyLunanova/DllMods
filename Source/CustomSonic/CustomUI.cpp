@@ -156,12 +156,16 @@ public:
 		m_spEyes->BindPose(m_spNPCAnimation->m_spAnimationPose);
 		m_spPose = m_spNPCAnimation->m_spAnimationPose;
 
-		////Attach renderable to Sonic
+		////Attach renderable to Sonic's animation
 		//const int playerID = GetGameDocument()->m_pMember->m_PlayerIDs.begin()[0];
-		//const Sonic::Player::CPlayerSpeedContext* context = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID))->GetContext();
 		//const Sonic::Player::CPlayerSpeed* pPlayer = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID));
-		//m_spEyes->BindMatrixNode(context->m_spModelMatrixNode);
 		//m_spEyes->BindPose(pPlayer->m_spCharacterModel->m_spInstanceInfo->m_spPose);
+		//m_spPose = pPlayer->m_spCharacterModel->m_spInstanceInfo->m_spPose;
+
+		////Attach renderable to Sonic's tranforms
+		//const Sonic::Player::CPlayerSpeedContext* context = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID))->GetContext();
+		//m_spEyes->BindMatrixNode(context->m_spModelMatrixNode);
+		//m_spPose->BindMatrixNode(context->m_spModelMatrixNode);
 	}
 
 	void UpdateSerial(const Hedgehog::Universe::SUpdateInfo& in_rUpdateInfo) override
@@ -203,15 +207,19 @@ public:
 
 			auto& rTransform = in_spElement->m_spInstanceInfo->m_Transform;
 			auto& rMatrix = rTransform.matrix();
-			auto previewProjection = Eigen::CreatePerspectiveMatrix<float>(DEGREES_TO_RADIANS(10), spCamera->m_MyCamera.m_AspectRatio, 0.1, 20);
+			auto previewProjection = Eigen::CreatePerspectiveMatrix<float>(DEGREES_TO_RADIANS(12.1), spCamera->m_MyCamera.m_AspectRatio, 0.1, 20);
 			
 			Eigen::Affine3f transform;
 			//transform = Eigen::AngleAxisf(DEGREES_TO_RADIANS(0.0f), Eigen::Vector3f::UnitY());
 			transform = Eigen::Translation3f(0.0f, 0.0f, -10.0f);
+			transform = transform * Eigen::AngleAxisf(DEGREES_TO_RADIANS(10.0f), Eigen::Vector3f::UnitX());
+			transform = transform * Eigen::AngleAxisf(DEGREES_TO_RADIANS(PrevRotation), Eigen::Vector3f::UnitY());
 			
 			Eigen::Affine3f screenTransform;
-			screenTransform = Eigen::AngleAxisf(DEGREES_TO_RADIANS(0.0f), Eigen::Vector3f::UnitY());
-			screenTransform = screenTransform * Eigen::Translation3f(-0.5f, -0.75f, 0.0f);
+			screenTransform = Eigen::Translation3f(-0.549f, -0.6f, 0.0f);
+			//screenTransform = screenTransform * Eigen::AngleAxisf(DEGREES_TO_RADIANS(0.0f), Eigen::Vector3f::UnitY());
+			//screenTransform = screenTransform * Eigen::AngleAxisf(DEGREES_TO_RADIANS(PrevRotation), Eigen::Vector3f::UnitY());
+			
 			
 			rMatrix = transform.matrix();
 			rMatrix = previewProjection * rMatrix;
@@ -244,12 +252,6 @@ public:
 	{
 		printf("KILL PREVIEW RENDERABLE\n");
 		RemoveRenderables();
-
-		// const int playerID = GetGameDocument()->m_pMember->m_PlayerIDs.begin()[0];
-		// const Sonic::Player::CPlayerSpeed* pPlayer = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID));
-		// const Sonic::Player::CPlayer* cpcontext = static_cast<Sonic::Player::CPlayer*>(m_pMessageManager->GetMessageActor(playerID));
-		// pPlayer->m_spCharacterModel->m_Enabled = true;
-		// MsgJumpModelHide(false);
 	}
 };
 boost::shared_ptr<CustomizeSonicPreviewRenderable> obj_CustomizeSonicPreviewRenderable;
@@ -266,7 +268,7 @@ void CreateFittingUI(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 		if (spCsdProject->IsMadeAll())
 		{
 			prFittingScreenBB = spCsdProject->m_rcProject;
-			obBBCustomUI = boost::make_shared<Sonic::CGameObjectCSD>(prFittingScreenBB, 0.5f, "HUD_B2", true);
+			obBBCustomUI = boost::make_shared<Sonic::CGameObjectCSD>(prFittingScreenBB, 0.5f, "HUD_A1", true);
 			Sonic::CGameDocument::GetInstance()->AddGameObject(obBBCustomUI, "main", This);
 		}
 	}
@@ -276,7 +278,7 @@ void CreateFittingUI(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 		if (spCsdProject->IsMadeAll())
 		{
 			prFittingScreenBB = spCsdProject->m_rcProject;
-			obBBCustomUI = boost::make_shared<Sonic::CGameObjectCSD>(prFittingScreenBB, 0.5f, "HUD_B2", true);
+			obBBCustomUI = boost::make_shared<Sonic::CGameObjectCSD>(prFittingScreenBB, 0.5f, "HUD_A1", true);
 			Sonic::CGameDocument::GetInstance()->AddGameObject(obBBCustomUI, "main", This);
 		}
 
@@ -284,7 +286,7 @@ void CreateFittingUI(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 		if (spCsdProjectSWA->IsMadeAll())
 		{
 			prFittingScreenSWA = spCsdProjectSWA->m_rcProject;
-			obSWACustomUI = boost::make_shared<Sonic::CGameObjectCSD>(prFittingScreenSWA, 0.4f, "HUD_B2", true);
+			obSWACustomUI = boost::make_shared<Sonic::CGameObjectCSD>(prFittingScreenSWA, 0.4f, "HUD_A1", true);
 			Sonic::CGameDocument::GetInstance()->AddGameObject(obSWACustomUI, "main", This);
 		}
 	}
@@ -344,40 +346,24 @@ void CHudUIOpen(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo&
 
 	//Main UI
 	scBBGui = prFittingScreenBB->CreateScene("chara");
-	scBBGui->SetMotion("Intro_Anim");
-	scBBGui->SetMotionFrame(0.0f);
-	scBBGui->m_MotionDisableFlag = false;
-	scBBGui->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-	scBBGui->m_MotionSpeed = 1.0f;
-	scBBGui->Update();
+	CHudUIPlayAnim(scBBGui, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
+
 	//Cursor
 	scBBIcon = prFittingScreenBB->CreateScene("icon");
 	scBBIcon->SetPosition(rowX1 * arX, rowY1 * arY);
-	scBBIcon->SetMotion("ON_Anim");
-	scBBIcon->SetMotionFrame(0.0f);
-	scBBIcon->m_MotionDisableFlag = false;
-	scBBIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-	scBBIcon->m_MotionSpeed = 1.0f;
-	scBBIcon->Update();
+	CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
+
 	//Category Text
 	scBBTextArea = prFittingScreenBB->CreateScene("textarea");
 	scBBTextArea->SetPosition(0, 0);
-	scBBTextArea->SetMotion("Intro_Anim");
-	scBBTextArea->SetMotionFrame(0.0f);
-	scBBTextArea->m_MotionDisableFlag = false;
-	scBBTextArea->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-	scBBTextArea->m_MotionSpeed = 0.5f;
-	scBBTextArea->Update();
+	CHudUIPlayAnim(scBBIcon, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 0.5f);
+
 	//L/R Bumpers
 	scBBLRMove = prFittingScreenBB->CreateScene("LRmove");
 	if (IsUnleashedHUD)
 		scBBLRMove->SetHideFlag(true);
-	scBBLRMove->SetMotion("Intro_Anim");
-	scBBLRMove->SetMotionFrame(0.0f);
-	scBBLRMove->m_MotionDisableFlag = false;
-	scBBLRMove->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-	scBBLRMove->m_MotionSpeed = 2.0f;
-	scBBLRMove->Update();
+	CHudUIPlayAnim(scBBLRMove, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 2.0f);
+
 	//Scroll Bar
 	scBBScroll = prFittingScreenBB->CreateScene("scroll");
 	if (IsUnleashedHUD)
@@ -408,115 +394,66 @@ void CHudUIOpen(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo&
 	scBBScroll->Update();
 	IsInScrollOpen = true;
 	scBBScroll->SetPosition(0.9175f * arX, 0.5475f * arY);
-	scBBScroll->SetMotion("Intro_Anim");
-	scBBScroll->SetMotionFrame(0.0f);
-	scBBScroll->m_MotionDisableFlag = false;
-	scBBScroll->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-	scBBScroll->m_MotionSpeed = 1.0f;
-	scBBScroll->Update();
+	CHudUIPlayAnim(scBBScroll, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
+
 	//Decoration
 	if (ConfigDecoEnable && !IsUnleashedHUD)
 	{
 		scBBDeco = prFittingScreenBB->CreateScene("deco");
 		scBBDeco->SetPosition(0, 0);
-		scBBDeco->SetMotion("Color_change");
-		scBBDeco->SetMotionFrame(1.0f);
-		scBBDeco->m_MotionDisableFlag = false;
-		scBBDeco->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scBBDeco->m_MotionSpeed = 0.0f;
-		scBBDeco->Update();
-		scBBDeco->SetMotion("Intro_Anim");
-		scBBDeco->SetMotionFrame(0.0f);
-		scBBDeco->m_MotionDisableFlag = false;
-		scBBDeco->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scBBDeco->m_MotionSpeed = 1.0f;
-		scBBDeco->Update();
-
+		CHudUIPlayAnim(scBBDeco, "Color_change", 1.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 0.0f);
+		CHudUIPlayAnim(scBBDeco, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 	}
+
 	//Unleashed HUD
 	if (IsUnleashedHUD)
 	{
 		//BG
 		scSWABG1 = prFittingScreenSWA->CreateScene("bg_1");
 		scSWABG1->SetPosition(0, 0.025 * arY);
-		scSWABG1->SetMotion("Size_Anim");
-		scSWABG1->SetMotionFrame(100.0f);
-		scSWABG1->m_MotionDisableFlag = false;
-		scSWABG1->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scSWABG1->m_MotionSpeed = 0.0f;
-		scSWABG1->Update();
-		scSWABG1->SetMotion("Intro_Anim");
-		scSWABG1->SetMotionFrame(0.0f);
-		scSWABG1->m_MotionDisableFlag = false;
-		scSWABG1->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scSWABG1->m_MotionSpeed = 1.5f;
-		scSWABG1->Update();
+		CHudUIPlayAnim(scSWABG1, "Size_Anim", 100.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 0.0f);
+		CHudUIPlayAnim(scSWABG1, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.5f);
+
 		//Tag
 		scSWATag = prFittingScreenSWA->CreateScene("tag");
 		scSWATag->SetPosition(0, 0.025 * arY);
-		scSWATag->SetMotion("Intro_3_Anim");
-		scSWATag->SetMotionFrame(0.0f);
-		scSWATag->m_MotionDisableFlag = false;
-		scSWATag->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scSWATag->m_MotionSpeed = 1.0f;
-		scSWATag->Update();
+		CHudUIPlayAnim(scSWATag, "Intro_3_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
+
 		//TagText
 		scSWATagTxt = prFittingScreenSWA->CreateScene("tag_name_3");
 		scSWATagTxt->SetPosition(0, 0.025 * arY);
-		scSWATagTxt->SetMotion("Intro_Anim");
-		scSWATagTxt->SetMotionFrame(0.0f);
-		scSWATagTxt->m_MotionDisableFlag = false;
-		scSWATagTxt->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scSWATagTxt->m_MotionSpeed = 1.0f;
-		scSWATagTxt->Update();
+		CHudUIPlayAnim(scSWATagTxt, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
+
 		//Footer
 		scSWAFooter = prFittingScreenSWA->CreateScene("footer_B");
 		scSWAFooter->SetHideFlag(true);
 		scSWAFooter->SetPosition(0.5 * arX, 0.333 * arY);
 		scSWAFooter->SetScale(0.575, 0.575);
-		scSWAFooter->SetMotion("Usual_Anim");
-		scSWAFooter->SetMotionFrame(0.0f);
-		scSWAFooter->m_MotionDisableFlag = false;
-		scSWAFooter->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scSWAFooter->m_MotionSpeed = 1.0f;
-		scSWAFooter->Update();
+		CHudUIPlayAnim(scSWAFooter, "Usual_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
+
 		//Arrows
 		scSWAArrow = prFittingScreenSWA->CreateScene("arrow");
 		scSWAArrow->SetPosition(0, 0.025 * arY);
 		scSWAArrow->SetHideFlag(true);
-		scSWAArrow->SetMotion("DefaultAnim");
-		scSWAArrow->SetMotionFrame(0.0f);
-		scSWAArrow->m_MotionDisableFlag = false;
-		scSWAArrow->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scSWAArrow->m_MotionSpeed = 1.0f;
-		scSWAArrow->Update();
+		CHudUIPlayAnim(scSWAArrow, "DefaultAnim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
+
 		//SWACursor
 		scSWASelect = prFittingScreenSWA->CreateScene("skill_select");
 		scSWASelect->SetHideFlag(true);
 		scSWASelect->SetPosition(rowX1 * arX, rowY1 * arY);
-		scSWASelect->SetMotion("Usual_Anim");
-		scSWASelect->SetMotionFrame(30.0f);
-		scSWASelect->m_MotionDisableFlag = false;
-		scSWASelect->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_Loop;
-		scSWASelect->m_MotionSpeed = 1.0f;
-		scSWASelect->Update();
+		CHudUIPlayAnim(scSWASelect, "Usual_Anim", 30.0f, false, Chao::CSD::eMotionRepeatType_Loop, 1.0f);
+
 		//SWAAltButton
 		scSWAAlt = prFittingScreenSWA->CreateScene("footer_A");
 		scSWAAlt->SetHideFlag(true);
 		scSWAAlt->SetPosition(0, 0.025 * arY);
-		scSWAAlt->SetMotion("Usual_Anim_2");
-		scSWAAlt->SetMotionFrame(0.0f);
-		scSWAAlt->m_MotionDisableFlag = false;
-		scSWAAlt->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_Loop;
-		scSWAAlt->m_MotionSpeed = 1.0f;
-		scSWAAlt->Update();
+		CHudUIPlayAnim(scSWAAlt, "Usual_Anim_2", 0.0f, false, Chao::CSD::eMotionRepeatType_Loop, 1.0f);
+
 		//SWAScroll
 		scSWAScroll = prFittingScreenSWA->CreateScene("scroll_bar");
 		scSWAScroll->SetHideFlag(true);
 		scSWAScroll->SetScale(1, scaleY);
 		scSWAScroll->SetMotion("Size_Anim");
-		//scSWAScroll->SetPosition(0, 0.107 * arY);
-		//scSWAScroll->SetMotionFrame(50.0f);
 		switch (CHudTabSel)
 		{
 		case UIPartShoes:
@@ -544,43 +481,28 @@ void CHudUIOpen(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo&
 		scSWAScroll->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_Loop;
 		scSWAScroll->m_MotionSpeed = 0.0f;
 		scSWAScroll->Update();
+
 		//SWAScrollBG
 		scSWAScrollBG = prFittingScreenSWA->CreateScene("scroll_bar_bg");
 		scSWAScrollBG->SetHideFlag(true);
 		scSWAScrollBG->SetScale(1, scaleY);
 		scSWAScrollBG->SetPosition(0, 0.107 * arY);
-		scSWAScrollBG->SetMotion("Scroll_Anim");
-		scSWAScrollBG->SetMotionFrame(0.0f);
-		scSWAScrollBG->m_MotionDisableFlag = false;
-		scSWAScrollBG->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_Loop;
-		scSWAScrollBG->m_MotionSpeed = 0.0f;
-		scSWAScrollBG->Update();
-
+		CHudUIPlayAnim(scSWAScrollBG, "Scroll_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_Loop, 0.0f);
 	}
+
 	//Model Preview
 	scBBPrev = prFittingScreenBB->CreateScene("chara_view");
 	if (IsPreviewOpen == true)
 	{
-		scBBPrev->SetMotion("Intro_Anim");
-		scBBPrev->SetMotionFrame(0.0f);
-		scBBPrev->m_MotionDisableFlag = false;
-		scBBPrev->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scBBPrev->m_MotionSpeed = 1.0f;
-		scBBPrev->Update();
+		CHudUIPlayAnim(scBBPrev, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 		PrevOpenTimer = 10;
 
 		obj_CustomizeSonicPreviewRenderable = boost::make_shared<CustomizeSonicPreviewRenderable>();
 		Sonic::CGameDocument::GetInstance()->AddGameObject(obj_CustomizeSonicPreviewRenderable);
 	}
 	if (IsPreviewOpen == false)
-	{
-		scBBPrev->SetMotion("Intro_Anim");
-		scBBPrev->SetMotionFrame(0.0f);
-		scBBPrev->m_MotionDisableFlag = true;
-		scBBPrev->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scBBPrev->m_MotionSpeed = 0.0f;
-		scBBPrev->Update();
-	}
+		CHudUIPlayAnim(scBBPrev, "Intro_Anim", 0.0f, true, Chao::CSD::eMotionRepeatType_PlayOnce, 0.0f);
+
 	//Misc
 	IsInMenu = true;
 	CHudUISFXOpen();
@@ -606,7 +528,7 @@ void CHudUISelect()
 		else
 		{
 			CHudUISFXSelect(true);
-			CHudUICursorAnim();
+			CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 			SelectShoesData = CHudVarTrueSel;
 			UpdateModels();
 		}
@@ -618,7 +540,7 @@ void CHudUISelect()
 		else
 		{
 			CHudUISFXSelect(true);
-			CHudUICursorAnim();
+			CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 			SelectBodyData = CHudVarTrueSel;
 			UpdateModels();
 		}
@@ -630,7 +552,7 @@ void CHudUISelect()
 		else
 		{
 			CHudUISFXSelect(true);
-			CHudUICursorAnim();
+			CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 			SelectHeadData = CHudVarTrueSel;
 			UpdateModels();
 		}
@@ -642,7 +564,7 @@ void CHudUISelect()
 		else
 		{
 			CHudUISFXSelect(true);
-			CHudUICursorAnim();
+			CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 			SelectHandLData = CHudVarTrueSel;
 			UpdateModels();
 		}
@@ -654,7 +576,7 @@ void CHudUISelect()
 		else
 		{
 			CHudUISFXSelect(true);
-			CHudUICursorAnim();
+			CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 			SelectHandRData = CHudVarTrueSel;
 			UpdateModels();
 		}
@@ -666,7 +588,7 @@ void CHudUISelect()
 		else
 		{
 			CHudUISFXSelect(true);
-			CHudUICursorAnim();
+			CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 			switch (CHudVarTrueSel)
 			{
 			case (enum SelectSonicBodyType)SBSnMaterial:
@@ -711,7 +633,7 @@ void CHudUISelect()
 void CHudUIMove(int Type)
 {
 	CHudUISFXMove();
-	CHudUICursorAnim();
+	CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 	switch (CHudTabSel)
 	{
 	case UIPartShoes:
@@ -1140,7 +1062,7 @@ void CHudUIAlt()
 			else
 				s_ItemDataShoes[CHudVarTrueSel].altselect = 0;
 			CHudUISFXAlt();
-			CHudUICursorAnim();
+			CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 			UpdateModels();
 		}
 		return;
@@ -1153,7 +1075,7 @@ void CHudUIAlt()
 			else
 				s_ItemDataBody[CHudVarTrueSel].altselect = 0;
 			CHudUISFXAlt();
-			CHudUICursorAnim();
+			CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 			UpdateModels();
 		}
 		return;
@@ -1166,7 +1088,7 @@ void CHudUIAlt()
 			else
 				s_ItemDataHead[CHudVarTrueSel].altselect = 0;
 			CHudUISFXAlt();
-			CHudUICursorAnim();
+			CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 			UpdateModels();
 		}
 		return;
@@ -1179,7 +1101,7 @@ void CHudUIAlt()
 			else
 				s_ItemDataHandR[CHudVarTrueSel].altselect = 0;
 			CHudUISFXAlt();
-			CHudUICursorAnim();
+			CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 			UpdateModels();
 		}
 		return;
@@ -1192,7 +1114,7 @@ void CHudUIAlt()
 			else
 				s_ItemDataHandL[CHudVarTrueSel].altselect = 0;
 			CHudUISFXAlt();
-			CHudUICursorAnim();
+			CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 			UpdateModels();
 		}
 		return;
@@ -1205,12 +1127,7 @@ void CHedUIPreview()
 {
 	if (IsPreviewOpen == false && PrevOpenTimer == 0)
 	{
-		scBBPrev->SetMotion("Intro_Anim");
-		scBBPrev->SetMotionFrame(0.0f);
-		scBBPrev->m_MotionDisableFlag = false;
-		scBBPrev->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scBBPrev->m_MotionSpeed = 1.5f;
-		scBBPrev->Update();
+		CHudUIPlayAnim(scBBPrev, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.5f);
 		PrevOpenTimer = 10;
 		IsPreviewOpen = true;
 		CHudUISFXOpen();
@@ -1220,12 +1137,7 @@ void CHedUIPreview()
 	}
 	if (IsPreviewOpen == true && PrevOpenTimer == 0)
 	{
-		scBBPrev->SetMotion("Intro_Anim");
-		scBBPrev->SetMotionFrame(25.0f);
-		scBBPrev->m_MotionDisableFlag = false;
-		scBBPrev->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scBBPrev->m_MotionSpeed = -2.0f;
-		scBBPrev->Update();
+		CHudUIPlayAnim(scBBPrev, "Intro_Anim", 25.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -2.0f);
 		PrevOpenTimer = 10;
 		IsPreviewOpen = false;
 		CHudUISFXExit();
@@ -1248,74 +1160,25 @@ void CHudUISwitch(int Type)
 		if (PressedRB)
 		{
 			IsInMenuChangeR = true;
-			scBBLRMove->SetMotion("Right_ON_Anim");
-			scBBLRMove->SetMotionFrame(0.0f);
-			scBBLRMove->m_MotionDisableFlag = false;
-			scBBLRMove->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scBBLRMove->m_MotionSpeed = 1.0f;
-			scBBLRMove->Update();
+			CHudUIPlayAnim(scBBLRMove, "Right_ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 		}
 		if (PressedLB)
 		{
 			IsInMenuChangeL = true;
-			scBBLRMove->SetMotion("Left_ON_Anim");
-			scBBLRMove->SetMotionFrame(0.0f);
-			scBBLRMove->m_MotionDisableFlag = false;
-			scBBLRMove->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scBBLRMove->m_MotionSpeed = 1.0f;
-			scBBLRMove->Update();
+			CHudUIPlayAnim(scBBLRMove, "Left_ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 		}
 		IsInMenuExit = false;
-		//MenuOption = 0;
-		//ItemOption = 0;
 		SWAOpenTimer = 25;
-		scBBGui->SetMotion("Intro_Anim");
-		scBBGui->SetMotionFrame(22.0f);
-		scBBGui->m_MotionDisableFlag = false;
-		scBBGui->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scBBGui->m_MotionSpeed = -2.0f;
-		scBBGui->Update();
-		scBBIcon->SetMotion("OFF_Anim");
-		scBBIcon->SetMotionFrame(0.0f);
-		scBBIcon->m_MotionDisableFlag = false;
-		scBBIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scBBIcon->m_MotionSpeed = 1.0f;
-		scBBIcon->Update();
-		scBBTextArea->SetMotion("Intro_Anim");
-		scBBTextArea->SetMotionFrame(17.0f);
-		scBBTextArea->m_MotionDisableFlag = false;
-		scBBTextArea->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scBBTextArea->m_MotionSpeed = -1.8f;
-		scBBTextArea->Update();
+		CHudUIPlayAnim(scBBGui, "Intro_Anim", 22.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -2.0f);
+		CHudUIPlayAnim(scBBIcon, "OFF_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
+		CHudUIPlayAnim(scBBTextArea, "Intro_Anim", 17.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -1.8f);
 		IsInScrollOpen = true;
-		scBBScroll->SetMotion("Intro_Anim");
-		scBBScroll->SetMotionFrame(22.0f);
-		scBBScroll->m_MotionDisableFlag = false;
-		scBBScroll->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scBBScroll->m_MotionSpeed = -2.0f;
-		scBBScroll->Update();
+		CHudUIPlayAnim(scBBScroll, "Intro_Anim", 22.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -2.0f);
 		if (IsUnleashedHUD)
 		{
-			scSWABG1->SetMotion("Intro_Anim");
-			scSWABG1->SetMotionFrame(0.0f);
-			scSWABG1->m_MotionDisableFlag = false;
-			scSWABG1->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scSWABG1->m_MotionSpeed = -2.5f;
-			scSWABG1->Update();
-
-			scSWATag->SetMotion("Intro_3_Anim");
-			scSWATag->SetMotionFrame(0.0f);
-			scSWATag->m_MotionDisableFlag = false;
-			scSWATag->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scSWATag->m_MotionSpeed = -1.0f;
-			scSWATag->Update();
-
-			scSWATagTxt->SetMotion("Intro_Anim");
-			scSWATagTxt->SetMotionFrame(0.0f);
-			scSWATagTxt->m_MotionDisableFlag = false;
-			scSWATagTxt->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scSWATagTxt->m_MotionSpeed = -1.0f;
-			scSWATagTxt->Update();
+			CHudUIPlayAnim(scSWABG1, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -2.5f);
+			CHudUIPlayAnim(scSWATag, "Intro_3_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -1.0f);
+			CHudUIPlayAnim(scSWATagTxt, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -1.0f);
 		}
 		return;
 	}
@@ -1375,47 +1238,15 @@ void CHudUISwitch(int Type)
 		}
 		IsInMenuChangeR = false;
 		IsInMenuChangeL = false;
-		scBBGui->SetMotion("Intro_Anim");
-		scBBGui->SetMotionFrame(0.0f);
-		scBBGui->m_MotionDisableFlag = false;
-		scBBGui->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scBBGui->m_MotionSpeed = 2.0f;
-		scBBGui->Update();
-		CHudUICursorAnim();
-		scBBTextArea->SetMotion("Intro_Anim");
-		scBBTextArea->SetMotionFrame(0.0f);
-		scBBTextArea->m_MotionDisableFlag = false;
-		scBBTextArea->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scBBTextArea->m_MotionSpeed = 2.0f;
-		scBBTextArea->Update();
-		scBBScroll->SetMotion("Intro_Anim");
-		scBBScroll->SetMotionFrame(15.0f);
-		scBBScroll->m_MotionDisableFlag = false;
-		scBBScroll->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scBBScroll->m_MotionSpeed = 1.0f;
-		scBBScroll->Update();
+		CHudUIPlayAnim(scBBGui, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 2.0f);
+		CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
+		CHudUIPlayAnim(scBBTextArea, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 2.0f);
+		CHudUIPlayAnim(scBBScroll, "Intro_Anim", 15.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 		if (IsUnleashedHUD)
 		{
-			scSWABG1->SetMotion("Intro_Anim");
-			scSWABG1->SetMotionFrame(100.0f);
-			scSWABG1->m_MotionDisableFlag = false;
-			scSWABG1->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scSWABG1->m_MotionSpeed = 1.5f;
-			scSWABG1->Update();
-
-			scSWATag->SetMotion("Intro_3_Anim");
-			scSWATag->SetMotionFrame(15.0f);
-			scSWATag->m_MotionDisableFlag = false;
-			scSWATag->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scSWATag->m_MotionSpeed = 1.5f;
-			scSWATag->Update();
-
-			scSWATagTxt->SetMotion("Intro_Anim");
-			scSWATagTxt->SetMotionFrame(15.0f);
-			scSWATagTxt->m_MotionDisableFlag = false;
-			scSWATagTxt->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scSWATagTxt->m_MotionSpeed = 1.5f;
-			scSWATagTxt->Update();
+			CHudUIPlayAnim(scSWABG1, "Intro_Anim", 100.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.5f);
+			CHudUIPlayAnim(scSWATag, "Intro_3_Anim", 15.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.5f);
+			CHudUIPlayAnim(scSWATagTxt, "Intro_Anim", 15.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.5f);
 		}
 		return;
 	}
@@ -1429,121 +1260,76 @@ void CHudUIExit(int Type)
 		IsInMenuExit = true;
 		SWAOpenTimer = 15;
 		PrevOpenTimer = 10;
-		scBBGui->SetMotion("Intro_Anim");
-		scBBGui->SetMotionFrame(22.0f);
-		scBBGui->m_MotionDisableFlag = false;
-		scBBGui->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scBBGui->m_MotionSpeed = -1.0f;
-		scBBGui->Update();
-		scBBIcon->SetMotion("OFF_Anim");
-		scBBIcon->SetMotionFrame(0.0f);
-		scBBIcon->m_MotionDisableFlag = false;
-		scBBIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scBBIcon->m_MotionSpeed = 1.0f;
-		scBBIcon->Update();
-		scBBTextArea->SetMotion("Intro_Anim");
-		scBBTextArea->SetMotionFrame(17.0f);
-		scBBTextArea->m_MotionDisableFlag = false;
-		scBBTextArea->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scBBTextArea->m_MotionSpeed = -0.5f;
-		scBBTextArea->Update();
-		scBBLRMove->SetMotion("Intro_Anim");
-		scBBLRMove->SetMotionFrame(0.0f);
-		scBBLRMove->m_MotionDisableFlag = false;
-		scBBLRMove->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scBBLRMove->m_MotionSpeed = -1.0f;
-		scBBLRMove->Update();
+
+		CHudUIPlayAnim(scBBGui, "Intro_Anim", 22.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -1.0f);
+		CHudUIPlayAnim(scBBIcon, "OFF_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
+		CHudUIPlayAnim(scBBTextArea, "Intro_Anim", 17.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -0.5f);
+		CHudUIPlayAnim(scBBLRMove, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -1.0f);
 		IsInScrollOpen = true;
-		scBBScroll->SetMotion("Intro_Anim");
-		scBBScroll->SetMotionFrame(22.0f);
-		scBBScroll->m_MotionDisableFlag = false;
-		scBBScroll->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-		scBBScroll->m_MotionSpeed = -1.0f;
-		scBBScroll->Update();
+		CHudUIPlayAnim(scBBScroll, "Intro_Anim", 22.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -1.0f);
+
 		if (IsPreviewOpen == true)
 		{
-			scBBPrev->SetMotion("Intro_Anim");
-			scBBPrev->SetMotionFrame(25.0f);
-			scBBPrev->m_MotionDisableFlag = false;
-			scBBPrev->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scBBPrev->m_MotionSpeed = -1.0f;
-			scBBPrev->Update();
+			CHudUIPlayAnim(scBBPrev, "Intro_Anim", 25.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -1.0f);
 
 			if (obj_CustomizeSonicPreviewRenderable)
 				obj_CustomizeSonicPreviewRenderable->Kill();
 		}
+
 		if (scBBDeco)
-		{
-			scBBDeco->SetMotion("Intro_Anim");
-			scBBDeco->SetMotionFrame(23.0f);
-			scBBDeco->m_MotionDisableFlag = false;
-			scBBDeco->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scBBDeco->m_MotionSpeed = -1.0f;
-			scBBDeco->Update();
-		}
+			CHudUIPlayAnim(scBBDeco, "Intro_Anim", 23.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -1.0f);
+
 		if (scSWABG1)
-		{
-			scSWABG1->SetMotion("Intro_Anim");
-			scSWABG1->SetMotionFrame(23.0f);
-			scSWABG1->m_MotionDisableFlag = false;
-			scSWABG1->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scSWABG1->m_MotionSpeed = -0.9f;
-			scSWABG1->Update();
-		}
+			CHudUIPlayAnim(scSWABG1, "Intro_Anim", 23.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -0.9f);
+		
 		if (scSWATag)
-		{
-			scSWATag->SetMotion("Intro_3_Anim");
-			scSWATag->SetMotionFrame(15.0f);
-			scSWATag->m_MotionDisableFlag = false;
-			scSWATag->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scSWATag->m_MotionSpeed = -0.5f;
-			scSWATag->Update();
-		}
+			CHudUIPlayAnim(scSWATag, "Intro_3_Anim", 15.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -0.5f);
+		
 		if (scSWATagTxt)
-		{
-			scSWATagTxt->SetMotion("Intro_Anim");
-			scSWATagTxt->SetMotionFrame(15.0f);
-			scSWATagTxt->m_MotionDisableFlag = false;
-			scSWATagTxt->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-			scSWATagTxt->m_MotionSpeed = -0.5f;
-			scSWATagTxt->Update();
-		}
+			CHudUIPlayAnim(scSWATagTxt, "Intro_Anim", 15.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -0.5f);
+		
 		if (scSWAFooter)
 		{
 			SWAOpenTimer = 15;
 			scSWAFooter->SetHideFlag(true);
 			scSWAFooter->Update();
 		}
+
 		if (scSWAArrow)
 		{
 			SWAOpenTimer = 15;
 			scSWAArrow->SetHideFlag(true);
 			scSWAArrow->Update();
 		}
+
 		if (scSWAAlt)
 		{
 			SWAOpenTimer = 15;
 			scSWAAlt->SetHideFlag(true);
 			scSWAAlt->Update();
 		}
+
 		if (scSWASelect)
 		{
 			SWAOpenTimer = 15;
 			scSWASelect->SetHideFlag(true);
 			scSWASelect->Update();
 		}
+
 		if (scSWAScroll)
 		{
 			SWAOpenTimer = 15;
 			scSWAScroll->SetHideFlag(true);
 			scSWAScroll->Update();
 		}
+
 		if (scSWAScrollBG)
 		{
 			SWAOpenTimer = 15;
 			scSWAScrollBG->SetHideFlag(true);
 			scSWAScrollBG->Update();
 		}
+
 		return;
 	}
 	if (Type == 1)
@@ -1836,10 +1622,14 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 	bool DownRB = input.IsDown(Sonic::eKeyState_RightBumper);
 	bool DownLT = input.IsDown(Sonic::eKeyState_LeftTrigger);
 	bool DownRT = input.IsDown(Sonic::eKeyState_RightTrigger);
-	bool PushedUp = inputPtr->LeftStickVertical >= 0.5f;
-	bool PushedDown = inputPtr->LeftStickVertical <= -0.5f;
-	bool PushedLeft = inputPtr->LeftStickHorizontal <= -0.5f;
-	bool PushedRight = inputPtr->LeftStickHorizontal >= 0.5f;
+	bool PushedLSUp = inputPtr->LeftStickVertical >= 0.5f;
+	bool PushedLSDown = inputPtr->LeftStickVertical <= -0.5f;
+	bool PushedLSLeft = inputPtr->LeftStickHorizontal <= -0.5f;
+	bool PushedLSRight = inputPtr->LeftStickHorizontal >= 0.5f;
+	auto LSHor = inputPtr->LeftStickHorizontal;
+	auto LSVer = inputPtr->LeftStickVertical;
+	auto RSHor = inputPtr->RightStickHorizontal;
+	auto RSVer = inputPtr->RightStickVertical;
 	auto speedContext = Sonic::Player::CPlayerSpeedContext::GetInstance();
 	auto sonic = speedContext->m_pPlayer;
 	auto Flags = speedContext->m_pStateFlag;
@@ -2045,20 +1835,20 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 			{
 				if (scBBPrev->m_MotionFrame <= 0 && IsPreviewOpen == false)
 				{
-					scBBPrev->SetMotion("Intro_Anim");
-					scBBPrev->SetMotionFrame(0.0f);
-					scBBPrev->m_MotionDisableFlag = true;
-					scBBPrev->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-					scBBPrev->m_MotionSpeed = 0.0f;
-					scBBPrev->Update();
+					CHudUIPlayAnim(scBBPrev, "Intro_Anim", 0.0f, true, Chao::CSD::eMotionRepeatType_PlayOnce, 0.0f);
 					scBBPrev->SetHideFlag(true);
 				}
 				else
 					scBBPrev->SetHideFlag(false);
+
+				////-----Right Stick Handle
+				PrevRotation += (RSHor * 1.8f);
+
+				if (PressedRST)
+					PrevRotation = 0.0f;
 			}
 
 			////------Handle Alt Prompt
-
 			switch (CHudTabSel)
 			{
 			case UIPartShoes:
@@ -2187,22 +1977,22 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 			////------Cursor Movement Handle
 			if (scenecheck && !IsInMenuExit && !IsInMenuChange && scBBIcon == !nullptr)
 			{
-				if ((PressedUp && scBBIcon->m_MotionFrame >= 3) || (PushedUp && scBBIcon->m_MotionFrame >= 12))
+				if ((PressedUp && scBBIcon->m_MotionFrame >= 3) || (PushedLSUp && scBBIcon->m_MotionFrame >= 12))
 				{
 					CHudUIMove(0);
 				}
 
-				if ((PressedDown && scBBIcon->m_MotionFrame >= 3) || (PushedDown && scBBIcon->m_MotionFrame >= 12))
+				if ((PressedDown && scBBIcon->m_MotionFrame >= 3) || (PushedLSDown && scBBIcon->m_MotionFrame >= 12))
 				{
 					CHudUIMove(1);
 				}
 
-				if ((PressedLeft && scBBIcon->m_MotionFrame >= 3) || (PushedLeft && scBBIcon->m_MotionFrame >= 12))
+				if ((PressedLeft && scBBIcon->m_MotionFrame >= 3) || (PushedLSLeft && scBBIcon->m_MotionFrame >= 12))
 				{
 					CHudUIMove(2);
 				}
 
-				if ((PressedRight && scBBIcon->m_MotionFrame >= 3) || (PushedRight && scBBIcon->m_MotionFrame >= 12))
+				if ((PressedRight && scBBIcon->m_MotionFrame >= 3) || (PushedLSRight && scBBIcon->m_MotionFrame >= 12))
 				{
 					CHudUIMove(3);
 				}

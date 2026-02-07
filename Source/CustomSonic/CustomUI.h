@@ -84,6 +84,8 @@ int MemoryOpenTimer = 1800;
 int ActivateButton = 0;
 float CHudVarScrollBarStarSpinFlt = 0.0f;
 int PrevOpenTimer = 0;
+int PrevAnim = 0;
+float PrevRotation = 0.0f;
 bool IsPreviewOpen = false;
 
 int CHudVarVisSel = 0;
@@ -99,14 +101,14 @@ int CHudVarSBMaxScroll = 0;
 
 
 //Menu Functions
-void CHudUICursorAnim()
+void CHudUIPlayAnim(Chao::CSD::RCPtr<Chao::CSD::CScene> in_pScene, const char* in_pName, float in_pFrame, bool in_pMotionDisable, Chao::CSD::EMotionRepeatType in_pMotionRepeatType, float in_pSpeed)
 {
-	scBBIcon->SetMotion("ON_Anim");
-	scBBIcon->SetMotionFrame(0.0f);
-	scBBIcon->m_MotionDisableFlag = false;
-	scBBIcon->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
-	scBBIcon->m_MotionSpeed = 1.0f;
-	scBBIcon->Update();
+	in_pScene->SetMotion(in_pName);
+	in_pScene->SetMotionFrame(in_pFrame);
+	in_pScene->m_MotionDisableFlag = in_pMotionDisable;
+	in_pScene->m_MotionRepeatType = in_pMotionRepeatType;
+	in_pScene->m_MotionSpeed = in_pSpeed;
+	in_pScene->Update();
 }
 
 void CHudUISceneDestroy()

@@ -116,10 +116,21 @@ public:
 	hh::math::CMatrix44 m_Transform{};
 
 	////Animation List
-	static inline hh::anim::SMotionInfo m_sAnimList[1]
+	static inline hh::anim::SMotionInfo m_sAnimList[3]
 	{
-		{ "LOOP", "sn_col_idle_loop", 1.4f, 0 }
+		{ "FITTING", "sn_col_idle_loop", 1.0f, 0 },
+		{ "IDLE", "sn_idle_loop", 1.0f, 0 },
+		{ "RUN", "sn_run_loop", 1.6f, 0 }
 	};
+
+	void SetAnimStateTransition(const char* in_pStartState, const char* in_pEndState, float in_TransitionSpeed)
+	{
+		auto* state = m_spNPCAnimation->m_spAnimationStateMachine->GetAnimationState(in_pStartState).get();
+		state->m_TransitionState = in_pEndState;
+		state->m_Field90 = true;
+		state->m_Field8C = -1.0f;
+		fCAnimationStateMachineSetBlend(m_spNPCAnimation->m_spAnimationStateMachine.get(), in_pEndState, in_pStartState, in_TransitionSpeed);
+	}
 
 	void AddCallback(const Hedgehog::Base::THolder<Sonic::CWorld>& in_rWorldHolder,
 		Sonic::CGameDocument* pGameDocument, const boost::shared_ptr<Hedgehog::Database::CDatabase>& in_spDatabase) override
@@ -149,8 +160,14 @@ public:
 		m_spNPCAnimation->NPC_ADD_ANIM_LIST(m_sAnimList);
 		m_spNPCAnimation->m_spAnimationPose->Update(0.0f);
 
+
+		//////Animation transitions
+		SetAnimStateTransition("FITTING", "IDLE", 0.1f);
+		SetAnimStateTransition("IDLE", "RUN", 0.1f);
+		SetAnimStateTransition("RUN", "FITTING", 0.1f);
+
 		//////Start Animation
-		m_spNPCAnimation->m_spAnimationStateMachine->ChangeState("LOOP");
+		m_spNPCAnimation->m_spAnimationStateMachine->ChangeState("FITTING");
 
 		////Bind poses
 		m_spEyes->BindPose(m_spNPCAnimation->m_spAnimationPose);
@@ -195,7 +212,7 @@ public:
 
 		m_spNPCAnimation->m_spAnimationPose->Update(in_rUpdateInfo.DeltaTime);
 		m_spNPCAnimation->m_spAnimationStateMachine->UpdateStateMachine(in_rUpdateInfo);
-		
+
 		auto transformElement = [=](boost::shared_ptr<Hedgehog::Mirage::CSingleElement> in_spElement)
 		{
 			if (!in_spElement)
@@ -246,6 +263,11 @@ public:
 			m_isUpdateModels = true;
 
 		return true;
+	}
+
+	void ChangeAnimation(const char* in_anim)
+	{
+		m_spNPCAnimation->m_spAnimationStateMachine->ChangeState(in_anim);
 	}
 
 	void KillCallback() override
@@ -356,7 +378,7 @@ void CHudUIOpen(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo&
 	//Category Text
 	scBBTextArea = prFittingScreenBB->CreateScene("textarea");
 	scBBTextArea->SetPosition(0, 0);
-	CHudUIPlayAnim(scBBIcon, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 0.5f);
+	CHudUIPlayAnim(scBBTextArea, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 0.5f);
 
 	//L/R Bumpers
 	scBBLRMove = prFittingScreenBB->CreateScene("LRmove");
@@ -1842,10 +1864,29 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 					scBBPrev->SetHideFlag(false);
 
 				////-----Right Stick Handle
-				PrevRotation += (RSHor * 1.8f);
+				PrevRotation += (RSHor * 2.0f);
 
 				if (PressedRST)
 					PrevRotation = 0.0f;
+
+				if (PressedLST)
+				{
+					switch (PrevAnim)
+					{
+					case 0:
+						obj_CustomizeSonicPreviewRenderable->ChangeAnimation("IDLE");
+						PrevAnim = 1;
+						break;
+					case 1:
+						obj_CustomizeSonicPreviewRenderable->ChangeAnimation("RUN");
+						PrevAnim = 2;
+						break;
+					case 2:
+						obj_CustomizeSonicPreviewRenderable->ChangeAnimation("FITTING");
+						PrevAnim = 0;
+						break;
+					}
+				}
 			}
 
 			////------Handle Alt Prompt
@@ -2124,6 +2165,8 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 	//}
 
 }
+
+//Create/Kill/Update Fitting Menu
 HOOK(void, __fastcall, CHudSonicStageUpdate, 0x1098A50, Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo& in_rUpdateInfo)
 {
 	auto speedContext = Sonic::Player::CPlayerSpeedContext::GetInstance();

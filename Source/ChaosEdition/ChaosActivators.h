@@ -1,5 +1,5 @@
 #pragma once
-#include <Sonic/Message/MsgDamage.h>
+//#include <Sonic/Message/MsgDamage.h>
 
 void SetTextCast(const char* Text);
 void SetBGWidth(float Width);

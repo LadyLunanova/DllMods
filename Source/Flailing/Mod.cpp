@@ -67,9 +67,8 @@ HOOK(void, __fastcall, EndFall, 0x01118FB0, hh::fnd::CStateMachineBase::CStateBa
 //Parameter Editor Options
 HOOK(void, __cdecl, InitializeApplicationParams, 0x00D65180, Sonic::CParameterFile* This)
 {
-	boost::shared_ptr<Sonic::CParameterGroup> parameterGroup;
-	This->CreateParameterGroup(parameterGroup, "Luna's Mods", "Parameters for Lady Luna's code mods");
-	Sonic::CParameterCategory* cat_Bounce = parameterGroup->CreateParameterCategory("Fail Falling", "Parameters for Flail Falling");
+	auto parameterGroup = This->CreateParameterGroup("Luna's Mods", "Parameters for Lady Luna's code mods");
+	Sonic::CEditParam* cat_Bounce = parameterGroup->CreateParameterCategory("Fail Falling", "Parameters for Flail Falling");
 
 	//cat_Bounce->CreateParamInt(&someInt, "Integer");
 	//cat_Bounce->CreateParamBool(&someBool, "Bool");

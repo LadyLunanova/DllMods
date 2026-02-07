@@ -214,9 +214,8 @@ HOOK(bool, __stdcall, ParseArchiveTree, 0xD4C8E0, void* A1, char* data, const si
 //Parameter Editor Options
 HOOK(void, __cdecl, InitializeApplicationParams, 0x00D65180, Sonic::CParameterFile* This)
 {
-	boost::shared_ptr<Sonic::CParameterGroup> parameterGroup;
-	This->CreateParameterGroup(parameterGroup, "Luna's Mods", "Parameters for Lady Luna's code mods");
-	Sonic::CParameterCategory* cat_Bounce = parameterGroup->CreateParameterCategory("Unleashed Foot Sweep", "Parameters for the Unleashed Foot Sweep");
+	auto parameterGroup = This->CreateParameterGroup("Luna's Mods", "Parameters for Lady Luna's code mods");
+	Sonic::CEditParam* cat_Bounce = parameterGroup->CreateParameterCategory("Unleashed Foot Sweep", "Parameters for the Unleashed Foot Sweep");
 
 	//cat_Bounce->CreateParamInt(&someInt, "Integer");
 	//cat_Bounce->CreateParamBool(&someBool, "Bool");

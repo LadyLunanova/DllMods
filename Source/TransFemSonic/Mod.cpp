@@ -512,7 +512,8 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	//Foot Tap sfx
 	if (IsTapAnim && ((GetAnimInfo->m_Frame >= 38 && GetAnimInfo->m_Frame < 39) || (GetAnimInfo->m_Frame >= 50 && GetAnimInfo->m_Frame < 51) || (GetAnimInfo->m_Frame >= 66 && GetAnimInfo->m_Frame < 67) || (GetAnimInfo->m_Frame >= 94 && GetAnimInfo->m_Frame < 95)) && (DoubleVOFix <= 0) && !IsSWAMDL && IsFootTapSFX)
 	{
-		switch (sonic->m_Field164)
+		//switch (sonic->m_Field164)
+		switch (sonic->m_GroundAttribute)
 		{
 		case 0: //Stone/Normal
 		case 1:
@@ -1015,8 +1016,9 @@ HOOK(void, __fastcall, LoadArchiveList, 0x69C270, void* This, void* Edx, void* A
 //Parameter Editor Options
 HOOK(void, __cdecl, InitializeApplicationParams, 0x00D65180, Sonic::CParameterFile* This)
 {
-	boost::shared_ptr<Sonic::CParameterGroup> parameterGroup;
-	This->CreateParameterGroup(parameterGroup, "Luna's Mods", "Parameters for Lady Luna's code mods");
+	//boost::shared_ptr<Sonic::CParameterGroup> parameterGroup;
+	//This->CreateParameterGroup(parameterGroup, "Luna's Mods", "Parameters for Lady Luna's code mods");
+	auto parameterGroup = This->CreateParameterGroup("Luna's Mods", "Parameters for Lady Luna's code mods");
 	Sonic::CEditParam* cat_Bounce = parameterGroup->CreateParameterCategory("Trans Fem Sonic", "Parameters for Trans Fem Sonic");
 
 	//cat_Bounce->CreateParamInt(&someInt, "Integer");

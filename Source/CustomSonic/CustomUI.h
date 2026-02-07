@@ -33,6 +33,7 @@ Chao::CSD::RCPtr<Chao::CSD::CScene> scBBLRMove;
 Chao::CSD::RCPtr<Chao::CSD::CScene> scBBTextArea;
 Chao::CSD::RCPtr<Chao::CSD::CScene> scBBDeco;
 Chao::CSD::RCPtr<Chao::CSD::CScene> scBBScroll;
+Chao::CSD::RCPtr<Chao::CSD::CScene> scBBPrev;
 Chao::CSD::RCPtr<Chao::CSD::CScene> scSWABG1;
 Chao::CSD::RCPtr<Chao::CSD::CScene> scSWATag;
 Chao::CSD::RCPtr<Chao::CSD::CScene> scSWATagTxt;
@@ -82,6 +83,8 @@ int SWAOpenTimer = 15;
 int MemoryOpenTimer = 1800;
 int ActivateButton = 0;
 float CHudVarScrollBarStarSpinFlt = 0.0f;
+int PrevOpenTimer = 0;
+bool IsPreviewOpen = false;
 
 int CHudVarVisSel = 0;
 int CHudVarScroll = 0;
@@ -120,6 +123,8 @@ void CHudUISceneDestroy()
 		Chao::CSD::CProject::DestroyScene(prFittingScreenBB.Get(), scBBDeco);
 	if (scBBScroll)
 		Chao::CSD::CProject::DestroyScene(prFittingScreenBB.Get(), scBBScroll);
+	if (scBBPrev)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenBB.Get(), scBBPrev);
 	if (scSWABG1)
 		Chao::CSD::CProject::DestroyScene(prFittingScreenSWA.Get(), scSWABG1);
 	if (scSWATag)

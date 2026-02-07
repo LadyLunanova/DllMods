@@ -19,5 +19,6 @@
     <ClInclude Include="SonicPlayer.h" />
     <ClInclude Include="InstallSetup.h" />
     <ClInclude Include="Path.h" />
+    <ClInclude Include="CamMath.h" />
   </ItemGroup>
 </Project>

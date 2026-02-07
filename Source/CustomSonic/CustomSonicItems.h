@@ -153,10 +153,14 @@ SelectJumpBallType SelectJumpBall = SelectJumpBallType::JumpBallDefault;
 
 int HyperFrameCycle = 0;
 bool isRenderableCreated = false;
-bool isLoadModel = true;
+bool isJumpBallHide = false;
 
 void MsgWildFire(int Enabled);
 void MsgJumpBall(int BallType);
+void MsgJumpModelHide(bool Enabled)
+{
+	isJumpBallHide = Enabled;
+}
 
 const char* CModelHeadString(char* result)
 {
@@ -430,200 +434,236 @@ const char* ArchiveBaseHeadString(char* result)
 	return result;
 }
 
-//////Sonic Renderable
-class CustomizeSonicRenderable : public Sonic::CGameObject3D
+class MsgUpdateCustomModels : public Hedgehog::Universe::MessageTypeSet
 {
 public:
-	boost::shared_ptr<hh::mr::CSingleElement> m_spElementSnHead;
-	boost::shared_ptr<hh::mr::CSingleElement> m_spElementSnBaseHead;
-	boost::shared_ptr<hh::mr::CSingleElement> m_spElementSnBody;
-	boost::shared_ptr<hh::mr::CSingleElement> m_spElementSnShoes;
-	boost::shared_ptr<hh::mr::CSingleElement> m_spElementSnHandR;
-	boost::shared_ptr<hh::mr::CSingleElement> m_spElementSnHandL;
-	boost::shared_ptr<hh::mr::CSingleElement> m_spElementSnEyelid;
-	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spArHeadMdlData;
-	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spArBaseHeadMdlData;
-	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spArBodyMdlData;
-	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spArShoesMdlData;
-	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spArHandRMdlData;
-	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spArHandLMdlData;
-	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spArEyelidMdlData;
-	boost::shared_ptr<Hedgehog::Database::CDatabase> m_spArDatabase;
-	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spArHeadMatData;
-	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spArHeadReplaceMatData;
-	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spArBaseHeadMatData;
-	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spArBaseHeadReplaceMatData;
-	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spArBodyMatData;
-	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spArBodyReplaceMatData;
-	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spArEyelidMatData;
-	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spArEyelidReplaceMatData;
+	static constexpr const char* ms_pType = "MsgUpdateCustomModels";
 
-	struct arDataStruct
+    bool IsOfType(const char* in_pType) const override
+    {
+        return in_pType == ms_pType;
+    }
+    
+    const char* GetType() const override
+    {
+        return ms_pType;
+    }
+};
+
+class CustomizeSonicRenderable
+{
+public:
+	boost::shared_ptr<Hedgehog::Database::CDatabase> m_spDatabase{};
+	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spHeadMdlData{};
+	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spBaseHeadMdlData{};
+	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spBodyMdlData{};
+	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spShoesMdlData{};
+	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spHandRMdlData{};
+	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spHandLMdlData{};
+	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spEyelidMdlData{};
+	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spHeadMatData{};
+	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spHeadReplaceMatData{};
+	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spBaseHeadMatData{};
+	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spBaseHeadReplaceMatData{};
+	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spBodyMatData{};
+	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spBodyReplaceMatData{};
+	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spEyelidMatData{};
+	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spEyelidReplaceMatData{};
+	boost::shared_ptr<Hedgehog::Mirage::CSingleElement> m_spSnHead{};
+	boost::shared_ptr<Hedgehog::Mirage::CSingleElement> m_spSnBaseHead{};
+	boost::shared_ptr<Hedgehog::Mirage::CSingleElement> m_spSnBody{};
+	boost::shared_ptr<Hedgehog::Mirage::CSingleElement> m_spSnShoes{};
+	boost::shared_ptr<Hedgehog::Mirage::CSingleElement> m_spSnHandR{};
+	boost::shared_ptr<Hedgehog::Mirage::CSingleElement> m_spSnHandL{};
+	boost::shared_ptr<Hedgehog::Mirage::CSingleElement> m_spSnEyelid{};
+	std::vector<boost::shared_ptr<Hedgehog::Mirage::CSingleElement>> m_vspExtraElements{};
+	boost::shared_ptr<Hedgehog::Mirage::CMatrixNode> m_spMatrixNode{};
+	boost::shared_ptr<Hedgehog::Mirage::CPose> m_spPose{};
+	bool m_isCastShadows{ true };
+	bool m_isUpdateModels{ true };
+
+	struct ArDataStruct
 	{
-		boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spArModelData;
-		boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spArMaterialData;
-		boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spArReplaceMaterialData;
+		boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spModelData{};
+		boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spMaterialData{};
+		boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spReplaceMaterialData{};
 	};
 
-	arDataStruct loadArchiveDatabase(Hedgehog::Base::CSharedString archiveName, Hedgehog::Base::CSharedString modelName, Hedgehog::Base::CSharedString materialName, Hedgehog::Base::CSharedString materialReplaceName)
+	ArDataStruct LoadArchiveDatabase(Hedgehog::Base::CSharedString in_archiveName, Hedgehog::Base::CSharedString in_modelName, Hedgehog::Base::CSharedString in_materialName, Hedgehog::Base::CSharedString in_materialReplaceName)
 	{
-		arDataStruct arDataStruct;
+		ArDataStruct arDataStruct{};
 
-		m_spArDatabase = Hedgehog::Database::CDatabase::CreateDatabase();
+		m_spDatabase = Hedgehog::Database::CDatabase::CreateDatabase();
+
 		auto& loader = Sonic::CApplicationDocument::GetInstance()->m_pMember->m_spDatabaseLoader;
 
-		loader->CreateArchiveList(
-			archiveName + ".ar",
-			archiveName + ".arl",
-			{ 200, 5 });
+		loader->CreateArchiveList(in_archiveName + ".ar", in_archiveName + ".arl", { 200, 5 });
+		loader->LoadArchiveList(m_spDatabase, in_archiveName + ".arl");
+		loader->LoadArchive(m_spDatabase, in_archiveName + ".ar", { -10, 5 }, false, false);
 
-		loader->LoadArchiveList(m_spArDatabase, archiveName + ".arl");
+		Hedgehog::Mirage::CMirageDatabaseWrapper wrapper(m_spDatabase.get());
 
-		loader->LoadArchive(m_spArDatabase, archiveName + ".ar", { -10, 5 }, false, false);
-
-		Hedgehog::Mirage::CMirageDatabaseWrapper wrapper(m_spArDatabase.get());
-
-		arDataStruct.m_spArModelData = wrapper.GetModelData(modelName);
-		arDataStruct.m_spArMaterialData = wrapper.GetMaterialData(materialName);
-		arDataStruct.m_spArReplaceMaterialData = wrapper.GetMaterialData(materialReplaceName);
+		arDataStruct.m_spModelData = wrapper.GetModelData(in_modelName);
+		arDataStruct.m_spMaterialData = wrapper.GetMaterialData(in_materialName);
+		arDataStruct.m_spReplaceMaterialData = wrapper.GetMaterialData(in_materialReplaceName);
 
 		return arDataStruct;
 	}
 
 	//////Custom Funcs
-	void addCustomRenderModel(boost::shared_ptr<hh::mr::CSingleElement>& m_spElement, boost::shared_ptr<Hedgehog::Mirage::CModelData> modelData)
+	void AddCustomRenderModel(Sonic::CGameObject* in_pGameObject, const char* in_pCategory, boost::shared_ptr<hh::mr::CSingleElement>& in_rspElement, boost::shared_ptr<Hedgehog::Mirage::CModelData> in_spModelData)
 	{
-		const int playerID = GetGameDocument()->m_pMember->m_PlayerIDs.begin()[0];
-		const Sonic::Player::CPlayerSpeedContext* context = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID))->GetContext();
-		const Sonic::Player::CPlayerSpeed* pPlayer = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID));
-
 		////Setup Model
-		if (!modelData || !modelData->IsMadeAll())
+		if (!in_spModelData || !in_spModelData->IsMadeAll())
 			return;
 
-		m_spElement = boost::make_shared<hh::mr::CSingleElement>(modelData);
-		AddRenderable("Player", m_spElement, true);
-		AddRenderable("MBP", m_spElement, false);
+		in_rspElement = boost::make_shared<hh::mr::CSingleElement>(in_spModelData);
 
-		////Attach renderable to Sonic
-		m_spElement->BindMatrixNode(context->m_spMatrixNode);
-		m_spElement->BindPose(pPlayer->m_spCharacterModel->m_spInstanceInfo->m_spPose);
+		in_pGameObject->AddRenderable(in_pCategory, in_rspElement, m_isCastShadows);
+
+		if (m_isCastShadows)
+			in_pGameObject->AddRenderable("MBP", in_rspElement, false);
+
+		if (m_spMatrixNode)
+			in_rspElement->BindMatrixNode(m_spMatrixNode);
+
+		if (m_spPose)
+			in_rspElement->BindPose(m_spPose);
 	}
 
-	void addCustomRenderMaterial(boost::shared_ptr<hh::mr::CSingleElement>& m_spElement, boost::shared_ptr<Hedgehog::Mirage::CMaterialData> materialData, boost::shared_ptr<Hedgehog::Mirage::CMaterialData> materialReplaceData)
+	void AddCustomRenderMaterial(boost::shared_ptr<hh::mr::CSingleElement>& in_rspElement, boost::shared_ptr<Hedgehog::Mirage::CMaterialData> in_spMaterialData, boost::shared_ptr<Hedgehog::Mirage::CMaterialData> in_spMaterialReplaceData)
 	{
-		if (!materialData || !materialData->IsMadeAll() || !materialReplaceData || !materialReplaceData->IsMadeAll())
+		if (!in_rspElement || !in_spMaterialData || !in_spMaterialData->IsMadeAll() || !in_spMaterialReplaceData || !in_spMaterialReplaceData->IsMadeAll())
 			return;
 
-		m_spElement->m_MaterialMap.emplace(materialData.get(), materialReplaceData);
+		in_rspElement->m_MaterialMap.emplace(in_spMaterialData.get(), in_spMaterialReplaceData);
 	}
 
-	void loadCustomRenderModel()
+	void UpdateRenderables(Sonic::CGameObject* in_pGameObject, const char* m_pCategory)
 	{
-		char ShBuffer[256];
-		char BdBuffer[256];
-		char HeBuffer[256];
-		char HLBuffer[256];
-		char HRBuffer[256];
-		char EyeBuffer[256];
-		arDataStruct arHeadData;
-		arDataStruct arBaseHeadData;
-		arDataStruct arBodyData;
-		arDataStruct arEyelidData;
+		char ShBuffer[256]{};
+		char BdBuffer[256]{};
+		char HeBuffer[256]{};
+		char HLBuffer[256]{};
+		char HRBuffer[256]{};
+		char EyeBuffer[256]{};
 
-		if (isLoadModel)
-		{
-			arHeadData = loadArchiveDatabase(ArchiveHeadString(HeBuffer), CModelHeadString(HeBuffer), "chr_sn_body_original", CMaterialBodyString(HeBuffer));
-			arBaseHeadData = loadArchiveDatabase(ArchiveBaseHeadString(HeBuffer), CModelBaseHeadString(HeBuffer), "chr_sn_body_original", CMaterialBodyString(HeBuffer));
-			arBodyData = loadArchiveDatabase(ArchiveBodyString(BdBuffer), CModelBodyString(BdBuffer), "chr_sn_body_original", CMaterialBodyString(BdBuffer));
-			arEyelidData = loadArchiveDatabase(ArchiveEyelidString(HeBuffer), CModelEyelidString(HeBuffer), "chr_sn_body_original", CMaterialBodyString(HeBuffer));
+		ArDataStruct arHeadData{};
+		ArDataStruct arBaseHeadData{};
+		ArDataStruct arBodyData{};
+		ArDataStruct arEyelidData{};
 
-			m_spArShoesMdlData = loadArchiveDatabase(ArchiveShoeString(ShBuffer), CModelShoeString(ShBuffer), "", "").m_spArModelData;
-			m_spArHandRMdlData = loadArchiveDatabase(ArchiveHandRString(HRBuffer), CModelHandRString(HRBuffer), "", "").m_spArModelData;
-			m_spArHandLMdlData = loadArchiveDatabase(ArchiveHandLString(HLBuffer), CModelHandLString(HLBuffer), "", "").m_spArModelData;
+		if (m_isUpdateModels)
+		{
+			arHeadData = LoadArchiveDatabase(ArchiveHeadString(HeBuffer), CModelHeadString(HeBuffer), "chr_sn_body_original", CMaterialBodyString(HeBuffer));
+			arBaseHeadData = LoadArchiveDatabase(ArchiveBaseHeadString(HeBuffer), CModelBaseHeadString(HeBuffer), "chr_sn_body_original", CMaterialBodyString(HeBuffer));
+			arBodyData = LoadArchiveDatabase(ArchiveBodyString(BdBuffer), CModelBodyString(BdBuffer), "chr_sn_body_original", CMaterialBodyString(BdBuffer));
+			arEyelidData = LoadArchiveDatabase(ArchiveEyelidString(HeBuffer), CModelEyelidString(HeBuffer), "chr_sn_body_original", CMaterialBodyString(HeBuffer));
 
-			m_spArHeadMdlData = arHeadData.m_spArModelData;
-			m_spArHeadMatData = arHeadData.m_spArMaterialData;
-			m_spArHeadReplaceMatData = arHeadData.m_spArReplaceMaterialData;
+			m_spShoesMdlData = LoadArchiveDatabase(ArchiveShoeString(ShBuffer), CModelShoeString(ShBuffer), "", "").m_spModelData;
+			m_spHandRMdlData = LoadArchiveDatabase(ArchiveHandRString(HRBuffer), CModelHandRString(HRBuffer), "", "").m_spModelData;
+			m_spHandLMdlData = LoadArchiveDatabase(ArchiveHandLString(HLBuffer), CModelHandLString(HLBuffer), "", "").m_spModelData;
 
-			m_spArBaseHeadMdlData = arBaseHeadData.m_spArModelData;
-			m_spArBaseHeadMatData = arBaseHeadData.m_spArMaterialData;
-			m_spArBaseHeadReplaceMatData = arBaseHeadData.m_spArReplaceMaterialData;
+			m_spHeadMdlData = arHeadData.m_spModelData;
+			m_spHeadMatData = arHeadData.m_spMaterialData;
+			m_spHeadReplaceMatData = arHeadData.m_spReplaceMaterialData;
 
-			m_spArBodyMdlData = arBodyData.m_spArModelData;
-			m_spArBodyMatData = arBodyData.m_spArMaterialData;
-			m_spArBodyReplaceMatData = arBodyData.m_spArReplaceMaterialData;
+			m_spBaseHeadMdlData = arBaseHeadData.m_spModelData;
+			m_spBaseHeadMatData = arBaseHeadData.m_spMaterialData;
+			m_spBaseHeadReplaceMatData = arBaseHeadData.m_spReplaceMaterialData;
 
-			m_spArEyelidMdlData = arEyelidData.m_spArModelData;
-			m_spArEyelidMatData = arEyelidData.m_spArMaterialData;
-			m_spArEyelidReplaceMatData = arEyelidData.m_spArReplaceMaterialData;
+			m_spBodyMdlData = arBodyData.m_spModelData;
+			m_spBodyMatData = arBodyData.m_spMaterialData;
+			m_spBodyReplaceMatData = arBodyData.m_spReplaceMaterialData;
 
-			RemoveRenderables();
-			isLoadModel = false;
-		}
+			m_spEyelidMdlData = arEyelidData.m_spModelData;
+			m_spEyelidMatData = arEyelidData.m_spMaterialData;
+			m_spEyelidReplaceMatData = arEyelidData.m_spReplaceMaterialData;
 
-		if (m_spArHeadMdlData != nullptr && m_spArHeadMdlData->IsMadeAll())
-		{
-			addCustomRenderModel(m_spElementSnHead, m_spArHeadMdlData);
-			m_spArHeadMdlData = nullptr;
-		}
-		if (m_spArBodyMdlData != nullptr && m_spArBodyMdlData->IsMadeAll())
-		{
-			addCustomRenderModel(m_spElementSnBody, m_spArBodyMdlData);
-			m_spArBodyMdlData = nullptr;
-		}
-		if (m_spArShoesMdlData != nullptr && m_spArShoesMdlData->IsMadeAll())
-		{
-			addCustomRenderModel(m_spElementSnShoes, m_spArShoesMdlData);
-			m_spArShoesMdlData = nullptr;
-		}
-		if (m_spArHandRMdlData != nullptr && m_spArHandRMdlData->IsMadeAll())
-		{
-			addCustomRenderModel(m_spElementSnHandR, m_spArHandRMdlData);
-			m_spArHandRMdlData = nullptr;
-		}
-		if (m_spArHandLMdlData != nullptr && m_spArHandLMdlData->IsMadeAll())
-		{
-			addCustomRenderModel(m_spElementSnHandL, m_spArHandLMdlData);
-			m_spArHandLMdlData = nullptr;
-		}
-		if (m_spArEyelidMdlData != nullptr && m_spArEyelidMdlData->IsMadeAll())
-		{
-			addCustomRenderModel(m_spElementSnEyelid, m_spArEyelidMdlData);
-			m_spArEyelidMdlData = nullptr;
-		}
-		if (m_spArBaseHeadMdlData != nullptr && m_spArBaseHeadMdlData->IsMadeAll())
-		{
-			addCustomRenderModel(m_spElementSnBaseHead, m_spArBaseHeadMdlData);
-			m_spArBaseHeadMdlData = nullptr;
-		}
-		if (m_spArHeadMatData != nullptr && m_spArHeadMatData->IsMadeAll() && m_spArHeadReplaceMatData != nullptr && m_spArHeadReplaceMatData->IsMadeAll())
-		{
-			addCustomRenderMaterial(m_spElementSnHead, m_spArHeadMatData, m_spArHeadReplaceMatData);
-			m_spArHeadMatData = nullptr;
-			m_spArHeadReplaceMatData = nullptr;
-		}
-		if (m_spArBaseHeadMatData != nullptr && m_spArBaseHeadMatData->IsMadeAll() && m_spArBaseHeadReplaceMatData != nullptr && m_spArBaseHeadReplaceMatData->IsMadeAll())
-		{
-			addCustomRenderMaterial(m_spElementSnBaseHead, m_spArBaseHeadMatData, m_spArBaseHeadReplaceMatData);
-			m_spArBaseHeadMatData = nullptr;
-			m_spArBaseHeadReplaceMatData = nullptr;
-		}
-		if (m_spArBodyMatData != nullptr && m_spArBodyMatData->IsMadeAll() && m_spArBodyReplaceMatData != nullptr && m_spArBodyReplaceMatData->IsMadeAll())
-		{
-			addCustomRenderMaterial(m_spElementSnBody, m_spArBodyMatData, m_spArBodyReplaceMatData);
-			m_spArBodyMatData = nullptr;
-			m_spArBodyReplaceMatData = nullptr;
-		}
-		if (m_spArEyelidMatData != nullptr && m_spArEyelidMatData->IsMadeAll() && m_spArEyelidReplaceMatData != nullptr && m_spArEyelidReplaceMatData->IsMadeAll())
-		{
-			addCustomRenderMaterial(m_spElementSnEyelid, m_spArEyelidMatData, m_spArEyelidReplaceMatData);
-			m_spArEyelidMatData = nullptr;
-			m_spArEyelidReplaceMatData = nullptr;
+			in_pGameObject->RemoveRenderables();
+
+			for (auto& spElement : m_vspExtraElements)
+				in_pGameObject->AddRenderable(m_pCategory, spElement, false);
+			
+			m_isUpdateModels = false;
 		}
 
+		if (m_spHeadMdlData != nullptr && m_spHeadMdlData->IsMadeAll())
+		{
+			AddCustomRenderModel(in_pGameObject, m_pCategory, m_spSnHead, m_spHeadMdlData);
+			m_spHeadMdlData = nullptr;
+		}
+
+		if (m_spBodyMdlData != nullptr && m_spBodyMdlData->IsMadeAll())
+		{
+			AddCustomRenderModel(in_pGameObject, m_pCategory, m_spSnBody, m_spBodyMdlData);
+			m_spBodyMdlData = nullptr;
+		}
+
+		if (m_spShoesMdlData != nullptr && m_spShoesMdlData->IsMadeAll())
+		{
+			AddCustomRenderModel(in_pGameObject, m_pCategory, m_spSnShoes, m_spShoesMdlData);
+			m_spShoesMdlData = nullptr;
+		}
+
+		if (m_spHandRMdlData != nullptr && m_spHandRMdlData->IsMadeAll())
+		{
+			AddCustomRenderModel(in_pGameObject, m_pCategory, m_spSnHandR, m_spHandRMdlData);
+			m_spHandRMdlData = nullptr;
+		}
+
+		if (m_spHandLMdlData != nullptr && m_spHandLMdlData->IsMadeAll())
+		{
+			AddCustomRenderModel(in_pGameObject, m_pCategory, m_spSnHandL, m_spHandLMdlData);
+			m_spHandLMdlData = nullptr;
+		}
+
+		if (m_spEyelidMdlData != nullptr && m_spEyelidMdlData->IsMadeAll())
+		{
+			AddCustomRenderModel(in_pGameObject, m_pCategory, m_spSnEyelid, m_spEyelidMdlData);
+			m_spEyelidMdlData = nullptr;
+		}
+
+		if (m_spBaseHeadMdlData != nullptr && m_spBaseHeadMdlData->IsMadeAll())
+		{
+			AddCustomRenderModel(in_pGameObject, m_pCategory, m_spSnBaseHead, m_spBaseHeadMdlData);
+			m_spBaseHeadMdlData = nullptr;
+		}
+
+		if (m_spHeadMatData != nullptr && m_spHeadMatData->IsMadeAll() && m_spHeadReplaceMatData != nullptr && m_spHeadReplaceMatData->IsMadeAll())
+		{
+			AddCustomRenderMaterial(m_spSnHead, m_spHeadMatData, m_spHeadReplaceMatData);
+			m_spHeadMatData = nullptr;
+			m_spHeadReplaceMatData = nullptr;
+		}
+
+		if (m_spBaseHeadMatData != nullptr && m_spBaseHeadMatData->IsMadeAll() && m_spBaseHeadReplaceMatData != nullptr && m_spBaseHeadReplaceMatData->IsMadeAll())
+		{
+			AddCustomRenderMaterial(m_spSnBaseHead, m_spBaseHeadMatData, m_spBaseHeadReplaceMatData);
+			m_spBaseHeadMatData = nullptr;
+			m_spBaseHeadReplaceMatData = nullptr;
+		}
+
+		if (m_spBodyMatData != nullptr && m_spBodyMatData->IsMadeAll() && m_spBodyReplaceMatData != nullptr && m_spBodyReplaceMatData->IsMadeAll())
+		{
+			AddCustomRenderMaterial(m_spSnBody, m_spBodyMatData, m_spBodyReplaceMatData);
+			m_spBodyMatData = nullptr;
+			m_spBodyReplaceMatData = nullptr;
+		}
+
+		if (m_spEyelidMatData != nullptr && m_spEyelidMatData->IsMadeAll() && m_spEyelidReplaceMatData != nullptr && m_spEyelidReplaceMatData->IsMadeAll())
+		{
+			AddCustomRenderMaterial(m_spSnEyelid, m_spEyelidMatData, m_spEyelidReplaceMatData);
+			m_spEyelidMatData = nullptr;
+			m_spEyelidReplaceMatData = nullptr;
+		}
 	}
+};
 
+//////Sonic Renderable
+class CustomizeSonicPlayerRenderable : public CustomizeSonicRenderable, public Sonic::CGameObject3D
+{
+public:
 	//////Renderable Funcs
 	void AddCallback(const Hedgehog::Base::THolder<Sonic::CWorld>& in_rWorldHolder,
 		Sonic::CGameDocument* in_pGameDocument, const boost::shared_ptr<Hedgehog::Database::CDatabase>& in_spDatabase) override
@@ -632,80 +672,75 @@ public:
 		in_pGameDocument->AddUpdateUnit("b", this);
 	}
 
-	void UpdateParallel(const Hedgehog::Universe::SUpdateInfo& in_rUpdateInfo) override
+	void UpdateSerial(const Hedgehog::Universe::SUpdateInfo& in_rUpdateInfo) override
 	{
 		const int playerID = GetGameDocument()->m_pMember->m_PlayerIDs.begin()[0];
+		const Sonic::Player::CPlayerSpeedContext* pContext = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID))->GetContext();
 		const Sonic::Player::CPlayerSpeed* pPlayer = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID));
-		auto pPlayer_Invisible = (pPlayer->m_spCharacterModel->m_spInstanceInfo->m_Flags & Hedgehog::Mirage::eInstanceInfoFlags_Invisible) != 0;
-		auto in_spDatabase = GetGameDocument()->m_pMember->m_spDatabase;
 
-		if (m_spElementSnHead != nullptr)
-		{
-			m_spElementSnHead->m_Enabled = !pPlayer_Invisible;
-		}
-		if (m_spElementSnBody != nullptr)
-		{
-			m_spElementSnBody->m_Enabled = !pPlayer_Invisible;
-		}
-		if (m_spElementSnShoes != nullptr)
-		{
-			m_spElementSnShoes->m_Enabled = !pPlayer_Invisible;
-		}
-		if (m_spElementSnHandR != nullptr)
-		{
-			m_spElementSnHandR->m_Enabled = !pPlayer_Invisible;
-		}
-		if (m_spElementSnHandL != nullptr)
-		{
-			m_spElementSnHandL->m_Enabled = !pPlayer_Invisible;
-		}
-		if (m_spElementSnEyelid != nullptr)
-		{
-			m_spElementSnEyelid->m_Enabled = !pPlayer_Invisible;
-		}
-		if (m_spElementSnBaseHead != nullptr)
-		{
-			m_spElementSnBaseHead->m_Enabled = !pPlayer_Invisible;
-		}
+		m_spMatrixNode = pContext->m_spModelMatrixNode;
+		m_spPose = pPlayer->m_spCharacterModel->m_spInstanceInfo->m_spPose;
+		
+		auto isPlayerInvisible = (pPlayer->m_spCharacterModel->m_spInstanceInfo->m_Flags & Hedgehog::Mirage::eInstanceInfoFlags_Invisible) != 0;
+		auto isModelEnabled = !isPlayerInvisible && !isJumpBallHide;
 
-		auto input = Sonic::CInputState::GetInstance()->GetPadState();
-		bool PressedY = input.IsTapped(Sonic::eKeyState_Y);
-		bool PressedLeft = input.IsTapped(Sonic::eKeyState_DpadLeft);
-		bool PressedRight = input.IsTapped(Sonic::eKeyState_DpadRight);
-		bool PressedUp = input.IsTapped(Sonic::eKeyState_DpadUp);
-		bool PressedDown = input.IsTapped(Sonic::eKeyState_DpadDown);
+		if (m_spSnHead != nullptr)
+			m_spSnHead->m_Enabled = isModelEnabled;
 
-		loadCustomRenderModel();
+		if (m_spSnBody != nullptr)
+			m_spSnBody->m_Enabled = isModelEnabled;
+
+		if (m_spSnShoes != nullptr)
+			m_spSnShoes->m_Enabled = isModelEnabled;
+
+		if (m_spSnHandR != nullptr)
+			m_spSnHandR->m_Enabled = isModelEnabled;
+
+		if (m_spSnHandL != nullptr)
+			m_spSnHandL->m_Enabled = isModelEnabled;
+
+		if (m_spSnEyelid != nullptr)
+			m_spSnEyelid->m_Enabled = isModelEnabled;
+
+		if (m_spSnBaseHead != nullptr)
+			m_spSnBaseHead->m_Enabled = isModelEnabled;
+
+		UpdateRenderables(this, "Player");
+	}
+
+	bool ProcessMessage(Hedgehog::Universe::Message& in_rMsg, bool in_Flag) override
+	{
+		if (in_rMsg.GetType() == MsgUpdateCustomModels::ms_pType)
+			m_isUpdateModels = true;
+
+		return true;
 	}
 
 	void KillCallback() override
 	{
+		printf("KILL PREVIEW RENDERABLE\n");
 		RemoveRenderables();
-		isRenderableCreated = false;
-		isLoadModel = true;
-		//printf("KILL CALLBACK\n");
 	}
 };
-boost::shared_ptr<CustomizeSonicRenderable> obj_CustomizeSonicRenderable;
+boost::shared_ptr<CustomizeSonicPlayerRenderable> obj_CustomizeSonicPlayerRenderable;
 
-void CreateCustomizeSonicRenderable()
+void CreateCustomizeSonicPlayerRenderable()
 {
 	if (!isRenderableCreated)
 	{
-		obj_CustomizeSonicRenderable = boost::make_shared<CustomizeSonicRenderable>();
-		Sonic::CGameDocument::GetInstance()->AddGameObject(obj_CustomizeSonicRenderable);
+		obj_CustomizeSonicPlayerRenderable = boost::make_shared<CustomizeSonicPlayerRenderable>();
+		Sonic::CGameDocument::GetInstance()->AddGameObject(obj_CustomizeSonicPlayerRenderable);
 		isRenderableCreated = true;
 	}
 }
 
-void KillCustomizeSonicRenderable()
+void KillCustomizeSonicPlayerRenderable()
 {
 	if (isRenderableCreated)
 	{
-		obj_CustomizeSonicRenderable->SendMessageImm<Sonic::Message::MsgKill>(obj_CustomizeSonicRenderable->m_ActorID);
-		obj_CustomizeSonicRenderable = nullptr;
+		obj_CustomizeSonicPlayerRenderable->Kill();
+		obj_CustomizeSonicPlayerRenderable = nullptr;
 		isRenderableCreated = false;
-		isLoadModel = true;
 		//printf("KILL RENDERABLE\n");
 	}
 }

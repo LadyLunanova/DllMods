@@ -4,6 +4,8 @@
 #include "InstallCustomUI.h"
 #include "InstallSetup.h"
 #include "CustomUI.h"
+#include "NPCAnim.h"
+#include "CamMath.h"
 
 //Debug Display setup
 Chao::CSD::RCPtr<Chao::CSD::CProject> prDebugTxtScreen;
@@ -80,6 +82,178 @@ void WriteINI(FILE* iniFile);
 
 static std::string saveFilePath;
 
+
+//////Preview Renderable//////
+static uint32_t pCAnimationStateMachineSetBlend = 0xCE0720;
+static uint32_t pCNPCAnimationCtor = 0xB67750;
+
+static void* fCAnimationStateMachineSetBlend(Sonic::CAnimationStateMachine* This,
+	const Hedgehog::Base::CSharedString& in_rSourceState, const Hedgehog::Base::CSharedString& in_rDestinationState, float in_BlendTime)
+{
+	void* result = nullptr;
+
+	__asm
+	{
+		push in_BlendTime
+		mov ecx, This
+		mov eax, in_rSourceState
+		mov edi, in_rDestinationState
+		call[pCAnimationStateMachineSetBlend]
+		mov result, eax
+	}
+
+	return result;
+}
+
+class CustomizeSonicPreviewRenderable : public CustomizeSonicRenderable, public Sonic::CGameObject
+{
+public:
+	boost::shared_ptr<Hedgehog::Mirage::CSingleElement> m_spEyes{};
+	boost::shared_ptr<Sonic::CNPCAnimation> m_spNPCAnimation{};
+	hh::math::CVector m_Position{};
+	hh::math::CVector4 m_ScreenPosition{};
+	hh::math::CQuaternion m_Rotation{};
+	hh::math::CMatrix44 m_Transform{};
+
+	////Animation List
+	static inline hh::anim::SMotionInfo m_sAnimList[1]
+	{
+		{ "LOOP", "sn_col_idle_loop", 1.4f, 0 }
+	};
+
+	void AddCallback(const Hedgehog::Base::THolder<Sonic::CWorld>& in_rWorldHolder,
+		Sonic::CGameDocument* pGameDocument, const boost::shared_ptr<Hedgehog::Database::CDatabase>& in_spDatabase) override
+	{
+		Sonic::CApplicationDocument::GetInstance()->AddMessageActor("GameObject", this);
+		pGameDocument->AddUpdateUnit("b", this);
+
+		m_isCastShadows = false;
+
+		////Setup model for Sonic's eyes
+		hh::mr::CMirageDatabaseWrapper wrapper(in_spDatabase.get());
+		boost::shared_ptr<hh::mr::CModelData> spModelData = wrapper.GetModelData("chr_Sonic_HD", 0);
+
+		if (!spModelData)
+			return;
+
+		m_spEyes = boost::make_shared<hh::mr::CSingleElement>(spModelData);
+		m_vspExtraElements.emplace_back(m_spEyes);
+
+		////Construct animator
+		auto npcAnimation = reinterpret_cast<Sonic::CNPCAnimation*>(__HH_ALLOC(0x30));
+		fCNPCAnimationCtor(npcAnimation);
+		m_spNPCAnimation = boost::shared_ptr<Sonic::CNPCAnimation>(npcAnimation);
+
+		//////Initialize Skeleton
+		m_spNPCAnimation->Initialize(in_spDatabase, "chr_Sonic_HD");
+		m_spNPCAnimation->NPC_ADD_ANIM_LIST(m_sAnimList);
+		m_spNPCAnimation->m_spAnimationPose->Update(0.0f);
+
+		//////Start Animation
+		m_spNPCAnimation->m_spAnimationStateMachine->ChangeState("LOOP");
+
+		////Bind poses
+		m_spEyes->BindPose(m_spNPCAnimation->m_spAnimationPose);
+		m_spPose = m_spNPCAnimation->m_spAnimationPose;
+
+		////Attach renderable to Sonic
+		//const int playerID = GetGameDocument()->m_pMember->m_PlayerIDs.begin()[0];
+		//const Sonic::Player::CPlayerSpeedContext* context = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID))->GetContext();
+		//const Sonic::Player::CPlayerSpeed* pPlayer = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID));
+		//m_spEyes->BindMatrixNode(context->m_spModelMatrixNode);
+		//m_spEyes->BindPose(pPlayer->m_spCharacterModel->m_spInstanceInfo->m_spPose);
+	}
+
+	void UpdateSerial(const Hedgehog::Universe::SUpdateInfo& in_rUpdateInfo) override
+	{
+		if (m_spSnHead != nullptr)
+			m_spSnHead->m_Enabled = true;
+
+		if (m_spSnBody != nullptr)
+			m_spSnBody->m_Enabled = true;
+
+		if (m_spSnShoes != nullptr)
+			m_spSnShoes->m_Enabled = true;
+
+		if (m_spSnHandR != nullptr)
+			m_spSnHandR->m_Enabled = true;
+
+		if (m_spSnHandL != nullptr)
+			m_spSnHandL->m_Enabled = true;
+
+		if (m_spSnEyelid != nullptr)
+			m_spSnEyelid->m_Enabled = true;
+
+		if (m_spSnBaseHead != nullptr)
+			m_spSnBaseHead->m_Enabled = true;
+
+		UpdateRenderables(this, "HUD_AfterModel");
+
+		m_spNPCAnimation->m_spAnimationPose->Update(in_rUpdateInfo.DeltaTime);
+		m_spNPCAnimation->m_spAnimationStateMachine->UpdateStateMachine(in_rUpdateInfo);
+		
+		auto transformElement = [=](boost::shared_ptr<Hedgehog::Mirage::CSingleElement> in_spElement)
+		{
+			if (!in_spElement)
+				return;
+			
+			const auto spCamera = m_pMember->m_pGameDocument->GetWorld()->GetCamera();
+			const hh::math::CMatrix44 invProj = spCamera->m_MyCamera.m_Projection.inverse();
+			const hh::math::CMatrix invView = spCamera->m_MyCamera.m_View.inverse();
+
+			auto& rTransform = in_spElement->m_spInstanceInfo->m_Transform;
+			auto& rMatrix = rTransform.matrix();
+			auto previewProjection = Eigen::CreatePerspectiveMatrix<float>(DEGREES_TO_RADIANS(10), spCamera->m_MyCamera.m_AspectRatio, 0.1, 20);
+			
+			Eigen::Affine3f transform;
+			//transform = Eigen::AngleAxisf(DEGREES_TO_RADIANS(0.0f), Eigen::Vector3f::UnitY());
+			transform = Eigen::Translation3f(0.0f, 0.0f, -10.0f);
+			
+			Eigen::Affine3f screenTransform;
+			screenTransform = Eigen::AngleAxisf(DEGREES_TO_RADIANS(0.0f), Eigen::Vector3f::UnitY());
+			screenTransform = screenTransform * Eigen::Translation3f(-0.5f, -0.75f, 0.0f);
+			
+			rMatrix = transform.matrix();
+			rMatrix = previewProjection * rMatrix;
+			rMatrix = screenTransform * rMatrix;
+			rMatrix = invProj * rMatrix;
+			rMatrix = invView * rMatrix;
+		};
+
+		transformElement(m_spEyes);
+		transformElement(m_spSnHead);
+		transformElement(m_spSnBaseHead);
+		transformElement(m_spSnBody);
+		transformElement(m_spSnShoes);
+		transformElement(m_spSnHandR);
+		transformElement(m_spSnHandL);
+		transformElement(m_spSnEyelid);
+
+		//printf("%f\n", m_spNPCAnimation->m_spAnimationStateMachine->m_Time);
+	}
+
+	bool ProcessMessage(Hedgehog::Universe::Message& in_rMsg, bool in_Flag) override
+	{
+		if (in_rMsg.GetType() == MsgUpdateCustomModels::ms_pType)
+			m_isUpdateModels = true;
+
+		return true;
+	}
+
+	void KillCallback() override
+	{
+		printf("KILL PREVIEW RENDERABLE\n");
+		RemoveRenderables();
+
+		// const int playerID = GetGameDocument()->m_pMember->m_PlayerIDs.begin()[0];
+		// const Sonic::Player::CPlayerSpeed* pPlayer = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID));
+		// const Sonic::Player::CPlayer* cpcontext = static_cast<Sonic::Player::CPlayer*>(m_pMessageManager->GetMessageActor(playerID));
+		// pPlayer->m_spCharacterModel->m_Enabled = true;
+		// MsgJumpModelHide(false);
+	}
+};
+boost::shared_ptr<CustomizeSonicPreviewRenderable> obj_CustomizeSonicPreviewRenderable;
+
 //Handle UI
 void CreateFittingUI(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo& in_rUpdateInfo)
 {
@@ -88,21 +262,21 @@ void CreateFittingUI(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 
 	if (!IsUnleashedHUD)
 	{
-		auto spCsdProject = wrapper.GetCsdProject("ui_fitting");
+		auto spCsdProject = wrapper.GetCsdProject("ui_fitting_bb");
 		if (spCsdProject->IsMadeAll())
 		{
 			prFittingScreenBB = spCsdProject->m_rcProject;
-			obBBCustomUI = boost::make_shared<Sonic::CGameObjectCSD>(prFittingScreenBB, 0.5f, "HUD_Pause", true);
+			obBBCustomUI = boost::make_shared<Sonic::CGameObjectCSD>(prFittingScreenBB, 0.5f, "HUD_B2", true);
 			Sonic::CGameDocument::GetInstance()->AddGameObject(obBBCustomUI, "main", This);
 		}
 	}
 	else
 	{
-		auto spCsdProject = wrapper.GetCsdProject("ui_fitting_bb");
+		auto spCsdProject = wrapper.GetCsdProject("ui_fitting_swa_bb");
 		if (spCsdProject->IsMadeAll())
 		{
 			prFittingScreenBB = spCsdProject->m_rcProject;
-			obBBCustomUI = boost::make_shared<Sonic::CGameObjectCSD>(prFittingScreenBB, 0.5f, "HUD_Pause", true);
+			obBBCustomUI = boost::make_shared<Sonic::CGameObjectCSD>(prFittingScreenBB, 0.5f, "HUD_B2", true);
 			Sonic::CGameDocument::GetInstance()->AddGameObject(obBBCustomUI, "main", This);
 		}
 
@@ -110,7 +284,7 @@ void CreateFittingUI(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 		if (spCsdProjectSWA->IsMadeAll())
 		{
 			prFittingScreenSWA = spCsdProjectSWA->m_rcProject;
-			obSWACustomUI = boost::make_shared<Sonic::CGameObjectCSD>(prFittingScreenSWA, 0.4f, "HUD_Pause", true);
+			obSWACustomUI = boost::make_shared<Sonic::CGameObjectCSD>(prFittingScreenSWA, 0.4f, "HUD_B2", true);
 			Sonic::CGameDocument::GetInstance()->AddGameObject(obSWACustomUI, "main", This);
 		}
 	}
@@ -383,15 +557,47 @@ void CHudUIOpen(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo&
 		scSWAScrollBG->Update();
 
 	}
+	//Model Preview
+	scBBPrev = prFittingScreenBB->CreateScene("chara_view");
+	if (IsPreviewOpen == true)
+	{
+		scBBPrev->SetMotion("Intro_Anim");
+		scBBPrev->SetMotionFrame(0.0f);
+		scBBPrev->m_MotionDisableFlag = false;
+		scBBPrev->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+		scBBPrev->m_MotionSpeed = 1.0f;
+		scBBPrev->Update();
+		PrevOpenTimer = 10;
+
+		obj_CustomizeSonicPreviewRenderable = boost::make_shared<CustomizeSonicPreviewRenderable>();
+		Sonic::CGameDocument::GetInstance()->AddGameObject(obj_CustomizeSonicPreviewRenderable);
+	}
+	if (IsPreviewOpen == false)
+	{
+		scBBPrev->SetMotion("Intro_Anim");
+		scBBPrev->SetMotionFrame(0.0f);
+		scBBPrev->m_MotionDisableFlag = true;
+		scBBPrev->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+		scBBPrev->m_MotionSpeed = 0.0f;
+		scBBPrev->Update();
+	}
 	//Misc
 	IsInMenu = true;
 	CHudUISFXOpen();
 	return;
 }
 
+void UpdateModels()
+{
+	if (obj_CustomizeSonicPlayerRenderable)
+		obj_CustomizeSonicPlayerRenderable->SendMessageImm<MsgUpdateCustomModels>(obj_CustomizeSonicPlayerRenderable->m_ActorID);
+
+	if (obj_CustomizeSonicPreviewRenderable)
+		obj_CustomizeSonicPreviewRenderable->SendMessageImm<MsgUpdateCustomModels>(obj_CustomizeSonicPreviewRenderable->m_ActorID);
+}
+
 void CHudUISelect()
 {
-	//isLoadModel = true;
 	switch (CHudTabSel)
 	{
 	case UIPartShoes:
@@ -402,7 +608,7 @@ void CHudUISelect()
 			CHudUISFXSelect(true);
 			CHudUICursorAnim();
 			SelectShoesData = CHudVarTrueSel;
-			isLoadModel = true;
+			UpdateModels();
 		}
 		return;
 		break;
@@ -414,7 +620,7 @@ void CHudUISelect()
 			CHudUISFXSelect(true);
 			CHudUICursorAnim();
 			SelectBodyData = CHudVarTrueSel;
-			isLoadModel = true;
+			UpdateModels();
 		}
 		return;
 		break;
@@ -426,7 +632,7 @@ void CHudUISelect()
 			CHudUISFXSelect(true);
 			CHudUICursorAnim();
 			SelectHeadData = CHudVarTrueSel;
-			isLoadModel = true;
+			UpdateModels();
 		}
 		return;
 		break;
@@ -438,7 +644,7 @@ void CHudUISelect()
 			CHudUISFXSelect(true);
 			CHudUICursorAnim();
 			SelectHandLData = CHudVarTrueSel;
-			isLoadModel = true;
+			UpdateModels();
 		}
 		return;
 		break;
@@ -450,7 +656,7 @@ void CHudUISelect()
 			CHudUISFXSelect(true);
 			CHudUICursorAnim();
 			SelectHandRData = CHudVarTrueSel;
-			isLoadModel = true;
+			UpdateModels();
 		}
 		return;
 		break;
@@ -468,7 +674,7 @@ void CHudUISelect()
 					SelectSnSonMat = (SelectSnSonMatType)(SelectSnSonMat + 1);
 				else
 					SelectSnSonMat = SnMatOriginal;
-				isLoadModel = true;
+				UpdateModels();
 				return;
 				break;
 			case (enum SelectSonicBodyType)SBSsnMaterial:
@@ -479,16 +685,13 @@ void CHudUISelect()
 				return;
 				break;
 			case (enum SelectSonicBodyType)SBEyelids:
-				
-				isLoadModel = true;
+				UpdateModels();
 				return;
 				break;
 			case (enum SelectSonicBodyType)SBSuperHead:
-
 				return;
 				break;
 			case (enum SelectSonicBodyType)SBSuperForm:
-
 				return;
 				break;
 			case (enum SelectSonicBodyType)SBJumpball:
@@ -938,7 +1141,7 @@ void CHudUIAlt()
 				s_ItemDataShoes[CHudVarTrueSel].altselect = 0;
 			CHudUISFXAlt();
 			CHudUICursorAnim();
-			isLoadModel = true;
+			UpdateModels();
 		}
 		return;
 		break;
@@ -951,7 +1154,7 @@ void CHudUIAlt()
 				s_ItemDataBody[CHudVarTrueSel].altselect = 0;
 			CHudUISFXAlt();
 			CHudUICursorAnim();
-			isLoadModel = true;
+			UpdateModels();
 		}
 		return;
 		break;
@@ -964,7 +1167,7 @@ void CHudUIAlt()
 				s_ItemDataHead[CHudVarTrueSel].altselect = 0;
 			CHudUISFXAlt();
 			CHudUICursorAnim();
-			isLoadModel = true;
+			UpdateModels();
 		}
 		return;
 		break;
@@ -977,7 +1180,7 @@ void CHudUIAlt()
 				s_ItemDataHandR[CHudVarTrueSel].altselect = 0;
 			CHudUISFXAlt();
 			CHudUICursorAnim();
-			isLoadModel = true;
+			UpdateModels();
 		}
 		return;
 		break;
@@ -990,12 +1193,46 @@ void CHudUIAlt()
 				s_ItemDataHandL[CHudVarTrueSel].altselect = 0;
 			CHudUISFXAlt();
 			CHudUICursorAnim();
-			isLoadModel = true;
+			UpdateModels();
 		}
 		return;
 		break;
 	}
 
+}
+
+void CHedUIPreview()
+{
+	if (IsPreviewOpen == false && PrevOpenTimer == 0)
+	{
+		scBBPrev->SetMotion("Intro_Anim");
+		scBBPrev->SetMotionFrame(0.0f);
+		scBBPrev->m_MotionDisableFlag = false;
+		scBBPrev->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+		scBBPrev->m_MotionSpeed = 1.5f;
+		scBBPrev->Update();
+		PrevOpenTimer = 10;
+		IsPreviewOpen = true;
+		CHudUISFXOpen();
+
+		obj_CustomizeSonicPreviewRenderable = boost::make_shared<CustomizeSonicPreviewRenderable>();
+		Sonic::CGameDocument::GetInstance()->AddGameObject(obj_CustomizeSonicPreviewRenderable);
+	}
+	if (IsPreviewOpen == true && PrevOpenTimer == 0)
+	{
+		scBBPrev->SetMotion("Intro_Anim");
+		scBBPrev->SetMotionFrame(25.0f);
+		scBBPrev->m_MotionDisableFlag = false;
+		scBBPrev->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+		scBBPrev->m_MotionSpeed = -2.0f;
+		scBBPrev->Update();
+		PrevOpenTimer = 10;
+		IsPreviewOpen = false;
+		CHudUISFXExit();
+
+		if (obj_CustomizeSonicPreviewRenderable)
+			obj_CustomizeSonicPreviewRenderable->Kill();
+	}
 }
 
 void CHudUISwitch(int Type)
@@ -1085,7 +1322,6 @@ void CHudUISwitch(int Type)
 	if (Type == 1)
 	{
 		IsInMenuChange = false;
-		//isLoadModel = true;
 		CHudVarVisSel = 0;
 		CHudVarScroll = 0;
 		CHudVarTrueSel = 0;
@@ -1192,6 +1428,7 @@ void CHudUIExit(int Type)
 		CHudUISFXExit();
 		IsInMenuExit = true;
 		SWAOpenTimer = 15;
+		PrevOpenTimer = 10;
 		scBBGui->SetMotion("Intro_Anim");
 		scBBGui->SetMotionFrame(22.0f);
 		scBBGui->m_MotionDisableFlag = false;
@@ -1223,6 +1460,18 @@ void CHudUIExit(int Type)
 		scBBScroll->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
 		scBBScroll->m_MotionSpeed = -1.0f;
 		scBBScroll->Update();
+		if (IsPreviewOpen == true)
+		{
+			scBBPrev->SetMotion("Intro_Anim");
+			scBBPrev->SetMotionFrame(25.0f);
+			scBBPrev->m_MotionDisableFlag = false;
+			scBBPrev->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+			scBBPrev->m_MotionSpeed = -1.0f;
+			scBBPrev->Update();
+
+			if (obj_CustomizeSonicPreviewRenderable)
+				obj_CustomizeSonicPreviewRenderable->Kill();
+		}
 		if (scBBDeco)
 		{
 			scBBDeco->SetMotion("Intro_Anim");
@@ -1301,7 +1550,6 @@ void CHudUIExit(int Type)
 	{
 		IsInMenuExit = false;
 		IsInMenu = false;
-		//isLoadModel = true;
 		MemoryOpenTimer = 1800;
 		*ENABLE_BLUR = prevblur;
 		FILE* pFile = fopen(saveFilePath.c_str(), "wb");
@@ -1792,6 +2040,23 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 					scSWAScrollBG->SetHideFlag(true);
 			}
 
+			////------Preview Handler
+			if (scBBPrev)
+			{
+				if (scBBPrev->m_MotionFrame <= 0 && IsPreviewOpen == false)
+				{
+					scBBPrev->SetMotion("Intro_Anim");
+					scBBPrev->SetMotionFrame(0.0f);
+					scBBPrev->m_MotionDisableFlag = true;
+					scBBPrev->m_MotionRepeatType = Chao::CSD::eMotionRepeatType_PlayOnce;
+					scBBPrev->m_MotionSpeed = 0.0f;
+					scBBPrev->Update();
+					scBBPrev->SetHideFlag(true);
+				}
+				else
+					scBBPrev->SetHideFlag(false);
+			}
+
 			////------Handle Alt Prompt
 
 			switch (CHudTabSel)
@@ -1895,6 +2160,12 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 				CHudUIAlt();
 			}
 
+			////------X Button Press
+			if (scenecheck && (PressedX && scBBIcon->m_MotionFrame >= 3) && !IsInMenuExit && !IsInMenuChange)
+			{
+				CHedUIPreview();
+			}
+
 			////------Shoulder Button Press
 			if (scenecheck && (PressedRB || PressedLB) && !IsInMenuExit)
 			{
@@ -1945,6 +2216,9 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 
 	if (!IsInMenu && MemoryOpenTimer >= 1)
 		MemoryOpenTimer--;
+
+	if (IsInMenu && PrevOpenTimer >= 1)
+		PrevOpenTimer--;
 
 	if (IsInMenu && !IsInMenuExit)
 	{

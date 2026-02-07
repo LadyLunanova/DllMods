@@ -180,8 +180,8 @@ EXPORT void Init()
 	INSTALL_HOOK(EnterClassicSliding);
 	INSTALL_HOOK(ExitClassicSliding);
 	INSTALL_HOOK(ParseArchiveTree);
-	WRITE_MEMORY(0x01282860, char*, "sc_jump_d_s_loop")
-	WRITE_MEMORY(0x012828C7, char*, "sc_jump_d_loop")
+	WRITE_MEMORY(0x01282860, char*, "sc_jump_d_s_loop");
+	WRITE_MEMORY(0x012828C7, char*, "sc_jump_d_loop");
 	//WRITE_NOP(0x01115C3B, 2)
 	//WRITE_NOP(0x01115C3D, 3)
 	//WRITE_NOP(0x01115C40, 4)

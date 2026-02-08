@@ -101,6 +101,21 @@ int CHudVarHLMaxScroll = 4;
 int CHudVarHRMaxScroll = 5;
 int CHudVarSBMaxScroll = 0;
 
+template <typename T>
+int ReadCustomItem(INIReader* reader, const std::string& section, const std::string& name, std::vector<T>& customItems)
+{
+	auto ini = reader->Get(section, name, "");
+
+	auto it = std::find_if(customItems.begin(), customItems.end(), [&](const T& item)
+	{
+		return item.name == ini;
+	});
+
+	if (it != customItems.end())
+		return std::distance(customItems.begin(), it);
+
+	return 0;
+}
 
 //INI file Handling
 void WriteINI(FILE* iniFile)
@@ -112,11 +127,11 @@ void WriteINI(FILE* iniFile)
 	char buffer[512]{};
 	snprintf(buffer, 512,
 		"%s\n"
-		"%s%d\n"
-		"%s%d\n"
-		"%s%d\n"
-		"%s%d\n"
-		"%s%d\n"
+		"%s%s\n"
+		"%s%s\n"
+		"%s%s\n"
+		"%s%s\n"
+		"%s%s\n"
 		"%s%d\n"
 		"%s%d\n"
 		"%s%d\n"
@@ -129,11 +144,11 @@ void WriteINI(FILE* iniFile)
 		"%s%d\n"
 		"%s%d\n",
 		"[Select]",
-		"SelectShoes=", SelectShoesData,
-		"SelectBody=", SelectBodyData,
-		"SelectHead=", SelectHeadData,
-		"SelectHandL=", SelectHandLData,
-		"SelectHandR=", SelectHandRData,
+		"SelectShoes=", s_ItemDataShoes[SelectShoesData].name.c_str(),
+		"SelectBody=", s_ItemDataBody[SelectBodyData].name.c_str(),
+		"SelectHead=", s_ItemDataHead[SelectHeadData].name.c_str(),
+		"SelectHandL=", s_ItemDataHandL[SelectHandLData].name.c_str(),
+		"SelectHandR=", s_ItemDataHandR[SelectHandRData].name.c_str(),
 		"SelectAltShoes=", s_ItemDataShoes[SelectShoesData].altselect,
 		"SelectAltBody=", s_ItemDataBody[SelectBodyData].altselect,
 		"SelectAltHead=", s_ItemDataHead[SelectHeadData].altselect,
@@ -162,11 +177,12 @@ void ReadINI(std::string saveFilePath)
 		WriteINI(pFile);
 		reader = new INIReader(saveFilePath);
 	}
-	SelectShoesData = reader->GetInteger("Select", "SelectShoes", SelectShoesData);
-	SelectBodyData = reader->GetInteger("Select", "SelectBody", SelectBodyData);
-	SelectHeadData = reader->GetInteger("Select", "SelectHead", SelectHeadData);
-	SelectHandLData = reader->GetInteger("Select", "SelectHandL", SelectHandLData);
-	SelectHandRData = reader->GetInteger("Select", "SelectHandR", SelectHandRData);
+	
+	SelectShoesData = ReadCustomItem<ItemDataShoes>(reader, "Select", "SelectShoes", s_ItemDataShoes);
+	SelectBodyData = ReadCustomItem<ItemDataBody>(reader, "Select", "SelectBody", s_ItemDataBody);
+	SelectHeadData = ReadCustomItem<ItemDataHead>(reader, "Select", "SelectHead", s_ItemDataHead);
+	SelectHandLData = ReadCustomItem<ItemDataHandL>(reader, "Select", "SelectHandL", s_ItemDataHandL);
+	SelectHandRData = ReadCustomItem<ItemDataHandR>(reader, "Select", "SelectHandR", s_ItemDataHandR);
 	s_ItemDataShoes[SelectShoesData].altselect = reader->GetInteger("Select", "SelectAltShoes", s_ItemDataShoes[SelectShoesData].altselect);
 	s_ItemDataBody[SelectBodyData].altselect = reader->GetInteger("Select", "SelectAltBody", s_ItemDataBody[SelectBodyData].altselect);
 	s_ItemDataHead[SelectHeadData].altselect = reader->GetInteger("Select", "SelectAltHead", s_ItemDataHead[SelectHeadData].altselect);

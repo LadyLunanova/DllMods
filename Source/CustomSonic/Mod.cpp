@@ -2,15 +2,21 @@
 #include "InstallSetup.h"
 #include "InstallCustomUI.h"
 #include "SonicPlayer.h"
+//#include <filesystem>
 
 void ReadConfig();
 void ReadJson(std::string jsonFilePath, int cCat);
-//static std::string jsonFilePath;
 static std::string jsonFilePathHead;
 static std::string jsonFilePathBody;
 static std::string jsonFilePathShoes;
 static std::string jsonFilePathHandR;
 static std::string jsonFilePathHandL;
+
+static std::string jsonFilePathAddHead;
+static std::string jsonFilePathAddBody;
+static std::string jsonFilePathAddShoes;
+static std::string jsonFilePathAddHandR;
+static std::string jsonFilePathAddHandL;
 
 EXPORT void PreInit()
 {
@@ -37,16 +43,45 @@ EXPORT void Init(ModInfo_t* modInfo)
 	jsonFilePathHandL = modInfo->CurrentMod->Path;
 	jsonFilePathHandL.erase(jsonFilePathHandL.find_last_of("\\/") + 1);
 	jsonFilePathHandL += "CustomizeHandL.json";
+
 	ReadJson(jsonFilePathHead, 0);
 	ReadJson(jsonFilePathBody, 1);
 	ReadJson(jsonFilePathShoes, 2);
 	ReadJson(jsonFilePathHandR, 3);
 	ReadJson(jsonFilePathHandL, 4);
+
+	//MessageBoxA(nullptr, "Init Halt", "Window", 0);
+
+	for (auto& mod : *modInfo->ModList)
+	{
+		jsonFilePathAddHead = mod->Path;
+		jsonFilePathAddHead.erase(jsonFilePathAddHead.find_last_of("\\/") + 1);
+		jsonFilePathAddHead += "AddCustomizeHead.json";
+		ReadJson(jsonFilePathAddHead, 0);
+		jsonFilePathAddHead.clear();
+	}
+	for (auto& mod : *modInfo->ModList)
+	{
+		jsonFilePathAddBody = mod->Path;
+		jsonFilePathAddBody.erase(jsonFilePathAddBody.find_last_of("\\/") + 1);
+		jsonFilePathAddBody += "AddCustomizeBody.json";
+		ReadJson(jsonFilePathAddBody, 1);
+		jsonFilePathAddBody.clear();
+	}
+	for (auto& mod : *modInfo->ModList)
+	{
+		jsonFilePathAddShoes = mod->Path;
+		jsonFilePathAddShoes.erase(jsonFilePathAddShoes.find_last_of("\\/") + 1);
+		jsonFilePathAddShoes += "AddCustomizeShoes.json";
+		ReadJson(jsonFilePathAddShoes, 2);
+		jsonFilePathAddShoes.clear();
+	}
+
+
 	ReadConfig();
 	InstallSetup::applyPatches();
 	InstallCustomUI::applyPatches(modInfo);
 	InstallSonicPlayer::applyPatches();
-	//MessageBoxA(nullptr, "Init Halt", "Window", 0);
 }
 EXPORT void PostInit()
 {

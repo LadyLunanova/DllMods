@@ -87,6 +87,8 @@ int PrevOpenTimer = 0;
 int PrevAnim = 0;
 float PrevRotation = 0.0f;
 bool IsPreviewOpen = false;
+static std::string saveFilePath;
+
 
 int CHudVarVisSel = 0;
 int CHudVarScroll = 0;
@@ -99,6 +101,94 @@ int CHudVarHLMaxScroll = 4;
 int CHudVarHRMaxScroll = 5;
 int CHudVarSBMaxScroll = 0;
 
+
+//INI file Handling
+void WriteINI(FILE* iniFile)
+{
+	if (!iniFile)
+		return;
+	printf("WRITING INI");
+	printf("\n");
+	char buffer[512]{};
+	snprintf(buffer, 512,
+		"%s\n"
+		"%s%d\n"
+		"%s%d\n"
+		"%s%d\n"
+		"%s%d\n"
+		"%s%d\n"
+		"%s%d\n"
+		"%s%d\n"
+		"%s%d\n"
+		"%s%d\n"
+		"%s%d\n"
+		"%s%d\n"
+		"%s%d\n"
+		"%s%d\n"
+		"%s%d\n"
+		"%s%d\n"
+		"%s%d\n",
+		"[Select]",
+		"SelectShoes=", SelectShoesData,
+		"SelectBody=", SelectBodyData,
+		"SelectHead=", SelectHeadData,
+		"SelectHandL=", SelectHandLData,
+		"SelectHandR=", SelectHandRData,
+		"SelectAltShoes=", s_ItemDataShoes[SelectShoesData].altselect,
+		"SelectAltBody=", s_ItemDataBody[SelectBodyData].altselect,
+		"SelectAltHead=", s_ItemDataHead[SelectHeadData].altselect,
+		"SelectAltHandL=", s_ItemDataHandL[SelectHandLData].altselect,
+		"SelectAltHandR=", s_ItemDataHandR[SelectHandRData].altselect,
+		"SelectSnSonMat=", SelectSnSonMat,
+		"SelectSsnSonMat=", SelectSsnSonMat,
+		"SelectEyelid=", SelectEyelid,
+		"SelectSsnHead=", SelectSsnHead,
+		"SelectSsnForm=", SelectSsnForm,
+		"SelectJumpBall=", SelectJumpBall);
+	fputs(buffer, iniFile);
+	fclose(iniFile);
+}
+
+void ReadINI(std::string saveFilePath)
+{
+	printf("READING INI");
+	printf("\n");
+	INIReader* reader = new INIReader(saveFilePath);
+	if (reader->ParseError() != 0)
+	{
+		printf("INI PARSE FAIL");
+		printf("\n");
+		FILE* pFile = fopen(saveFilePath.c_str(), "wb");
+		WriteINI(pFile);
+		reader = new INIReader(saveFilePath);
+	}
+	SelectShoesData = reader->GetInteger("Select", "SelectShoes", SelectShoesData);
+	SelectBodyData = reader->GetInteger("Select", "SelectBody", SelectBodyData);
+	SelectHeadData = reader->GetInteger("Select", "SelectHead", SelectHeadData);
+	SelectHandLData = reader->GetInteger("Select", "SelectHandL", SelectHandLData);
+	SelectHandRData = reader->GetInteger("Select", "SelectHandR", SelectHandRData);
+	s_ItemDataShoes[SelectShoesData].altselect = reader->GetInteger("Select", "SelectAltShoes", s_ItemDataShoes[SelectShoesData].altselect);
+	s_ItemDataBody[SelectBodyData].altselect = reader->GetInteger("Select", "SelectAltBody", s_ItemDataBody[SelectBodyData].altselect);
+	s_ItemDataHead[SelectHeadData].altselect = reader->GetInteger("Select", "SelectAltHead", s_ItemDataHead[SelectHeadData].altselect);
+	s_ItemDataHandL[SelectHandLData].altselect = reader->GetInteger("Select", "SelectAltHandL", s_ItemDataHandL[SelectHandLData].altselect);
+	s_ItemDataHandR[SelectHandRData].altselect = reader->GetInteger("Select", "SelectAltHandR", s_ItemDataHandR[SelectHandRData].altselect);
+	SelectSnSonMat = (SelectSnSonMatType)reader->GetInteger("Select", "SelectSnSonMat", SelectSnSonMat);
+	SelectSsnSonMat = (SelectSsnSonMatType)reader->GetInteger("Select", "SelectSsnSonMat", SelectSsnSonMat);
+	SelectEyelid = (SelectEyelidType)reader->GetInteger("Select", "SelectEyelid", SelectEyelid);
+	SelectSsnHead = (SelectSsnHeadType)reader->GetInteger("Select", "SelectSsnHead", SelectSsnHead);
+	SelectSsnForm = (SelectSsnFormType)reader->GetInteger("Select", "SelectSsnForm", SelectSsnForm);
+	SelectJumpBall = (SelectJumpBallType)reader->GetInteger("Select", "SelectJumpBall", SelectJumpBall);
+}
+
+void ReadConfig()
+{
+	INIReader reader("CustomizeSetting.ini");
+	ConfigDecoEnable = reader.GetBoolean("Mod", "ConfigDecoEnable", ConfigDecoEnable);
+	ActivateButton = reader.GetInteger("Mod", "ActivateButton", ActivateButton);
+
+	if (Common::IsModEnabled("Sonic Unleashed HUD"))
+		IsUnleashedHUD = true;
+}
 
 //Menu Functions
 void CHudUIPlayAnim(Chao::CSD::RCPtr<Chao::CSD::CScene> in_pScene, const char* in_pName, float in_pFrame, bool in_pMotionDisable, Chao::CSD::EMotionRepeatType in_pMotionRepeatType, float in_pSpeed)
@@ -151,6 +241,11 @@ void CHudUISceneDestroy()
 
 void KillScreen()
 {
+	if (obBBCustomUI || obSWACustomUI)
+	{
+		FILE* pFile = fopen(saveFilePath.c_str(), "wb");
+		WriteINI(pFile);
+	}
 	if (obBBCustomUI)
 	{
 		obBBCustomUI->SendMessage(obBBCustomUI->m_ActorID, boost::make_shared<Sonic::Message::MsgKill>());
@@ -220,92 +315,4 @@ void CHudUISFXExit()
 		Common::PlaySoundStatic(menuSoundHandle, 1000024);
 	else
 		Common::PlaySoundStatic(menuSoundHandle, 1000003);
-}
-
-//INI file Handling
-void WriteINI(FILE* iniFile)
-{
-	if (!iniFile)
-		return;
-	printf("WRITING INI");
-	printf("\n");
-	char buffer[512]{};
-	snprintf(buffer, 512,
-		"%s\n"
-		"%s%d\n"
-		"%s%d\n"
-		"%s%d\n"
-		"%s%d\n"
-		"%s%d\n"
-		"%s%d\n"
-		"%s%d\n"
-		"%s%d\n"
-		"%s%d\n"
-		"%s%d\n"
-		"%s%d\n"
-		"%s%d\n"
-		"%s%d\n"
-		"%s%d\n"
-		"%s%d\n"
-		"%s%d\n",
-		"[Select]",
-		"SelectShoes=", SelectShoesData,
-		"SelectBody=", SelectBodyData,
-		"SelectHead=", SelectHeadData,
-		"SelectHandL=", SelectHandLData,
-		"SelectHandR=", SelectHandRData,
-		"SelectAltShoes=", s_ItemDataShoes[SelectShoesData].altselect,
-		"SelectAltBody=", s_ItemDataBody[SelectBodyData].altselect,
-		"SelectAltHead=", s_ItemDataHead[SelectHeadData].altselect,
-		"SelectAltHandL=", s_ItemDataHandL[SelectHandLData].altselect,
-		"SelectAltHandR=", s_ItemDataHandR[SelectHandRData].altselect,
-		"SelectSnSonMat=", SelectSnSonMat,
-		"SelectSsnSonMat=", SelectSsnSonMat,
-		"SelectEyelid=", SelectEyelid,
-		"SelectSsnHead=", SelectSsnHead,
-		"SelectSsnForm=", SelectSsnForm,
-		"SelectJumpBall=", SelectJumpBall);
-	fputs(buffer, iniFile);
-}
-
-void ReadINI(std::string saveFilePath)
-{
-	printf("READING INI");
-	printf("\n");
-	INIReader* reader = new INIReader(saveFilePath);
-	if (reader->ParseError() != 0)
-	{
-		printf("INI PARSE FAIL");
-		printf("\n");
-		FILE* pFile = fopen(saveFilePath.c_str(), "wb");
-		WriteINI(pFile);
-		fclose(pFile);
-		reader = new INIReader(saveFilePath);
-	}
-	SelectShoesData = reader->GetInteger("Select", "SelectShoes", SelectShoesData);
-	SelectBodyData = reader->GetInteger("Select", "SelectBody", SelectBodyData);
-	SelectHeadData = reader->GetInteger("Select", "SelectHead", SelectHeadData);
-	SelectHandLData = reader->GetInteger("Select", "SelectHandL", SelectHandLData);
-	SelectHandRData = reader->GetInteger("Select", "SelectHandR", SelectHandRData);
-	s_ItemDataShoes[SelectShoesData].altselect = reader->GetInteger("Select", "SelectAltShoes", s_ItemDataShoes[SelectShoesData].altselect);
-	s_ItemDataBody[SelectBodyData].altselect = reader->GetInteger("Select", "SelectAltBody", s_ItemDataBody[SelectBodyData].altselect);
-	s_ItemDataHead[SelectHeadData].altselect = reader->GetInteger("Select", "SelectAltHead", s_ItemDataHead[SelectHeadData].altselect);
-	s_ItemDataHandL[SelectHandLData].altselect = reader->GetInteger("Select", "SelectAltHandL", s_ItemDataHandL[SelectHandLData].altselect);
-	s_ItemDataHandR[SelectHandRData].altselect = reader->GetInteger("Select", "SelectAltHandR", s_ItemDataHandR[SelectHandRData].altselect);
-	SelectSnSonMat = (SelectSnSonMatType)reader->GetInteger("Select", "SelectSnSonMat", SelectSnSonMat);
-	SelectSsnSonMat = (SelectSsnSonMatType)reader->GetInteger("Select", "SelectSsnSonMat", SelectSsnSonMat);
-	SelectEyelid = (SelectEyelidType)reader->GetInteger("Select", "SelectEyelid", SelectEyelid);
-	SelectSsnHead = (SelectSsnHeadType)reader->GetInteger("Select", "SelectSsnHead", SelectSsnHead);
-	SelectSsnForm = (SelectSsnFormType)reader->GetInteger("Select", "SelectSsnForm", SelectSsnForm);
-	SelectJumpBall = (SelectJumpBallType)reader->GetInteger("Select", "SelectJumpBall", SelectJumpBall);
-}
-
-void ReadConfig()
-{
-	INIReader reader("CustomizeSetting.ini");
-	ConfigDecoEnable = reader.GetBoolean("Mod", "ConfigDecoEnable", ConfigDecoEnable);
-	ActivateButton = reader.GetInteger("Mod", "ActivateButton", ActivateButton);
-
-	if (Common::IsModEnabled("Sonic Unleashed HUD"))
-		IsUnleashedHUD = true;
 }

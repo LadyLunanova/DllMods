@@ -80,8 +80,6 @@ void KillDebugTxtUI()
 void ReadINI(std::string saveFilePath);
 void WriteINI(FILE* iniFile);
 
-static std::string saveFilePath;
-
 
 //////Preview Renderable//////
 static uint32_t pCAnimationStateMachineSetBlend = 0xCE0720;
@@ -163,8 +161,8 @@ public:
 
 		//////Animation transitions
 		SetAnimStateTransition("FITTING", "IDLE", 0.1f);
-		SetAnimStateTransition("IDLE", "RUN", 0.1f);
-		SetAnimStateTransition("RUN", "FITTING", 0.1f);
+		SetAnimStateTransition("IDLE", "RUN", 0.01f);
+		SetAnimStateTransition("RUN", "FITTING", 0.01f);
 
 		//////Start Animation
 		m_spNPCAnimation->m_spAnimationStateMachine->ChangeState("FITTING");
@@ -227,16 +225,12 @@ public:
 			auto previewProjection = Eigen::CreatePerspectiveMatrix<float>(DEGREES_TO_RADIANS(12.1), spCamera->m_MyCamera.m_AspectRatio, 0.1, 20);
 			
 			Eigen::Affine3f transform;
-			//transform = Eigen::AngleAxisf(DEGREES_TO_RADIANS(0.0f), Eigen::Vector3f::UnitY());
 			transform = Eigen::Translation3f(0.0f, 0.0f, -10.0f);
 			transform = transform * Eigen::AngleAxisf(DEGREES_TO_RADIANS(10.0f), Eigen::Vector3f::UnitX());
 			transform = transform * Eigen::AngleAxisf(DEGREES_TO_RADIANS(PrevRotation), Eigen::Vector3f::UnitY());
 			
 			Eigen::Affine3f screenTransform;
 			screenTransform = Eigen::Translation3f(-0.549f, -0.6f, 0.0f);
-			//screenTransform = screenTransform * Eigen::AngleAxisf(DEGREES_TO_RADIANS(0.0f), Eigen::Vector3f::UnitY());
-			//screenTransform = screenTransform * Eigen::AngleAxisf(DEGREES_TO_RADIANS(PrevRotation), Eigen::Vector3f::UnitY());
-			
 			
 			rMatrix = transform.matrix();
 			rMatrix = previewProjection * rMatrix;
@@ -1362,7 +1356,6 @@ void CHudUIExit(int Type)
 		*ENABLE_BLUR = prevblur;
 		FILE* pFile = fopen(saveFilePath.c_str(), "wb");
 		WriteINI(pFile);
-		fclose(pFile);
 		CHudUISceneDestroy();
 		return;
 	}
@@ -2199,9 +2192,6 @@ HOOK(void, __fastcall, CHUDPauseUpdate, 0x0042A520, hh::fnd::CStateMachineBase::
 	CHudTabSel = UIPartShoes;
 	CHudVarVisSel = 0;
 	MemoryOpenTimer = 0;
-	FILE* pFile = fopen(saveFilePath.c_str(), "wb");
-	WriteINI(pFile);
-	fclose(pFile);
 	CHudUISceneDestroy();
 	originalCHUDPauseUpdate(This);
 }
@@ -2213,9 +2203,6 @@ void __fastcall CHudSonicStageRemoveCallback(Sonic::CGameObject* This, void*, So
 	CHudTabSel = UIPartShoes;
 	CHudVarVisSel = 0;
 	MemoryOpenTimer = 0;
-	FILE* pFile = fopen(saveFilePath.c_str(), "wb");
-	WriteINI(pFile);
-	fclose(pFile);
 	CHudUISceneDestroy();
 }
 HOOK(void, __fastcall, CHudResultStart, 0x010B6840, hh::fnd::CStateMachineBase::CStateBase* This)
@@ -2226,9 +2213,6 @@ HOOK(void, __fastcall, CHudResultStart, 0x010B6840, hh::fnd::CStateMachineBase::
 	CHudTabSel = UIPartShoes;
 	CHudVarVisSel = 0;
 	MemoryOpenTimer = 0;
-	FILE* pFile = fopen(saveFilePath.c_str(), "wb");
-	WriteINI(pFile);
-	fclose(pFile);
 	CHudUISceneDestroy();
 	originalCHudResultStart(This);
 }
@@ -2340,7 +2324,6 @@ void InstallCustomUI::applyPatches(ModInfo_t* modInfo)
 	INSTALL_HOOK(MsgLookAtStart);
 	INSTALL_HOOK(MsgLookAtEnd);
 	INSTALL_HOOK(InitializeApplicationUIParams);
-	//INSTALL_HOOK(CastStuffTest);
 	//if (ActivateButton >= 5 && ActivateButton <= 8)
 		WRITE_JUMP(0xD97B56, (void*)0xD97B9E); // Ignore D-pad input for Sonic's control
 }

@@ -114,11 +114,17 @@ public:
 	bool m_isEyesLoaded{};
 
 	////Animation List
-	static inline hh::anim::SMotionInfo m_sAnimList[3]
+	static inline hh::anim::SMotionInfo m_sAnimList[9]
 	{
-		{ "FITTING", "sn_col_idle_loop", 1.0f, 0 },
-		{ "IDLE", "sn_idle_loop", 1.0f, 0 },
-		{ "RUN", "sn_run_loop", 1.6f, 0 }
+		{ "CAT_SHOES", "sn_fitting_cat_shoes_loop", 1.0f, 0 },
+		{ "CAT_BODY", "sn_fitting_cat_body_loop", 1.0f, 0 },
+		{ "CAT_HEAD", "sn_fitting_cat_head_loop", 1.0f, 0 },
+		{ "CAT_HANDR", "sn_fitting_cat_hand_r_loop", 1.0f, 0 },
+		{ "CAT_HANDL", "sn_fitting_cat_hand_l_loop", 1.0f, 0 },
+		{ "CAT_MISC", "sn_fitting_cat_misc_loop", 1.0f, 0 },
+		{ "FITTING", "sn_fitting_base_loop", 1.0f, 0 },
+		{ "IDLE", "sn_fitting_idle_loop", 1.0f, 0 },
+		{ "RUN", "sn_fitting_run_loop", 1.6f, 0 }
 	};
 
 	void SetAnimStateTransition(const char* in_pStartState, const char* in_pEndState, float in_TransitionSpeed)
@@ -149,8 +155,6 @@ public:
 			return;
 
 		m_spSnEyes = boost::make_shared<hh::mr::CSingleElement>(spModelData);
-		//AddRenderable("HUD_AfterModel", m_spSnEyes, m_isCastShadows);
-		//m_isEyesLoaded = true;
 
 		////Construct animator
 		auto npcAnimation = reinterpret_cast<Sonic::CNPCAnimation*>(__HH_ALLOC(0x30));
@@ -163,12 +167,55 @@ public:
 		m_spNPCAnimation->m_spAnimationPose->Update(0.0f);
 		
 		//////Animation transitions
-		SetAnimStateTransition("FITTING", "IDLE", 0.1f);
-		SetAnimStateTransition("IDLE", "RUN", 0.01f);
-		SetAnimStateTransition("RUN", "FITTING", 0.01f);
+		SetAnimStateTransition("CAT_SHOES", "CAT_BODY", 0.07f);
+		SetAnimStateTransition("CAT_SHOES", "CAT_MISC", 0.07f);
+		SetAnimStateTransition("CAT_SHOES", "FITTING", 0.07f);
+		SetAnimStateTransition("CAT_BODY", "CAT_HEAD", 0.07f);
+		SetAnimStateTransition("CAT_BODY", "CAT_SHOES", 0.07f);
+		SetAnimStateTransition("CAT_BODY", "FITTING", 0.07f);
+		SetAnimStateTransition("CAT_HEAD", "CAT_HANDL", 0.07f);
+		SetAnimStateTransition("CAT_HEAD", "CAT_BODY", 0.07f);
+		SetAnimStateTransition("CAT_HEAD", "FITTING", 0.07f);
+		SetAnimStateTransition("CAT_HANDL", "CAT_HANDR", 0.07f);
+		SetAnimStateTransition("CAT_HANDL", "CAT_HEAD", 0.07f);
+		SetAnimStateTransition("CAT_HANDL", "FITTING", 0.07f);
+		SetAnimStateTransition("CAT_HANDR", "CAT_MISC", 0.07f);
+		SetAnimStateTransition("CAT_HANDR", "CAT_HANDL", 0.07f);
+		SetAnimStateTransition("CAT_HANDR", "FITTING", 0.07f);
+		SetAnimStateTransition("CAT_MISC", "CAT_SHOES", 0.07f);
+		SetAnimStateTransition("CAT_MISC", "CAT_HANDR", 0.07f);
+		SetAnimStateTransition("CAT_MISC", "FITTING", 0.07f);
+		SetAnimStateTransition("FITTING", "IDLE", 0.07f);
+		SetAnimStateTransition("IDLE", "RUN", 0.07f);
+		SetAnimStateTransition("RUN", "CAT_SHOES", 0.07f);
+		SetAnimStateTransition("RUN", "CAT_BODY", 0.07f);
+		SetAnimStateTransition("RUN", "CAT_HEAD", 0.07f);
+		SetAnimStateTransition("RUN", "CAT_HANDL", 0.07f);
+		SetAnimStateTransition("RUN", "CAT_HANDR", 0.07f);
+		SetAnimStateTransition("RUN", "CAT_MISC", 0.07f);
 
 		//////Start Animation
-		m_spNPCAnimation->m_spAnimationStateMachine->ChangeState("FITTING");
+		switch (CHudTabSel)
+		{
+		case UIPartShoes:
+			m_spNPCAnimation->m_spAnimationStateMachine->ChangeState("CAT_SHOES");
+			break;
+		case UIPartBody:
+			m_spNPCAnimation->m_spAnimationStateMachine->ChangeState("CAT_BODY");
+			break;
+		case UIPartHead:
+			m_spNPCAnimation->m_spAnimationStateMachine->ChangeState("CAT_HEAD");
+			break;
+		case UIPartHandL:
+			m_spNPCAnimation->m_spAnimationStateMachine->ChangeState("CAT_HANDL");
+			break;
+		case UIPartHandR:
+			m_spNPCAnimation->m_spAnimationStateMachine->ChangeState("CAT_HANDR");
+			break;
+		case UIMiscOption:
+			m_spNPCAnimation->m_spAnimationStateMachine->ChangeState("CAT_MISC");
+			break;
+		}
 
 		////Bind poses
 		m_spSnEyes->BindPose(m_spNPCAnimation->m_spAnimationPose);
@@ -179,11 +226,6 @@ public:
 		//const Sonic::Player::CPlayerSpeed* pPlayer = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID));
 		//m_spSnEyes->BindPose(pPlayer->m_spCharacterModel->m_spInstanceInfo->m_spPose);
 		//m_spPose = pPlayer->m_spCharacterModel->m_spInstanceInfo->m_spPose;
-
-		////Attach renderable to Sonic's tranforms
-		//const Sonic::Player::CPlayerSpeedContext* context = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID))->GetContext();
-		//m_spSnEyes->BindMatrixNode(context->m_spModelMatrixNode);
-		//m_spPose->BindMatrixNode(context->m_spModelMatrixNode);
 	}
 
 	void UpdateSerial(const Hedgehog::Universe::SUpdateInfo& in_rUpdateInfo) override
@@ -486,7 +528,7 @@ void CHudUIOpen(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo&
 	case UIPartHandR:
 		scBBScroll->SetMotionFrame(HR);
 		break;
-	case UISonicBody:
+	case UIMiscOption:
 		scBBScroll->SetMotionFrame(SB);
 		break;
 	}
@@ -696,7 +738,7 @@ void CHudUISelect()
 		}
 		return;
 		break;
-	case UISonicBody:
+	case UIMiscOption:
 		if (CHudVarTrueSel >= SBOverflow06)
 			CHudUISFXSelect(false);
 		else
@@ -1070,7 +1112,7 @@ void CHudUIMove(int Type)
 		}
 		return;
 		break;
-	case UISonicBody:
+	case UIMiscOption:
 		switch (Type)
 		{
 		case 0: //Up
@@ -1288,53 +1330,92 @@ void CHudUISwitch(int Type)
 		CHudVarVisSel = 0;
 		CHudVarScroll = 0;
 		CHudVarTrueSel = 0;
-		if (IsInMenuChangeR)
+		switch (CHudTabSel)
 		{
-			switch (CHudTabSel)
+		case UIPartShoes:
+			if (IsInMenuChangeR)
 			{
-			case UIPartShoes:
 				CHudTabSel = UIPartBody;
-				break;
-			case UIPartBody:
-				CHudTabSel = UIPartHead;
-				break;
-			case UIPartHead:
-				CHudTabSel = UIPartHandL;
-				break;
-			case UIPartHandL:
-				CHudTabSel = UIPartHandR;
-				break;
-			case UIPartHandR:
-				CHudTabSel = UISonicBody;
-				break;
-			case UISonicBody:
-				CHudTabSel = UIPartShoes;
-				break;
+				if (PrevCatAnim)
+					obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_BODY");
 			}
-		}
-		if (IsInMenuChangeL)
-		{
-			switch (CHudTabSel)
+			if (IsInMenuChangeL)
 			{
-			case UIPartShoes:
-				CHudTabSel = UISonicBody;
-				break;
-			case UIPartBody:
-				CHudTabSel = UIPartShoes;
-				break;
-			case UIPartHead:
-				CHudTabSel = UIPartBody;
-				break;
-			case UIPartHandL:
-				CHudTabSel = UIPartHead;
-				break;
-			case UIPartHandR:
-				CHudTabSel = UIPartHandL;
-				break;
-			case UISonicBody:
-				CHudTabSel = UIPartHandR;
-				break;
+				CHudTabSel = UIMiscOption;
+				if (PrevCatAnim)
+					obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_MISC");
 			}
+			break;
+		case UIPartBody:
+			if (IsInMenuChangeR)
+			{
+				CHudTabSel = UIPartHead;
+				if (PrevCatAnim)
+					obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_HEAD");
+			}
+			if (IsInMenuChangeL)
+			{
+				CHudTabSel = UIPartShoes;
+				if (PrevCatAnim)
+					obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_SHOES");
+			}
+			break;
+		case UIPartHead:
+			if (IsInMenuChangeR)
+			{
+				CHudTabSel = UIPartHandL;
+				if (PrevCatAnim)
+					obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_HANDL");
+			}
+			if (IsInMenuChangeL)
+			{
+				CHudTabSel = UIPartBody;
+				if (PrevCatAnim)
+					obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_BODY");
+			}
+			break;
+		case UIPartHandL:
+			if (IsInMenuChangeR)
+			{
+				CHudTabSel = UIPartHandR;
+				if (PrevCatAnim)
+					obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_HANDR");
+			}
+			if (IsInMenuChangeL)
+			{
+				CHudTabSel = UIPartHead;
+				if (PrevCatAnim)
+					obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_HEAD");
+			}
+			break;
+		case UIPartHandR:
+			if (IsInMenuChangeR)
+			{
+				CHudTabSel = UIMiscOption;
+				if (PrevCatAnim)
+					obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_MISC");
+			}
+			if (IsInMenuChangeL)
+			{
+				CHudTabSel = UIPartHandL;
+				if (PrevCatAnim)
+					obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_HANDL");
+			}
+			break;
+		case UIMiscOption:
+			if (IsInMenuChangeR)
+			{
+				CHudTabSel = UIPartShoes;
+				if (PrevCatAnim)
+					obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_SHOES");
+			}
+			if (IsInMenuChangeL)
+			{
+				CHudTabSel = UIPartHandR;
+				if (PrevCatAnim)
+					obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_HANDR");
+			}
+			break;
 		}
 		IsInMenuChangeR = false;
 		IsInMenuChangeL = false;
@@ -1624,12 +1705,12 @@ void CHudUIThumbManager(Sonic::CGameObject* This)
 			scSWATagTxt->GetNode("img")->SetPatternIndex(UIPartHandR);
 		return;
 		break;
-	case UISonicBody:
+	case UIMiscOption:
 		for (int i = 0; i <= 8; i++)
 			CHudUITexsetData(This, i + 6, CHudUIThumbSonicBodyString(i, SBBuffer));
-		scBBTextArea->GetNode("textarea_textbox")->SetPatternIndex(UISonicBody);
+		scBBTextArea->GetNode("textarea_textbox")->SetPatternIndex(UIMiscOption);
 		if (IsUnleashedHUD)
-			scSWATagTxt->GetNode("img")->SetPatternIndex(UISonicBody);
+			scSWATagTxt->GetNode("img")->SetPatternIndex(UIMiscOption);
 		return;
 		break;
 	}
@@ -1658,7 +1739,7 @@ void CHudUIScrollManager(Sonic::CGameObject* This, float Sh, float Bd, float He,
 	case UIPartHandR:
 		scBBScroll->SetMotionFrame(HR);
 		break;
-	case UISonicBody:
+	case UIMiscOption:
 		scBBScroll->SetMotionFrame(SB);
 		break;
 	}
@@ -1688,7 +1769,7 @@ void CHudUIScrollManager(Sonic::CGameObject* This, float Sh, float Bd, float He,
 			scSWAScroll->SetPosition(0, (0.107 + (HR * (0.001 * (CHudVarHRMaxScroll * 0.685)))) * arY);
 			scSWAScroll->SetMotionFrame(100.f / CHudVarHRMaxScroll);
 			break;
-		case UISonicBody:
+		case UIMiscOption:
 			scSWAScroll->SetPosition(0, 0.107 * arY);
 			scSWAScroll->SetMotionFrame(0);
 			break;
@@ -1952,19 +2033,47 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 					switch (PrevAnim)
 					{
 					case 0:
-						obj_CustomizeSonicPreviewRenderable->ChangeAnimation("IDLE");
+						obj_CustomizeSonicPreviewRenderable->ChangeAnimation("FITTING");
+						PrevCatAnim = false;
 						PrevAnim = 1;
 						break;
 					case 1:
-						obj_CustomizeSonicPreviewRenderable->ChangeAnimation("RUN");
+						obj_CustomizeSonicPreviewRenderable->ChangeAnimation("IDLE");
+						PrevCatAnim = false;
 						PrevAnim = 2;
 						break;
 					case 2:
-						obj_CustomizeSonicPreviewRenderable->ChangeAnimation("FITTING");
+						obj_CustomizeSonicPreviewRenderable->ChangeAnimation("RUN");
+						PrevCatAnim = false;
+						PrevAnim = 3;
+						break;
+					case 3:
+						switch (CHudTabSel)
+						{
+						case UIPartShoes:
+							obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_SHOES");
+							break;
+						case UIPartBody:
+							obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_BODY");
+							break;
+						case UIPartHead:
+							obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_HEAD");
+							break;
+						case UIPartHandL:
+							obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_HANDL");
+							break;
+						case UIPartHandR:
+							obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_HANDR");
+							break;
+						case UIMiscOption:
+							obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_MISC");
+							break;
+						}
+						PrevCatAnim = true;
 						PrevAnim = 0;
 						break;
 					}
-					CHudUISFXSelect(true);
+					CHudUISFXMove();
 				}
 			}
 

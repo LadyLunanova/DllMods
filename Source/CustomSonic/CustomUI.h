@@ -56,7 +56,7 @@ enum MenuOptionType
 	UIPartHead,
 	UIPartHandL,
 	UIPartHandR,
-	UISonicBody,
+	UIMiscOption,
 };
 MenuOptionType CHudTabSel = MenuOptionType::UIPartShoes;
 bool prevblur = false;
@@ -83,10 +83,13 @@ int SWAOpenTimer = 15;
 int MemoryOpenTimer = 1800;
 int ActivateButton = 0;
 float CHudVarScrollBarStarSpinFlt = 0.0f;
+
 int PrevOpenTimer = 0;
 int PrevAnim = 0;
+bool PrevCatAnim = true;
 float PrevRotation = 0.0f;
-bool IsPreviewOpen = false;
+bool IsPreviewOpen = true;
+
 static std::string saveFilePath;
 
 int CHudVarVisSel = 0;
@@ -141,7 +144,8 @@ void WriteINI(FILE* iniFile)
 		"%s%d\n"
 		"%s%d\n"
 		"%s%d\n"
-		"%s%d\n",
+		"%s%d\n"
+		"%s%s\n",
 		"[Select]",
 		"SelectShoes=", s_ItemDataShoes[SelectShoesData].Name.c_str(),
 		"SelectBody=", s_ItemDataBody[SelectBodyData].Name.c_str(),
@@ -158,7 +162,8 @@ void WriteINI(FILE* iniFile)
 		"SelectEyelid=", SelectEyelid,
 		"SelectSsnHead=", SelectSsnHead,
 		"SelectSsnForm=", SelectSsnForm,
-		"SelectJumpBall=", SelectJumpBall);
+		"SelectJumpBall=", SelectJumpBall,
+		"IsPreviewOpen=", (IsPreviewOpen ? "true" : "false"));
 	fputs(buffer, iniFile);
 	fclose(iniFile);
 }
@@ -193,6 +198,7 @@ void ReadINI(std::string saveFilePath)
 	SelectSsnHead = (SelectSsnHeadType)reader->GetInteger("Select", "SelectSsnHead", SelectSsnHead);
 	SelectSsnForm = (SelectSsnFormType)reader->GetInteger("Select", "SelectSsnForm", SelectSsnForm);
 	SelectJumpBall = (SelectJumpBallType)reader->GetInteger("Select", "SelectJumpBall", SelectJumpBall);
+	IsPreviewOpen = reader->GetBoolean("Select", "IsPreviewOpen", IsPreviewOpen);
 }
 
 void ReadConfig()

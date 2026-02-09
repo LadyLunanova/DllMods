@@ -150,8 +150,8 @@ public:
 			return;
 
 		m_spSnEyes = boost::make_shared<hh::mr::CSingleElement>(spModelData);
-		AddRenderable("HUD_AfterModel", m_spSnEyes, m_isCastShadows);
-		m_isEyesLoaded = true;
+		//AddRenderable("HUD_AfterModel", m_spSnEyes, m_isCastShadows);
+		//m_isEyesLoaded = true;
 
 		////Construct animator
 		auto npcAnimation = reinterpret_cast<Sonic::CNPCAnimation*>(__HH_ALLOC(0x30));
@@ -261,7 +261,7 @@ public:
 		{
 			auto& msgRefreshCustomizeSonic = static_cast<MsgRefreshCustomizeSonic&>(in_rMsg);
 			
-			fpCGameObjectRemoveRenderable(this, "HUD_AfterModel", m_spSnEyes, true);
+			RemoveRenderable("HUD_AfterModel", m_spSnEyes, true);
 			m_isEyesLoaded = false;
 
 			RefreshModels(this, "HUD_AfterModel", msgRefreshCustomizeSonic.m_Category);
@@ -1078,23 +1078,10 @@ void CHudUIMove(int Type)
 		return;
 		break;
 	}
-
 }
 
 void CHudUIAlt()
 {
-	//printf("Head Item Count: %d\n", s_ItemDataHead.size());
-	//for (size_t i = 0; i < s_ItemDataHead.size(); i++)
-	//{
-	//	auto& itemData = s_ItemDataHead[i];
-	//	printf("\n");
-	//	printf("Item Name: ");
-	//	printf(itemData.Name.c_str());
-	//	printf("\n");
-	//	printf("Alt Count: %d\n", itemData.AltCount);
-	//	printf("Hide Flag: %d\n", itemData.HideFlags);
-	//}
-
 	switch (CHudTabSel)
 	{
 	case UIPartShoes:
@@ -1163,7 +1150,6 @@ void CHudUIAlt()
 		return;
 		break;
 	}
-
 }
 
 void CHedUIPreview()
@@ -1875,7 +1861,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 			////------Preview Handler
 			if (scBBPrev)
 			{
-				if (scBBPrev->m_MotionFrame <= 0 && IsPreviewOpen == false)
+				if (scBBPrev->m_MotionFrame <= 0 && !IsPreviewOpen)
 				{
 					CHudUIPlayAnim(scBBPrev, "Intro_Anim", 0.0f, true, Chao::CSD::eMotionRepeatType_PlayOnce, 0.0f);
 					scBBPrev->SetHideFlag(true);
@@ -1886,10 +1872,10 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 				////-----Right Stick Handle
 				PrevRotation += (RSHor * 2.0f);
 
-				if (PressedRST)
+				if ((PressedRST && IsPreviewOpen) || !IsPreviewOpen)
 					PrevRotation = 0.0f;
 
-				if (PressedLST)
+				if (PressedLST && IsPreviewOpen)
 				{
 					switch (PrevAnim)
 					{
@@ -1906,6 +1892,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 						PrevAnim = 0;
 						break;
 					}
+					CHudUISFXSelect(true);
 				}
 			}
 
@@ -1988,7 +1975,6 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 					scSWAAlt->SetHideFlag(true);
 				break;
 			}
-
 
 			////------Menu Input Handling------////
 

@@ -89,7 +89,6 @@ float PrevRotation = 0.0f;
 bool IsPreviewOpen = false;
 static std::string saveFilePath;
 
-
 int CHudVarVisSel = 0;
 int CHudVarScroll = 0;
 int CHudVarTrueSel = 0;

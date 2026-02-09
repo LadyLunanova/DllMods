@@ -4,8 +4,12 @@
     <ClCompile Include="Pch.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="Mod.cpp" />
+    <ClCompile Include="SonicPlayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
+    <ClInclude Include="NPCAnim.h" />
+    <ClInclude Include="SonicPlayer.h" />
+    <ClInclude Include="Mod.h" />
   </ItemGroup>
 </Project>

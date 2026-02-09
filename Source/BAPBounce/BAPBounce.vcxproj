@@ -189,9 +189,13 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pch.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="SonicPlayer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Mod.h" />
+    <ClInclude Include="NPCAnim.h" />
     <ClInclude Include="Pch.h" />
+    <ClInclude Include="SonicPlayer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

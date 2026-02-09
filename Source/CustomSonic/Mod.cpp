@@ -50,7 +50,7 @@ EXPORT void Init(ModInfo_t* modInfo)
 	ReadJson(jsonFilePathHandR, 3);
 	ReadJson(jsonFilePathHandL, 4);
 
-	//MessageBoxA(nullptr, "Init Halt", "Window", 0);
+	MessageBoxA(nullptr, "Init Halt", "Window", 0);
 
 	for (auto& mod : *modInfo->ModList)
 	{

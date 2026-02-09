@@ -108,7 +108,7 @@ int ReadCustomItem(INIReader* reader, const std::string& section, const std::str
 
 	auto it = std::find_if(customItems.begin(), customItems.end(), [&](const T& item)
 	{
-		return item.name == ini;
+		return item.Name == ini;
 	});
 
 	if (it != customItems.end())
@@ -124,8 +124,8 @@ void WriteINI(FILE* iniFile)
 		return;
 	printf("WRITING INI");
 	printf("\n");
-	char buffer[512]{};
-	snprintf(buffer, 512,
+	char buffer[1024]{};
+	snprintf(buffer, sizeof(buffer),
 		"%s\n"
 		"%s%s\n"
 		"%s%s\n"
@@ -144,16 +144,16 @@ void WriteINI(FILE* iniFile)
 		"%s%d\n"
 		"%s%d\n",
 		"[Select]",
-		"SelectShoes=", s_ItemDataShoes[SelectShoesData].name.c_str(),
-		"SelectBody=", s_ItemDataBody[SelectBodyData].name.c_str(),
-		"SelectHead=", s_ItemDataHead[SelectHeadData].name.c_str(),
-		"SelectHandL=", s_ItemDataHandL[SelectHandLData].name.c_str(),
-		"SelectHandR=", s_ItemDataHandR[SelectHandRData].name.c_str(),
-		"SelectAltShoes=", s_ItemDataShoes[SelectShoesData].altselect,
-		"SelectAltBody=", s_ItemDataBody[SelectBodyData].altselect,
-		"SelectAltHead=", s_ItemDataHead[SelectHeadData].altselect,
-		"SelectAltHandL=", s_ItemDataHandL[SelectHandLData].altselect,
-		"SelectAltHandR=", s_ItemDataHandR[SelectHandRData].altselect,
+		"SelectShoes=", s_ItemDataShoes[SelectShoesData].Name.c_str(),
+		"SelectBody=", s_ItemDataBody[SelectBodyData].Name.c_str(),
+		"SelectHead=", s_ItemDataHead[SelectHeadData].Name.c_str(),
+		"SelectHandL=", s_ItemDataHandL[SelectHandLData].Name.c_str(),
+		"SelectHandR=", s_ItemDataHandR[SelectHandRData].Name.c_str(),
+		"SelectAltShoes=", s_ItemDataShoes[SelectShoesData].AltSelect,
+		"SelectAltBody=", s_ItemDataBody[SelectBodyData].AltSelect,
+		"SelectAltHead=", s_ItemDataHead[SelectHeadData].AltSelect,
+		"SelectAltHandL=", s_ItemDataHandL[SelectHandLData].AltSelect,
+		"SelectAltHandR=", s_ItemDataHandR[SelectHandRData].AltSelect,
 		"SelectSnSonMat=", SelectSnSonMat,
 		"SelectSsnSonMat=", SelectSsnSonMat,
 		"SelectEyelid=", SelectEyelid,
@@ -183,11 +183,11 @@ void ReadINI(std::string saveFilePath)
 	SelectHeadData = ReadCustomItem<ItemDataHead>(reader, "Select", "SelectHead", s_ItemDataHead);
 	SelectHandLData = ReadCustomItem<ItemDataHandL>(reader, "Select", "SelectHandL", s_ItemDataHandL);
 	SelectHandRData = ReadCustomItem<ItemDataHandR>(reader, "Select", "SelectHandR", s_ItemDataHandR);
-	s_ItemDataShoes[SelectShoesData].altselect = reader->GetInteger("Select", "SelectAltShoes", s_ItemDataShoes[SelectShoesData].altselect);
-	s_ItemDataBody[SelectBodyData].altselect = reader->GetInteger("Select", "SelectAltBody", s_ItemDataBody[SelectBodyData].altselect);
-	s_ItemDataHead[SelectHeadData].altselect = reader->GetInteger("Select", "SelectAltHead", s_ItemDataHead[SelectHeadData].altselect);
-	s_ItemDataHandL[SelectHandLData].altselect = reader->GetInteger("Select", "SelectAltHandL", s_ItemDataHandL[SelectHandLData].altselect);
-	s_ItemDataHandR[SelectHandRData].altselect = reader->GetInteger("Select", "SelectAltHandR", s_ItemDataHandR[SelectHandRData].altselect);
+	s_ItemDataShoes[SelectShoesData].AltSelect = reader->GetInteger("Select", "SelectAltShoes", s_ItemDataShoes[SelectShoesData].AltSelect);
+	s_ItemDataBody[SelectBodyData].AltSelect = reader->GetInteger("Select", "SelectAltBody", s_ItemDataBody[SelectBodyData].AltSelect);
+	s_ItemDataHead[SelectHeadData].AltSelect = reader->GetInteger("Select", "SelectAltHead", s_ItemDataHead[SelectHeadData].AltSelect);
+	s_ItemDataHandL[SelectHandLData].AltSelect = reader->GetInteger("Select", "SelectAltHandL", s_ItemDataHandL[SelectHandLData].AltSelect);
+	s_ItemDataHandR[SelectHandRData].AltSelect = reader->GetInteger("Select", "SelectAltHandR", s_ItemDataHandR[SelectHandRData].AltSelect);
 	SelectSnSonMat = (SelectSnSonMatType)reader->GetInteger("Select", "SelectSnSonMat", SelectSnSonMat);
 	SelectSsnSonMat = (SelectSsnSonMatType)reader->GetInteger("Select", "SelectSsnSonMat", SelectSsnSonMat);
 	SelectEyelid = (SelectEyelidType)reader->GetInteger("Select", "SelectEyelid", SelectEyelid);

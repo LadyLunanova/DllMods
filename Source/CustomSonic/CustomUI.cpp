@@ -106,12 +106,13 @@ static void* fCAnimationStateMachineSetBlend(Sonic::CAnimationStateMachine* This
 class CustomizeSonicPreviewRenderable : public CustomizeSonicRenderable, public Sonic::CGameObject
 {
 public:
-	boost::shared_ptr<Hedgehog::Mirage::CSingleElement> m_spEyes{};
+	boost::shared_ptr<Hedgehog::Mirage::CSingleElement> m_spSnEyes{};
 	boost::shared_ptr<Sonic::CNPCAnimation> m_spNPCAnimation{};
 	hh::math::CVector m_Position{};
 	hh::math::CVector4 m_ScreenPosition{};
 	hh::math::CQuaternion m_Rotation{};
 	hh::math::CMatrix44 m_Transform{};
+	bool m_isEyesLoaded{};
 
 	////Animation List
 	static inline hh::anim::SMotionInfo m_sAnimList[3]
@@ -130,13 +131,16 @@ public:
 		fCAnimationStateMachineSetBlend(m_spNPCAnimation->m_spAnimationStateMachine.get(), in_pEndState, in_pStartState, in_TransitionSpeed);
 	}
 
-	void AddCallback(const Hedgehog::Base::THolder<Sonic::CWorld>& in_rWorldHolder,
-		Sonic::CGameDocument* pGameDocument, const boost::shared_ptr<Hedgehog::Database::CDatabase>& in_spDatabase) override
+	void AddCallback(const Hedgehog::Base::THolder<Sonic::CWorld>& in_rWorldHolder, Sonic::CGameDocument* pGameDocument, const boost::shared_ptr<Hedgehog::Database::CDatabase>& in_spDatabase) override
 	{
 		Sonic::CApplicationDocument::GetInstance()->AddMessageActor("GameObject", this);
 		pGameDocument->AddUpdateUnit("b", this);
 
 		m_isCastShadows = false;
+
+		// Load initial models.
+		MsgRefreshCustomizeSonic msg{ SelectCategory::All };
+		ProcessMessage(msg, false);
 
 		////Setup model for Sonic's eyes
 		hh::mr::CMirageDatabaseWrapper wrapper(in_spDatabase.get());
@@ -145,8 +149,9 @@ public:
 		if (!spModelData)
 			return;
 
-		m_spEyes = boost::make_shared<hh::mr::CSingleElement>(spModelData);
-		m_vspExtraElements.emplace_back(m_spEyes);
+		m_spSnEyes = boost::make_shared<hh::mr::CSingleElement>(spModelData);
+		AddRenderable("HUD_AfterModel", m_spSnEyes, m_isCastShadows);
+		m_isEyesLoaded = true;
 
 		////Construct animator
 		auto npcAnimation = reinterpret_cast<Sonic::CNPCAnimation*>(__HH_ALLOC(0x30));
@@ -157,8 +162,7 @@ public:
 		m_spNPCAnimation->Initialize(in_spDatabase, "chr_Sonic_HD");
 		m_spNPCAnimation->NPC_ADD_ANIM_LIST(m_sAnimList);
 		m_spNPCAnimation->m_spAnimationPose->Update(0.0f);
-
-
+		
 		//////Animation transitions
 		SetAnimStateTransition("FITTING", "IDLE", 0.1f);
 		SetAnimStateTransition("IDLE", "RUN", 0.01f);
@@ -168,18 +172,18 @@ public:
 		m_spNPCAnimation->m_spAnimationStateMachine->ChangeState("FITTING");
 
 		////Bind poses
-		m_spEyes->BindPose(m_spNPCAnimation->m_spAnimationPose);
+		m_spSnEyes->BindPose(m_spNPCAnimation->m_spAnimationPose);
 		m_spPose = m_spNPCAnimation->m_spAnimationPose;
 
 		////Attach renderable to Sonic's animation
 		//const int playerID = GetGameDocument()->m_pMember->m_PlayerIDs.begin()[0];
 		//const Sonic::Player::CPlayerSpeed* pPlayer = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID));
-		//m_spEyes->BindPose(pPlayer->m_spCharacterModel->m_spInstanceInfo->m_spPose);
+		//m_spSnEyes->BindPose(pPlayer->m_spCharacterModel->m_spInstanceInfo->m_spPose);
 		//m_spPose = pPlayer->m_spCharacterModel->m_spInstanceInfo->m_spPose;
 
 		////Attach renderable to Sonic's tranforms
 		//const Sonic::Player::CPlayerSpeedContext* context = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID))->GetContext();
-		//m_spEyes->BindMatrixNode(context->m_spModelMatrixNode);
+		//m_spSnEyes->BindMatrixNode(context->m_spModelMatrixNode);
 		//m_spPose->BindMatrixNode(context->m_spModelMatrixNode);
 	}
 
@@ -187,30 +191,30 @@ public:
 	{
 		if (m_spSnHead != nullptr)
 			m_spSnHead->m_Enabled = true;
-
 		if (m_spSnBody != nullptr)
 			m_spSnBody->m_Enabled = true;
-
 		if (m_spSnShoes != nullptr)
 			m_spSnShoes->m_Enabled = true;
-
 		if (m_spSnHandR != nullptr)
 			m_spSnHandR->m_Enabled = true;
-
 		if (m_spSnHandL != nullptr)
 			m_spSnHandL->m_Enabled = true;
-
 		if (m_spSnEyelid != nullptr)
 			m_spSnEyelid->m_Enabled = true;
-
 		if (m_spSnBaseHead != nullptr)
 			m_spSnBaseHead->m_Enabled = true;
-
+		
 		UpdateRenderables(this, "HUD_AfterModel");
-
+		
+		if (m_isHeadLoaded && !m_isEyesLoaded)
+		{
+			AddRenderable("HUD_AfterModel", m_spSnEyes, m_isCastShadows);
+			m_isEyesLoaded = true;
+		}
+		
 		m_spNPCAnimation->m_spAnimationPose->Update(in_rUpdateInfo.DeltaTime);
 		m_spNPCAnimation->m_spAnimationStateMachine->UpdateStateMachine(in_rUpdateInfo);
-
+		
 		auto transformElement = [=](boost::shared_ptr<Hedgehog::Mirage::CSingleElement> in_spElement)
 		{
 			if (!in_spElement)
@@ -219,7 +223,7 @@ public:
 			const auto spCamera = m_pMember->m_pGameDocument->GetWorld()->GetCamera();
 			const hh::math::CMatrix44 invProj = spCamera->m_MyCamera.m_Projection.inverse();
 			const hh::math::CMatrix invView = spCamera->m_MyCamera.m_View.inverse();
-
+			
 			auto& rTransform = in_spElement->m_spInstanceInfo->m_Transform;
 			auto& rMatrix = rTransform.matrix();
 			auto previewProjection = Eigen::CreatePerspectiveMatrix<float>(DEGREES_TO_RADIANS(12.1), spCamera->m_MyCamera.m_AspectRatio, 0.1, 20);
@@ -238,8 +242,8 @@ public:
 			rMatrix = invProj * rMatrix;
 			rMatrix = invView * rMatrix;
 		};
-
-		transformElement(m_spEyes);
+		
+		transformElement(m_spSnEyes);
 		transformElement(m_spSnHead);
 		transformElement(m_spSnBaseHead);
 		transformElement(m_spSnBody);
@@ -253,8 +257,17 @@ public:
 
 	bool ProcessMessage(Hedgehog::Universe::Message& in_rMsg, bool in_Flag) override
 	{
-		if (in_rMsg.GetType() == MsgUpdateCustomModels::ms_pType)
-			m_isUpdateModels = true;
+		if (in_rMsg.Is<MsgRefreshCustomizeSonic>())
+		{
+			auto& msgRefreshCustomizeSonic = static_cast<MsgRefreshCustomizeSonic&>(in_rMsg);
+			
+			fpCGameObjectRemoveRenderable(this, "HUD_AfterModel", m_spSnEyes, true);
+			m_isEyesLoaded = false;
+
+			RefreshModels(this, "HUD_AfterModel", msgRefreshCustomizeSonic.m_Category);
+
+			printf("REFRESH PREVIEW MODELS: %d\n", int(msgRefreshCustomizeSonic.m_Category));
+		}
 
 		return true;
 	}
@@ -328,23 +341,23 @@ void CHudUIOpen(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo&
 
 	for (size_t i = 0; i < s_ItemDataHead.size(); i++)
 	{
-		s_ItemDataHead[i].altselect = 0;
+		s_ItemDataHead[i].AltSelect = 0;
 	}
 	for (size_t i = 0; i < s_ItemDataBody.size(); i++)
 	{
-		s_ItemDataBody[i].altselect = 0;
+		s_ItemDataBody[i].AltSelect = 0;
 	}
 	for (size_t i = 0; i < s_ItemDataShoes.size(); i++)
 	{
-		s_ItemDataShoes[i].altselect = 0;
+		s_ItemDataShoes[i].AltSelect = 0;
 	}
 	for (size_t i = 0; i < s_ItemDataHandR.size(); i++)
 	{
-		s_ItemDataHandR[i].altselect = 0;
+		s_ItemDataHandR[i].AltSelect = 0;
 	}
 	for (size_t i = 0; i < s_ItemDataHandL.size(); i++)
 	{
-		s_ItemDataHandL[i].altselect = 0;
+		s_ItemDataHandL[i].AltSelect = 0;
 	}
 
 	ReadINI(saveFilePath);
@@ -525,13 +538,27 @@ void CHudUIOpen(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo&
 	return;
 }
 
-void UpdateModels()
+void RefreshCustomizeSonic(SelectCategory in_category = SelectCategory::All)
 {
+	auto& currBodyData = s_ItemDataBody[SelectBodyData];
+	auto  category = uint32_t(in_category);
+
+	if (currBodyData.HideShoes != s_ItemDataBodyPrev.HideShoes)
+		category |= uint32_t(SelectCategory::Shoes);
+	if (currBodyData.HideHandR != s_ItemDataBodyPrev.HideHandR)
+		category |= uint32_t(SelectCategory::HandR);
+	if (currBodyData.HideHandL != s_ItemDataBodyPrev.HideHandL)
+		category |= uint32_t(SelectCategory::HandL);
+
+	MsgRefreshCustomizeSonic msgRefreshCustomizeSonic{ SelectCategory(category) };
+
 	if (obj_CustomizeSonicPlayerRenderable)
-		obj_CustomizeSonicPlayerRenderable->SendMessageImm<MsgUpdateCustomModels>(obj_CustomizeSonicPlayerRenderable->m_ActorID);
+		obj_CustomizeSonicPlayerRenderable->SendMessageImm<MsgRefreshCustomizeSonic>(obj_CustomizeSonicPlayerRenderable->m_ActorID, msgRefreshCustomizeSonic);
 
 	if (obj_CustomizeSonicPreviewRenderable)
-		obj_CustomizeSonicPreviewRenderable->SendMessageImm<MsgUpdateCustomModels>(obj_CustomizeSonicPreviewRenderable->m_ActorID);
+		obj_CustomizeSonicPreviewRenderable->SendMessageImm<MsgRefreshCustomizeSonic>(obj_CustomizeSonicPreviewRenderable->m_ActorID, msgRefreshCustomizeSonic);
+
+	s_ItemDataBodyPrev = currBodyData;
 }
 
 void CHudUISelect()
@@ -546,7 +573,7 @@ void CHudUISelect()
 			CHudUISFXSelect(true);
 			CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 			SelectShoesData = CHudVarTrueSel;
-			UpdateModels();
+			RefreshCustomizeSonic(SelectCategory::Shoes);
 		}
 		return;
 		break;
@@ -558,7 +585,7 @@ void CHudUISelect()
 			CHudUISFXSelect(true);
 			CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 			SelectBodyData = CHudVarTrueSel;
-			UpdateModels();
+			RefreshCustomizeSonic(SelectCategory::Body);
 		}
 		return;
 		break;
@@ -570,7 +597,7 @@ void CHudUISelect()
 			CHudUISFXSelect(true);
 			CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 			SelectHeadData = CHudVarTrueSel;
-			UpdateModels();
+			RefreshCustomizeSonic(SelectCategory::Head);
 		}
 		return;
 		break;
@@ -582,7 +609,7 @@ void CHudUISelect()
 			CHudUISFXSelect(true);
 			CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 			SelectHandLData = CHudVarTrueSel;
-			UpdateModels();
+			RefreshCustomizeSonic(SelectCategory::HandL);
 		}
 		return;
 		break;
@@ -594,7 +621,7 @@ void CHudUISelect()
 			CHudUISFXSelect(true);
 			CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 			SelectHandRData = CHudVarTrueSel;
-			UpdateModels();
+			RefreshCustomizeSonic(SelectCategory::HandR);
 		}
 		return;
 		break;
@@ -612,7 +639,7 @@ void CHudUISelect()
 					SelectSnSonMat = (SelectSnSonMatType)(SelectSnSonMat + 1);
 				else
 					SelectSnSonMat = SnMatOriginal;
-				UpdateModels();
+				RefreshCustomizeSonic();
 				return;
 				break;
 			case (enum SelectSonicBodyType)SBSsnMaterial:
@@ -623,7 +650,7 @@ void CHudUISelect()
 				return;
 				break;
 			case (enum SelectSonicBodyType)SBEyelids:
-				UpdateModels();
+				RefreshCustomizeSonic();
 				return;
 				break;
 			case (enum SelectSonicBodyType)SBSuperHead:
@@ -1062,76 +1089,76 @@ void CHudUIAlt()
 	//	auto& itemData = s_ItemDataHead[i];
 	//	printf("\n");
 	//	printf("Item Name: ");
-	//	printf(itemData.name.c_str());
+	//	printf(itemData.Name.c_str());
 	//	printf("\n");
-	//	printf("Alt Count: %d\n", itemData.altcount);
-	//	printf("Hide Flag: %d\n", itemData.hideflags);
+	//	printf("Alt Count: %d\n", itemData.AltCount);
+	//	printf("Hide Flag: %d\n", itemData.HideFlags);
 	//}
 
 	switch (CHudTabSel)
 	{
 	case UIPartShoes:
-		if (!(CHudVarTrueSel >= s_ItemDataShoes.size()) && (s_ItemDataShoes[CHudVarTrueSel].altcount >= 1))
+		if (!(CHudVarTrueSel >= s_ItemDataShoes.size()) && (s_ItemDataShoes[CHudVarTrueSel].AltCount >= 1))
 		{
-			if (!(s_ItemDataShoes[CHudVarTrueSel].altselect >= s_ItemDataShoes[CHudVarTrueSel].altcount))
-				s_ItemDataShoes[CHudVarTrueSel].altselect++;
+			if (!(s_ItemDataShoes[CHudVarTrueSel].AltSelect >= s_ItemDataShoes[CHudVarTrueSel].AltCount))
+				s_ItemDataShoes[CHudVarTrueSel].AltSelect++;
 			else
-				s_ItemDataShoes[CHudVarTrueSel].altselect = 0;
+				s_ItemDataShoes[CHudVarTrueSel].AltSelect = 0;
 			CHudUISFXAlt();
 			CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
-			UpdateModels();
+			RefreshCustomizeSonic(SelectCategory::Shoes);
 		}
 		return;
 		break;
 	case UIPartBody:
-		if (!(CHudVarTrueSel >= s_ItemDataBody.size()) && (s_ItemDataBody[CHudVarTrueSel].altcount >= 1))
+		if (!(CHudVarTrueSel >= s_ItemDataBody.size()) && (s_ItemDataBody[CHudVarTrueSel].AltCount >= 1))
 		{
-			if (!(s_ItemDataBody[CHudVarTrueSel].altselect >= s_ItemDataBody[CHudVarTrueSel].altcount))
-				s_ItemDataBody[CHudVarTrueSel].altselect++;
+			if (!(s_ItemDataBody[CHudVarTrueSel].AltSelect >= s_ItemDataBody[CHudVarTrueSel].AltCount))
+				s_ItemDataBody[CHudVarTrueSel].AltSelect++;
 			else
-				s_ItemDataBody[CHudVarTrueSel].altselect = 0;
+				s_ItemDataBody[CHudVarTrueSel].AltSelect = 0;
 			CHudUISFXAlt();
 			CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
-			UpdateModels();
+			RefreshCustomizeSonic(SelectCategory::Body);
 		}
 		return;
 		break;
 	case UIPartHead:
-		if (!(CHudVarTrueSel >= s_ItemDataHead.size()) && (s_ItemDataHead[CHudVarTrueSel].altcount >= 1))
+		if (!(CHudVarTrueSel >= s_ItemDataHead.size()) && (s_ItemDataHead[CHudVarTrueSel].AltCount >= 1))
 		{
-			if (!(s_ItemDataHead[CHudVarTrueSel].altselect >= s_ItemDataHead[CHudVarTrueSel].altcount))
-				s_ItemDataHead[CHudVarTrueSel].altselect++;
+			if (!(s_ItemDataHead[CHudVarTrueSel].AltSelect >= s_ItemDataHead[CHudVarTrueSel].AltCount))
+				s_ItemDataHead[CHudVarTrueSel].AltSelect++;
 			else
-				s_ItemDataHead[CHudVarTrueSel].altselect = 0;
+				s_ItemDataHead[CHudVarTrueSel].AltSelect = 0;
 			CHudUISFXAlt();
 			CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
-			UpdateModels();
+			RefreshCustomizeSonic(SelectCategory::Head);
 		}
 		return;
 		break;
 	case UIPartHandR:
-		if (!(CHudVarTrueSel >= s_ItemDataHandR.size()) && (s_ItemDataHandR[CHudVarTrueSel].altcount >= 1))
+		if (!(CHudVarTrueSel >= s_ItemDataHandR.size()) && (s_ItemDataHandR[CHudVarTrueSel].AltCount >= 1))
 		{
-			if (!(s_ItemDataHandR[CHudVarTrueSel].altselect >= s_ItemDataHandR[CHudVarTrueSel].altcount))
-				s_ItemDataHandR[CHudVarTrueSel].altselect++;
+			if (!(s_ItemDataHandR[CHudVarTrueSel].AltSelect >= s_ItemDataHandR[CHudVarTrueSel].AltCount))
+				s_ItemDataHandR[CHudVarTrueSel].AltSelect++;
 			else
-				s_ItemDataHandR[CHudVarTrueSel].altselect = 0;
+				s_ItemDataHandR[CHudVarTrueSel].AltSelect = 0;
 			CHudUISFXAlt();
 			CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
-			UpdateModels();
+			RefreshCustomizeSonic(SelectCategory::HandR);
 		}
 		return;
 		break;
 	case UIPartHandL:
-		if (!(CHudVarTrueSel >= s_ItemDataHandL.size()) && (s_ItemDataHandL[CHudVarTrueSel].altcount >= 1))
+		if (!(CHudVarTrueSel >= s_ItemDataHandL.size()) && (s_ItemDataHandL[CHudVarTrueSel].AltCount >= 1))
 		{
-			if (!(s_ItemDataHandL[CHudVarTrueSel].altselect >= s_ItemDataHandL[CHudVarTrueSel].altcount))
-				s_ItemDataHandL[CHudVarTrueSel].altselect++;
+			if (!(s_ItemDataHandL[CHudVarTrueSel].AltSelect >= s_ItemDataHandL[CHudVarTrueSel].AltCount))
+				s_ItemDataHandL[CHudVarTrueSel].AltSelect++;
 			else
-				s_ItemDataHandL[CHudVarTrueSel].altselect = 0;
+				s_ItemDataHandL[CHudVarTrueSel].AltSelect = 0;
 			CHudUISFXAlt();
 			CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
-			UpdateModels();
+			RefreshCustomizeSonic(SelectCategory::HandL);
 		}
 		return;
 		break;
@@ -1380,9 +1407,9 @@ const char* CHudUIThumbHeadString(int id, char* result)
 		sprintf(result, "ui_Null");
 		return result;
 	}
-	auto mapAltCount = s_ItemDataHead[(CHudVarScroll * 3) + id].altcount;
-	auto mapChar = s_ItemDataHead[(CHudVarScroll * 3) + id].name;
-	auto mapInt = s_ItemDataHead[(CHudVarScroll * 3) + id].altselect;
+	auto mapAltCount = s_ItemDataHead[(CHudVarScroll * 3) + id].AltCount;
+	auto mapChar = s_ItemDataHead[(CHudVarScroll * 3) + id].Name;
+	auto mapInt = s_ItemDataHead[(CHudVarScroll * 3) + id].AltSelect;
 	const char* texExtOn = "_On";
 	const char* texExtOff = "_Off";
 	bool active = ((CHudVarScroll * 3) + id == SelectHeadData);
@@ -1399,9 +1426,9 @@ const char* CHudUIThumbBodyString(int id, char* result)
 		sprintf(result, "ui_Null");
 		return result;
 	}
-	auto mapAltCount = s_ItemDataBody[(CHudVarScroll * 3) + id].altcount;
-	auto mapChar = s_ItemDataBody[(CHudVarScroll * 3) + id].name;
-	auto mapInt = s_ItemDataBody[(CHudVarScroll * 3) + id].altselect;
+	auto mapAltCount = s_ItemDataBody[(CHudVarScroll * 3) + id].AltCount;
+	auto mapChar = s_ItemDataBody[(CHudVarScroll * 3) + id].Name;
+	auto mapInt = s_ItemDataBody[(CHudVarScroll * 3) + id].AltSelect;
 	const char* texExtOn = "_On";
 	const char* texExtOff = "_Off";
 	bool active = ((CHudVarScroll * 3) + id == SelectBodyData);
@@ -1418,9 +1445,9 @@ const char* CHudUIThumbShoeString(int id, char* result)
 		sprintf(result, "ui_Null");
 		return result;
 	}
-	auto mapAltCount = s_ItemDataShoes[(CHudVarScroll * 3) + id].altcount;
-	auto mapChar = s_ItemDataShoes[(CHudVarScroll * 3) + id].name;
-	auto mapInt = s_ItemDataShoes[(CHudVarScroll * 3) + id].altselect;
+	auto mapAltCount = s_ItemDataShoes[(CHudVarScroll * 3) + id].AltCount;
+	auto mapChar = s_ItemDataShoes[(CHudVarScroll * 3) + id].Name;
+	auto mapInt = s_ItemDataShoes[(CHudVarScroll * 3) + id].AltSelect;
 	const char* texExtOn = "_On";
 	const char* texExtOff = "_Off";
 	bool active = ((CHudVarScroll * 3) + id == SelectShoesData);
@@ -1437,9 +1464,9 @@ const char* CHudUIThumbHandRString(int id, char* result)
 		sprintf(result, "ui_Null");
 		return result;
 	}
-	auto mapAltCount = s_ItemDataHandR[(CHudVarScroll * 3) + id].altcount;
-	auto mapChar = s_ItemDataHandR[(CHudVarScroll * 3) + id].name;
-	auto mapInt = s_ItemDataHandR[(CHudVarScroll * 3) + id].altselect;
+	auto mapAltCount = s_ItemDataHandR[(CHudVarScroll * 3) + id].AltCount;
+	auto mapChar = s_ItemDataHandR[(CHudVarScroll * 3) + id].Name;
+	auto mapInt = s_ItemDataHandR[(CHudVarScroll * 3) + id].AltSelect;
 	const char* texExtOn = "_On";
 	const char* texExtOff = "_Off";
 	bool active = ((CHudVarScroll * 3) + id == SelectHandRData);
@@ -1456,9 +1483,9 @@ const char* CHudUIThumbHandLString(int id, char* result)
 		sprintf(result, "ui_Null");
 		return result;
 	}
-	auto mapAltCount = s_ItemDataHandL[(CHudVarScroll * 3) + id].altcount;
-	auto mapChar = s_ItemDataHandL[(CHudVarScroll * 3) + id].name;
-	auto mapInt = s_ItemDataHandL[(CHudVarScroll * 3) + id].altselect;
+	auto mapAltCount = s_ItemDataHandL[(CHudVarScroll * 3) + id].AltCount;
+	auto mapChar = s_ItemDataHandL[(CHudVarScroll * 3) + id].Name;
+	auto mapInt = s_ItemDataHandL[(CHudVarScroll * 3) + id].AltSelect;
 	const char* texExtOn = "_On";
 	const char* texExtOff = "_Off";
 	bool active = ((CHudVarScroll * 3) + id == SelectHandLData);
@@ -1886,7 +1913,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 			switch (CHudTabSel)
 			{
 			case UIPartShoes:
-				if (!(CHudVarTrueSel >= s_ItemDataShoes.size()) && (s_ItemDataShoes[CHudVarTrueSel].altcount >= 1))
+				if (!(CHudVarTrueSel >= s_ItemDataShoes.size()) && (s_ItemDataShoes[CHudVarTrueSel].AltCount >= 1))
 				{
 					scBBIcon->GetNode("star")->SetPatternIndex(1);
 					if (IsUnleashedHUD && SWAOpenTimer <= 0)
@@ -1900,7 +1927,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 				}
 				break;
 			case UIPartBody:
-				if (!(CHudVarTrueSel >= s_ItemDataBody.size()) && (s_ItemDataBody[CHudVarTrueSel].altcount >= 1))
+				if (!(CHudVarTrueSel >= s_ItemDataBody.size()) && (s_ItemDataBody[CHudVarTrueSel].AltCount >= 1))
 				{
 					scBBIcon->GetNode("star")->SetPatternIndex(1);
 					if (IsUnleashedHUD && SWAOpenTimer <= 0)
@@ -1914,7 +1941,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 				}
 				break;
 			case UIPartHandR:
-				if (!(CHudVarTrueSel >= s_ItemDataHandR.size()) && (s_ItemDataHandR[CHudVarTrueSel].altcount >= 1))
+				if (!(CHudVarTrueSel >= s_ItemDataHandR.size()) && (s_ItemDataHandR[CHudVarTrueSel].AltCount >= 1))
 				{
 					scBBIcon->GetNode("star")->SetPatternIndex(1);
 					if (IsUnleashedHUD && SWAOpenTimer <= 0)
@@ -1928,7 +1955,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 				}
 				break;
 			case UIPartHandL:
-				if (!(CHudVarTrueSel >= s_ItemDataHandL.size()) && (s_ItemDataHandL[CHudVarTrueSel].altcount >= 1))
+				if (!(CHudVarTrueSel >= s_ItemDataHandL.size()) && (s_ItemDataHandL[CHudVarTrueSel].AltCount >= 1))
 				{
 					scBBIcon->GetNode("star")->SetPatternIndex(1);
 					if (IsUnleashedHUD && SWAOpenTimer <= 0)
@@ -1942,7 +1969,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 				}
 				break;
 			case UIPartHead:
-				if (!(CHudVarTrueSel >= s_ItemDataHead.size()) && (s_ItemDataHead[CHudVarTrueSel].altcount >= 1))
+				if (!(CHudVarTrueSel >= s_ItemDataHead.size()) && (s_ItemDataHead[CHudVarTrueSel].AltCount >= 1))
 				{
 					scBBIcon->GetNode("star")->SetPatternIndex(1);
 					if (IsUnleashedHUD && SWAOpenTimer <= 0)

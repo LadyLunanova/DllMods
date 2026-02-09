@@ -80,7 +80,6 @@ void KillDebugTxtUI()
 void ReadINI(std::string saveFilePath);
 void WriteINI(FILE* iniFile);
 
-
 //////Preview Renderable//////
 static uint32_t pCAnimationStateMachineSetBlend = 0xCE0720;
 static uint32_t pCNPCAnimationCtor = 0xB67750;
@@ -284,6 +283,78 @@ public:
 	}
 };
 boost::shared_ptr<CustomizeSonicPreviewRenderable> obj_CustomizeSonicPreviewRenderable;
+
+
+//Menu Functions
+void CHudUIPlayAnim(Chao::CSD::RCPtr<Chao::CSD::CScene> in_pScene, const char* in_pName, float in_pFrame, bool in_pMotionDisable, Chao::CSD::EMotionRepeatType in_pMotionRepeatType, float in_pSpeed)
+{
+	in_pScene->SetMotion(in_pName);
+	in_pScene->SetMotionFrame(in_pFrame);
+	in_pScene->m_MotionDisableFlag = in_pMotionDisable;
+	in_pScene->m_MotionRepeatType = in_pMotionRepeatType;
+	in_pScene->m_MotionSpeed = in_pSpeed;
+	in_pScene->Update();
+}
+
+void CHudUISceneDestroy()
+{
+	if (scBBGui)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenBB.Get(), scBBGui);
+	if (scBBIcon)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenBB.Get(), scBBIcon);
+	if (scBBTextArea)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenBB.Get(), scBBTextArea);
+	if (scBBLRMove)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenBB.Get(), scBBLRMove);
+	if (scBBDeco)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenBB.Get(), scBBDeco);
+	if (scBBScroll)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenBB.Get(), scBBScroll);
+	if (scBBPrev)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenBB.Get(), scBBPrev);
+	if (scSWABG1)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenSWA.Get(), scSWABG1);
+	if (scSWATag)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenSWA.Get(), scSWATag);
+	if (scSWATagTxt)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenSWA.Get(), scSWATagTxt);
+	if (scSWAPress)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenSWA.Get(), scSWAPress);
+	if (scSWAFooter)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenSWA.Get(), scSWAFooter);
+	if (scSWAArrow)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenSWA.Get(), scSWAArrow);
+	if (scSWAAlt)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenSWA.Get(), scSWAAlt);
+	if (scSWAScroll)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenSWA.Get(), scSWAScroll);
+	if (scSWAScrollBG)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenSWA.Get(), scSWAScrollBG);
+	if (scSWASelect)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenSWA.Get(), scSWASelect);
+	if (obj_CustomizeSonicPreviewRenderable)
+		obj_CustomizeSonicPreviewRenderable->Kill();
+}
+
+void KillScreen()
+{
+	if (obBBCustomUI || obSWACustomUI)
+	{
+		FILE* pFile = fopen(saveFilePath.c_str(), "wb");
+		WriteINI(pFile);
+	}
+	if (obBBCustomUI)
+	{
+		obBBCustomUI->SendMessage(obBBCustomUI->m_ActorID, boost::make_shared<Sonic::Message::MsgKill>());
+		obBBCustomUI = nullptr;
+	}
+	if (obSWACustomUI)
+	{
+		obSWACustomUI->SendMessage(obSWACustomUI->m_ActorID, boost::make_shared<Sonic::Message::MsgKill>());
+		obSWACustomUI = nullptr;
+	}
+}
+
 
 //Handle UI
 void CreateFittingUI(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo& in_rUpdateInfo)
@@ -1625,6 +1696,7 @@ void CHudUIScrollManager(Sonic::CGameObject* This, float Sh, float Bd, float He,
 	}
 }
 
+//Update Fitting Menu
 void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo& in_rUpdateInfo)
 {
 	auto input = Sonic::CInputState::GetInstance()->GetPadState();
@@ -2172,7 +2244,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 
 }
 
-//Create/Kill/Update Fitting Menu
+//Create Fitting Menu
 HOOK(void, __fastcall, CHudSonicStageUpdate, 0x1098A50, Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo& in_rUpdateInfo)
 {
 	auto speedContext = Sonic::Player::CPlayerSpeedContext::GetInstance();
@@ -2197,6 +2269,8 @@ HOOK(void, __fastcall, CHudPlayableMenuUpdate, 0x0108D510, Sonic::CGameObject* T
 	//printf("Hub world HUD\n");
 	originalCHudPlayableMenuUpdate(This, Edx, in_rUpdateInfo);
 }
+
+//Kill Fitting Menu
 HOOK(void, __fastcall, CHUDPauseUpdate, 0x0042A520, hh::fnd::CStateMachineBase::CStateBase* This)
 {
 	KillScreen();

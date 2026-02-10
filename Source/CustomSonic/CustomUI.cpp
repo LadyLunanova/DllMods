@@ -275,7 +275,7 @@ public:
 			transform = transform * Eigen::AngleAxisf(DEGREES_TO_RADIANS(PrevRotation), Eigen::Vector3f::UnitY());
 			
 			Eigen::Affine3f screenTransform;
-			screenTransform = Eigen::Translation3f(-0.549f, -0.6f, 0.0f);
+			screenTransform = Eigen::Translation3f(-0.549f, -0.575f, 0.0f);
 			
 			rMatrix = transform.matrix();
 			rMatrix = previewProjection * rMatrix;
@@ -346,14 +346,22 @@ void CHudUISceneDestroy()
 		Chao::CSD::CProject::DestroyScene(prFittingScreenBB.Get(), scBBIcon);
 	if (scBBTextArea)
 		Chao::CSD::CProject::DestroyScene(prFittingScreenBB.Get(), scBBTextArea);
+	if (scBBBtmTextArea)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenBB.Get(), scBBBtmTextArea);
 	if (scBBLRMove)
 		Chao::CSD::CProject::DestroyScene(prFittingScreenBB.Get(), scBBLRMove);
+	if (scBBBtmBtn)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenBB.Get(), scBBBtmBtn);
 	if (scBBDeco)
 		Chao::CSD::CProject::DestroyScene(prFittingScreenBB.Get(), scBBDeco);
 	if (scBBScroll)
 		Chao::CSD::CProject::DestroyScene(prFittingScreenBB.Get(), scBBScroll);
 	if (scBBPrev)
 		Chao::CSD::CProject::DestroyScene(prFittingScreenBB.Get(), scBBPrev);
+	if (scBBPrevBtmTxt)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenBB.Get(), scBBPrevBtmTxt);
+	if (scBBPrevBtmBtn)
+		Chao::CSD::CProject::DestroyScene(prFittingScreenBB.Get(), scBBPrevBtmBtn);
 	if (scSWABG1)
 		Chao::CSD::CProject::DestroyScene(prFittingScreenSWA.Get(), scSWABG1);
 	if (scSWATag)
@@ -506,6 +514,27 @@ void CHudUIOpen(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo&
 		scBBLRMove->SetHideFlag(true);
 	CHudUIPlayAnim(scBBLRMove, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 2.0f);
 
+	//Guide Text
+	scBBBtmTextArea = prFittingScreenBB->CreateScene("textarea");
+	scBBBtmTextArea->SetPosition(0, 0.59f * arY);
+	scBBBtmTextArea->GetNode("textarea_textbox")->SetPatternIndex(6);
+	CHudUIPlayAnim(scBBBtmTextArea, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 0.5f);
+
+	//Guide Buttons
+	scBBBtmBtn = prFittingScreenBB->CreateScene("LRmove");
+	scBBBtmBtn->SetPosition(0, 0.59f * arY);
+	scBBBtmBtn->GetNode("left")->SetPosition(-0.136f * arX, 0.13333334f * arY);
+	scBBBtmBtn->GetNode("left_sdw")->SetPosition(10.0f * arX, 10.0f * arY);
+	scBBBtmBtn->GetNode("left_arrow")->SetPosition(10.0f * arX, 10.0f * arY);
+	scBBBtmBtn->GetNode("right")->SetPosition(0.016f * arX, 0.13333334f * arY);
+	scBBBtmBtn->GetNode("right_sdw")->SetPosition(10.0f * arX, 10.0f * arY);
+	scBBBtmBtn->GetNode("right_arrow")->SetPosition(10.0f * arX, 10.0f * arY);
+	scBBBtmBtn->GetNode("left_button")->SetPatternIndex(2);
+	scBBBtmBtn->GetNode("left_button_0001")->SetPatternIndex(2);
+	scBBBtmBtn->GetNode("right_button")->SetPatternIndex(2);
+	scBBBtmBtn->GetNode("right_button_0001")->SetPatternIndex(2);
+	CHudUIPlayAnim(scBBBtmBtn, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 2.0f);
+
 	//Scroll Bar
 	scBBScroll = prFittingScreenBB->CreateScene("scroll");
 	if (IsUnleashedHUD)
@@ -537,6 +566,40 @@ void CHudUIOpen(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo&
 	IsInScrollOpen = true;
 	scBBScroll->SetPosition(0.9175f * arX, 0.5475f * arY);
 	CHudUIPlayAnim(scBBScroll, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
+
+	//Model Preview
+	scBBPrev = prFittingScreenBB->CreateScene("chara_view");
+	scBBPrevBtmTxt = prFittingScreenBB->CreateScene("textarea");
+	scBBPrevBtmBtn = prFittingScreenBB->CreateScene("LRmove");
+	scBBPrevBtmTxt->SetPosition(-0.549f * arX, 0.59f * arY);
+	scBBPrevBtmBtn->SetPosition(-0.549f * arX, 0.59f * arY);
+	scBBPrevBtmBtn->GetNode("left")->SetPosition(-0.136f * arX, 0.13333334f * arY);
+	scBBPrevBtmBtn->GetNode("left_sdw")->SetPosition(10.0f * arX, 10.0f * arY);
+	scBBPrevBtmBtn->GetNode("left_arrow")->SetPosition(10.0f * arX, 10.0f * arY);
+	scBBPrevBtmBtn->GetNode("right")->SetPosition(0.016f * arX, 0.13333334f * arY);
+	scBBPrevBtmBtn->GetNode("right_sdw")->SetPosition(10.0f * arX, 10.0f * arY);
+	scBBPrevBtmBtn->GetNode("right_arrow")->SetPosition(10.0f * arX, 10.0f * arY);
+	scBBPrevBtmBtn->GetNode("left_button")->SetPatternIndex(0);
+	scBBPrevBtmBtn->GetNode("left_button_0001")->SetPatternIndex(0);
+	scBBPrevBtmBtn->GetNode("right_button")->SetPatternIndex(3);
+	scBBPrevBtmBtn->GetNode("right_button_0001")->SetPatternIndex(3);
+	scBBPrevBtmTxt->GetNode("textarea_textbox")->SetPatternIndex(8);
+	if (IsPreviewOpen == true)
+	{
+		PrevOpenTimer = 5;
+		CHudUIPlayAnim(scBBPrev, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
+		CHudUIPlayAnim(scBBPrevBtmTxt, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 0.5f);
+		CHudUIPlayAnim(scBBPrevBtmBtn, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 2.0f);
+
+		obj_CustomizeSonicPreviewRenderable = boost::make_shared<CustomizeSonicPreviewRenderable>();
+		Sonic::CGameDocument::GetInstance()->AddGameObject(obj_CustomizeSonicPreviewRenderable);
+	}
+	if (IsPreviewOpen == false)
+	{
+		CHudUIPlayAnim(scBBPrev, "Intro_Anim", 0.0f, true, Chao::CSD::eMotionRepeatType_PlayOnce, 0.0f);
+		CHudUIPlayAnim(scBBPrevBtmTxt, "Intro_Anim", 0.0f, true, Chao::CSD::eMotionRepeatType_PlayOnce, 0.0f);
+		CHudUIPlayAnim(scBBPrevBtmBtn, "Intro_Anim", 0.0f, true, Chao::CSD::eMotionRepeatType_PlayOnce, 0.0f);
+	}
 
 	//Decoration
 	if (ConfigDecoEnable && !IsUnleashedHUD)
@@ -631,19 +694,6 @@ void CHudUIOpen(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo&
 		scSWAScrollBG->SetPosition(0, 0.107 * arY);
 		CHudUIPlayAnim(scSWAScrollBG, "Scroll_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_Loop, 0.0f);
 	}
-
-	//Model Preview
-	scBBPrev = prFittingScreenBB->CreateScene("chara_view");
-	if (IsPreviewOpen == true)
-	{
-		CHudUIPlayAnim(scBBPrev, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
-		PrevOpenTimer = 10;
-
-		obj_CustomizeSonicPreviewRenderable = boost::make_shared<CustomizeSonicPreviewRenderable>();
-		Sonic::CGameDocument::GetInstance()->AddGameObject(obj_CustomizeSonicPreviewRenderable);
-	}
-	if (IsPreviewOpen == false)
-		CHudUIPlayAnim(scBBPrev, "Intro_Anim", 0.0f, true, Chao::CSD::eMotionRepeatType_PlayOnce, 0.0f);
 
 	//Misc
 	IsInMenu = true;
@@ -1206,6 +1256,7 @@ void CHudUIAlt()
 				s_ItemDataShoes[CHudVarTrueSel].AltSelect = 0;
 			CHudUISFXAlt();
 			CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
+			CHudUIPlayAnim(scBBBtmBtn, "Right_ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 			RefreshCustomizeSonic(SelectCategory::Shoes);
 		}
 		return;
@@ -1219,6 +1270,7 @@ void CHudUIAlt()
 				s_ItemDataBody[CHudVarTrueSel].AltSelect = 0;
 			CHudUISFXAlt();
 			CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
+			CHudUIPlayAnim(scBBBtmBtn, "Right_ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 			RefreshCustomizeSonic(SelectCategory::Body);
 		}
 		return;
@@ -1232,6 +1284,7 @@ void CHudUIAlt()
 				s_ItemDataHead[CHudVarTrueSel].AltSelect = 0;
 			CHudUISFXAlt();
 			CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
+			CHudUIPlayAnim(scBBBtmBtn, "Right_ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 			RefreshCustomizeSonic(SelectCategory::Head);
 		}
 		return;
@@ -1245,6 +1298,7 @@ void CHudUIAlt()
 				s_ItemDataHandR[CHudVarTrueSel].AltSelect = 0;
 			CHudUISFXAlt();
 			CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
+			CHudUIPlayAnim(scBBBtmBtn, "Right_ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 			RefreshCustomizeSonic(SelectCategory::HandR);
 		}
 		return;
@@ -1258,6 +1312,7 @@ void CHudUIAlt()
 				s_ItemDataHandL[CHudVarTrueSel].AltSelect = 0;
 			CHudUISFXAlt();
 			CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
+			CHudUIPlayAnim(scBBBtmBtn, "Right_ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 			RefreshCustomizeSonic(SelectCategory::HandL);
 		}
 		return;
@@ -1270,7 +1325,12 @@ void CHedUIPreview()
 	if (IsPreviewOpen == false && PrevOpenTimer == 0)
 	{
 		CHudUIPlayAnim(scBBPrev, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.5f);
-		PrevOpenTimer = 10;
+		CHudUIPlayAnim(scBBPrevBtmTxt, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 0.5f);
+		CHudUIPlayAnim(scBBPrevBtmBtn, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 2.0f);
+		PrevOpenTimer = 5;
+		PrevAnim = 0;
+		PrevCatAnim = true;
+		PrevRotation = 0.0f;
 		IsPreviewOpen = true;
 		CHudUISFXOpen();
 
@@ -1280,13 +1340,19 @@ void CHedUIPreview()
 	if (IsPreviewOpen == true && PrevOpenTimer == 0)
 	{
 		CHudUIPlayAnim(scBBPrev, "Intro_Anim", 25.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -2.0f);
-		PrevOpenTimer = 10;
+		CHudUIPlayAnim(scBBPrevBtmTxt, "Intro_Anim", 17.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -0.5f);
+		CHudUIPlayAnim(scBBPrevBtmBtn, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -1.0f);
+		PrevOpenTimer = 5;
+		PrevAnim = 0;
+		PrevCatAnim = true;
+		PrevRotation = 0.0f;
 		IsPreviewOpen = false;
 		CHudUISFXExit();
 
 		if (obj_CustomizeSonicPreviewRenderable)
 			obj_CustomizeSonicPreviewRenderable->Kill();
 	}
+	CHudUIPlayAnim(scBBBtmBtn, "Left_ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 }
 
 void CHudUISwitch(int Type)
@@ -1314,6 +1380,8 @@ void CHudUISwitch(int Type)
 		CHudUIPlayAnim(scBBGui, "Intro_Anim", 22.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -2.0f);
 		CHudUIPlayAnim(scBBIcon, "OFF_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 		CHudUIPlayAnim(scBBTextArea, "Intro_Anim", 17.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -1.8f);
+		CHudUIPlayAnim(scBBBtmTextArea, "Intro_Anim", 17.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -1.8f);
+		CHudUIPlayAnim(scBBBtmBtn, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -1.0f);
 		IsInScrollOpen = true;
 		CHudUIPlayAnim(scBBScroll, "Intro_Anim", 22.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -2.0f);
 		if (IsUnleashedHUD)
@@ -1422,6 +1490,8 @@ void CHudUISwitch(int Type)
 		CHudUIPlayAnim(scBBGui, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 2.0f);
 		CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 		CHudUIPlayAnim(scBBTextArea, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 2.0f);
+		CHudUIPlayAnim(scBBBtmTextArea, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 2.0f);
+		CHudUIPlayAnim(scBBBtmBtn, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 4.0f);
 		CHudUIPlayAnim(scBBScroll, "Intro_Anim", 15.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 		if (IsUnleashedHUD)
 		{
@@ -1440,18 +1510,25 @@ void CHudUIExit(int Type)
 		CHudUISFXExit();
 		IsInMenuExit = true;
 		SWAOpenTimer = 15;
-		PrevOpenTimer = 10;
+		PrevOpenTimer = 5;
+		PrevAnim = 0;
+		PrevCatAnim = true;
+		PrevRotation = 0.0f;
 
 		CHudUIPlayAnim(scBBGui, "Intro_Anim", 22.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -1.0f);
 		CHudUIPlayAnim(scBBIcon, "OFF_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 		CHudUIPlayAnim(scBBTextArea, "Intro_Anim", 17.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -0.5f);
+		CHudUIPlayAnim(scBBBtmTextArea, "Intro_Anim", 17.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -0.5f);
 		CHudUIPlayAnim(scBBLRMove, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -1.0f);
+		CHudUIPlayAnim(scBBBtmBtn, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -1.0f);
 		IsInScrollOpen = true;
 		CHudUIPlayAnim(scBBScroll, "Intro_Anim", 22.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -1.0f);
 
 		if (IsPreviewOpen == true)
 		{
 			CHudUIPlayAnim(scBBPrev, "Intro_Anim", 25.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -1.0f);
+			CHudUIPlayAnim(scBBPrevBtmTxt, "Intro_Anim", 17.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -0.5f);
+			CHudUIPlayAnim(scBBPrevBtmBtn, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -1.0f);
 
 			if (obj_CustomizeSonicPreviewRenderable)
 				obj_CustomizeSonicPreviewRenderable->Kill();
@@ -2014,9 +2091,11 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 			////------Preview Handler
 			if (scBBPrev)
 			{
-				if (scBBPrev->m_MotionFrame <= 0 && !IsPreviewOpen)
+				if (scBBPrev->m_MotionFrame <= 0 && IsPreviewOpen == false)
 				{
 					CHudUIPlayAnim(scBBPrev, "Intro_Anim", 0.0f, true, Chao::CSD::eMotionRepeatType_PlayOnce, 0.0f);
+					CHudUIPlayAnim(scBBPrevBtmTxt, "Intro_Anim", 0.0f, true, Chao::CSD::eMotionRepeatType_PlayOnce, 0.0f);
+					CHudUIPlayAnim(scBBPrevBtmBtn, "Intro_Anim", 0.0f, true, Chao::CSD::eMotionRepeatType_PlayOnce, 0.0f);
 					scBBPrev->SetHideFlag(true);
 				}
 				else
@@ -2025,7 +2104,12 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 				////-----Right Stick Handle
 				PrevRotation += (RSHor * 2.0f);
 
-				if ((PressedRST && IsPreviewOpen) || !IsPreviewOpen)
+				if (PressedRST && IsPreviewOpen && PrevOpenTimer == 0)
+				{
+					PrevRotation = 0.0f;
+					CHudUIPlayAnim(scBBPrevBtmBtn, "Right_ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
+				}
+				if (IsPreviewOpen == false)
 					PrevRotation = 0.0f;
 
 				if (PressedLST && IsPreviewOpen)
@@ -2073,7 +2157,8 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 						PrevAnim = 0;
 						break;
 					}
-					CHudUISFXMove();
+					CHudUISFXSwitch();
+					CHudUIPlayAnim(scBBPrevBtmBtn, "Left_ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 				}
 			}
 
@@ -2084,12 +2169,18 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 				if (!(CHudVarTrueSel >= s_ItemDataShoes.size()) && (s_ItemDataShoes[CHudVarTrueSel].AltCount >= 1))
 				{
 					scBBIcon->GetNode("star")->SetPatternIndex(1);
+					scBBBtmTextArea->GetNode("textarea_textbox")->SetPatternIndex(7);
+					scBBBtmBtn->GetNode("right_button")->SetHideFlag(false);
+					scBBBtmBtn->GetNode("right_button_0001")->SetHideFlag(false);
 					if (IsUnleashedHUD && SWAOpenTimer <= 0)
 						scSWAAlt->SetHideFlag(false);
 				}
 				else
 				{
 					scBBIcon->GetNode("star")->SetPatternIndex(0);
+					scBBBtmTextArea->GetNode("textarea_textbox")->SetPatternIndex(6);
+					scBBBtmBtn->GetNode("right_button")->SetHideFlag(true);
+					scBBBtmBtn->GetNode("right_button_0001")->SetHideFlag(true);
 					if (IsUnleashedHUD && SWAOpenTimer <= 0)
 						scSWAAlt->SetHideFlag(true);
 				}
@@ -2098,12 +2189,18 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 				if (!(CHudVarTrueSel >= s_ItemDataBody.size()) && (s_ItemDataBody[CHudVarTrueSel].AltCount >= 1))
 				{
 					scBBIcon->GetNode("star")->SetPatternIndex(1);
+					scBBBtmTextArea->GetNode("textarea_textbox")->SetPatternIndex(7);
+					scBBBtmBtn->GetNode("right_button")->SetHideFlag(false);
+					scBBBtmBtn->GetNode("right_button_0001")->SetHideFlag(false);
 					if (IsUnleashedHUD && SWAOpenTimer <= 0)
 						scSWAAlt->SetHideFlag(false);
 				}
 				else
 				{
 					scBBIcon->GetNode("star")->SetPatternIndex(0);
+					scBBBtmTextArea->GetNode("textarea_textbox")->SetPatternIndex(6);
+					scBBBtmBtn->GetNode("right_button")->SetHideFlag(true);
+					scBBBtmBtn->GetNode("right_button_0001")->SetHideFlag(true);
 					if (IsUnleashedHUD && SWAOpenTimer <= 0)
 						scSWAAlt->SetHideFlag(true);
 				}
@@ -2112,12 +2209,18 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 				if (!(CHudVarTrueSel >= s_ItemDataHandR.size()) && (s_ItemDataHandR[CHudVarTrueSel].AltCount >= 1))
 				{
 					scBBIcon->GetNode("star")->SetPatternIndex(1);
+					scBBBtmTextArea->GetNode("textarea_textbox")->SetPatternIndex(7);
+					scBBBtmBtn->GetNode("right_button")->SetHideFlag(false);
+					scBBBtmBtn->GetNode("right_button_0001")->SetHideFlag(false);
 					if (IsUnleashedHUD && SWAOpenTimer <= 0)
 						scSWAAlt->SetHideFlag(false);
 				}
 				else
 				{
 					scBBIcon->GetNode("star")->SetPatternIndex(0);
+					scBBBtmTextArea->GetNode("textarea_textbox")->SetPatternIndex(6);
+					scBBBtmBtn->GetNode("right_button")->SetHideFlag(true);
+					scBBBtmBtn->GetNode("right_button_0001")->SetHideFlag(true);
 					if (IsUnleashedHUD && SWAOpenTimer <= 0)
 						scSWAAlt->SetHideFlag(true);
 				}
@@ -2126,12 +2229,18 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 				if (!(CHudVarTrueSel >= s_ItemDataHandL.size()) && (s_ItemDataHandL[CHudVarTrueSel].AltCount >= 1))
 				{
 					scBBIcon->GetNode("star")->SetPatternIndex(1);
+					scBBBtmTextArea->GetNode("textarea_textbox")->SetPatternIndex(7);
+					scBBBtmBtn->GetNode("right_button")->SetHideFlag(false);
+					scBBBtmBtn->GetNode("right_button_0001")->SetHideFlag(false);
 					if (IsUnleashedHUD && SWAOpenTimer <= 0)
 						scSWAAlt->SetHideFlag(false);
 				}
 				else
 				{
 					scBBIcon->GetNode("star")->SetPatternIndex(0);
+					scBBBtmTextArea->GetNode("textarea_textbox")->SetPatternIndex(6);
+					scBBBtmBtn->GetNode("right_button")->SetHideFlag(true);
+					scBBBtmBtn->GetNode("right_button_0001")->SetHideFlag(true);
 					if (IsUnleashedHUD && SWAOpenTimer <= 0)
 						scSWAAlt->SetHideFlag(true);
 				}
@@ -2140,18 +2249,27 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 				if (!(CHudVarTrueSel >= s_ItemDataHead.size()) && (s_ItemDataHead[CHudVarTrueSel].AltCount >= 1))
 				{
 					scBBIcon->GetNode("star")->SetPatternIndex(1);
+					scBBBtmTextArea->GetNode("textarea_textbox")->SetPatternIndex(7);
+					scBBBtmBtn->GetNode("right_button")->SetHideFlag(false);
+					scBBBtmBtn->GetNode("right_button_0001")->SetHideFlag(false);
 					if (IsUnleashedHUD && SWAOpenTimer <= 0)
 						scSWAAlt->SetHideFlag(false);
 				}
 				else
 				{
 					scBBIcon->GetNode("star")->SetPatternIndex(0);
+					scBBBtmTextArea->GetNode("textarea_textbox")->SetPatternIndex(6);
+					scBBBtmBtn->GetNode("right_button")->SetHideFlag(true);
+					scBBBtmBtn->GetNode("right_button_0001")->SetHideFlag(true);
 					if (IsUnleashedHUD && SWAOpenTimer <= 0)
 						scSWAAlt->SetHideFlag(true);
 				}
 				break;
 			default:
 				scBBIcon->GetNode("star")->SetPatternIndex(0);
+				scBBBtmTextArea->GetNode("textarea_textbox")->SetPatternIndex(6);
+				scBBBtmBtn->GetNode("right_button")->SetHideFlag(true);
+				scBBBtmBtn->GetNode("right_button_0001")->SetHideFlag(true);
 				if (IsUnleashedHUD && SWAOpenTimer <= 0)
 					scSWAAlt->SetHideFlag(true);
 				break;

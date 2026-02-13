@@ -106,6 +106,7 @@ class CustomizeSonicPreviewRenderable : public CustomizeSonicRenderable, public 
 {
 public:
 	boost::shared_ptr<Hedgehog::Mirage::CSingleElement> m_spSnEyes{};
+	boost::shared_ptr<Hedgehog::Mirage::CSingleElement> m_spSsnEyes{};
 	boost::shared_ptr<Sonic::CNPCAnimation> m_spNPCAnimation{};
 	hh::math::CVector m_Position{};
 	hh::math::CVector4 m_ScreenPosition{};
@@ -141,6 +142,19 @@ public:
 		Sonic::CApplicationDocument::GetInstance()->AddMessageActor("GameObject", this);
 		pGameDocument->AddUpdateUnit("b", this);
 
+		const int playerID = GetGameDocument()->m_pMember->m_PlayerIDs.begin()[0];
+		const Sonic::Player::CPlayerSpeedContext* pContext = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID))->GetContext();
+		m_isSuper = pContext->m_pStateFlag->m_Flags[pContext->eStateFlag_InvokeSuperSonic];
+		printf("%s\n", m_isSuper ? "SUPER TRUE" : "SUPER FALSE");
+		const char* strEyeModel = "chr_Sonic_HD";
+		const char* strEyeSnModel = "chr_Sonic_HD";
+		const char* strEyeSsnModel = "chr_SuperSonic_HD";
+
+		if (m_isSuper)
+			strEyeModel = strEyeSsnModel;
+		else
+			strEyeModel = strEyeSnModel;
+
 		m_isCastShadows = false;
 
 		// Load initial models.
@@ -149,11 +163,9 @@ public:
 
 		////Setup model for Sonic's eyes
 		hh::mr::CMirageDatabaseWrapper wrapper(in_spDatabase.get());
-		boost::shared_ptr<hh::mr::CModelData> spModelData = wrapper.GetModelData("chr_Sonic_HD", 0);
-
+		boost::shared_ptr<hh::mr::CModelData> spModelData = wrapper.GetModelData(strEyeModel, 0);
 		if (!spModelData)
 			return;
-
 		m_spSnEyes = boost::make_shared<hh::mr::CSingleElement>(spModelData);
 
 		////Construct animator
@@ -230,6 +242,7 @@ public:
 
 	void UpdateSerial(const Hedgehog::Universe::SUpdateInfo& in_rUpdateInfo) override
 	{
+
 		if (m_spSnHead != nullptr)
 			m_spSnHead->m_Enabled = true;
 		if (m_spSnBody != nullptr)
@@ -789,11 +802,10 @@ void CHudUISelect()
 		return;
 		break;
 	case UIMiscOption:
-		if (CHudVarTrueSel >= SBOverflow06)
+		if (CHudVarTrueSel >= SBOverflow01)
 			CHudUISFXSelect(false);
 		else
 		{
-			CHudUISFXSelect(true);
 			CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 			switch (CHudVarTrueSel)
 			{
@@ -802,24 +814,33 @@ void CHudUISelect()
 					SelectSnSonMat = (SelectSnSonMatType)(SelectSnSonMat + 1);
 				else
 					SelectSnSonMat = SnMatOriginal;
-				RefreshCustomizeSonic();
-				return;
-				break;
-			case (enum SelectSonicBodyType)SBSsnMaterial:
-				if (SelectSsnSonMat != SsnMatPurple)
-					SelectSsnSonMat = (SelectSsnSonMatType)(SelectSsnSonMat + 1);
-				else
-					SelectSsnSonMat = SsnMatOriginal;
+				CHudUISFXSelect(true);
+				RefreshCustomizeSonic(SelectCategory::All);
 				return;
 				break;
 			case (enum SelectSonicBodyType)SBEyelids:
-				RefreshCustomizeSonic();
+				if (SelectEyelid != EyelidSkin)
+					SelectEyelid = (SelectEyelidType)(SelectEyelid + 1);
+				else
+					SelectEyelid = EyelidDefault;
+				CHudUISFXSelect(true);
+				RefreshCustomizeSonic(SelectCategory::All);
 				return;
 				break;
 			case (enum SelectSonicBodyType)SBSuperHead:
+				if (SelectSsnHead != SsnFormUpward)
+					SelectSsnHead = (SelectSsnHeadType)(SelectSsnHead + 1);
+				else
+					SelectSsnHead = SsnFormDefault;
+				CHudUISFXSelect(true);
 				return;
 				break;
 			case (enum SelectSonicBodyType)SBSuperForm:
+				if (SelectSsnForm != SsnFormDark)
+					SelectSsnForm = (SelectSsnFormType)(SelectSsnForm + 1);
+				else
+					SelectSsnForm = SsnFormSuper;
+				CHudUISFXSelect(true);
 				return;
 				break;
 			case (enum SelectSonicBodyType)SBJumpball:
@@ -827,6 +848,21 @@ void CHudUISelect()
 					SelectJumpBall = (SelectJumpBallType)(SelectJumpBall + 1);
 				else
 					SelectJumpBall = JumpBallDefault;
+				CHudUISFXSelect(true);
+				return;
+				break;
+			case (enum SelectSonicBodyType)SBBounceball:
+				if (IsBounceEnabled == true)
+				{
+					if (SelectBounceBall != BounceBallNoVFX)
+						SelectBounceBall = (SelectBounceBallType)(SelectBounceBall + 1);
+					else
+						SelectBounceBall = BounceBallBAP;
+					//////////////////////////////////////////////////////////////////// IMPLEMENT CROSS-MOD MESSAGES
+					CHudUISFXSelect(true);
+				}
+				else
+					CHudUISFXSelect(false);
 				return;
 				break;
 			}
@@ -1712,22 +1748,37 @@ const char* CHudUIThumbHandLString(int id, char* result)
 }
 const char* CHudUIThumbSonicBodyString(int id, char* result)
 {
+	if (((CHudVarScroll * 3) + id) >= 6)
+	{
+		sprintf(result, "ui_Null");
+		return result;
+	}
 	auto mapChar = MAP_FILE_SONICBODY[SBSnMaterial + (CHudVarScroll * 3) + id];
 	auto mapInt = (SBSnMaterial + (CHudVarScroll * 3) + id);
 	const char* texExtUI = "ui_";
-	const char* texExtVar = "_00";
-	const char* texExt0 = "_00";
-	const char* texExt1 = "_01";
-	const char* texExt2 = "_02";
-	const char* texExt3 = "_03";
-	const char* texExt4 = "_04";
-	const char* texExt5 = "_05";
-	const char* texExt6 = "_06";
-	const char* texExt7 = "_07";
-	const char* texExt8 = "_08";
-	const char* texExt9 = "_09";
 
-	sprintf(result, "%s%s%s", texExtUI, mapChar, texExtVar);
+	if (mapChar == MAP_FILE_SONICBODY[SBSnMaterial + (CHudVarScroll * 3)])
+		sprintf(result, "%s%s_%02d", texExtUI, mapChar, SelectSnSonMat);
+	else if (mapChar == MAP_FILE_SONICBODY[SBEyelids + (CHudVarScroll * 3)])
+		sprintf(result, "%s%s_%02d", texExtUI, mapChar, SelectEyelid);
+	else if (mapChar == MAP_FILE_SONICBODY[SBSuperHead + (CHudVarScroll * 3)])
+		sprintf(result, "%s%s_%02d", texExtUI, mapChar, SelectSsnHead);
+	else if (mapChar == MAP_FILE_SONICBODY[SBSuperForm + (CHudVarScroll * 3)])
+		sprintf(result, "%s%s_%02d", texExtUI, mapChar, SelectSsnForm);
+	else if (mapChar == MAP_FILE_SONICBODY[SBJumpball + (CHudVarScroll * 3)])
+		sprintf(result, "%s%s_%02d", texExtUI, mapChar, SelectJumpBall);
+	else if (mapChar == MAP_FILE_SONICBODY[SBBounceball + (CHudVarScroll * 3)])
+	{
+		if (IsBounceEnabled == true)
+			sprintf(result, "%s%s_%02d", texExtUI, mapChar, SelectBounceBall);
+		else
+			sprintf(result, "ui_Null");
+	}
+	else
+		sprintf(result, "ui_Null");
+	
+	
+	//sprintf(result, "%s%s_%02d", texExtUI, mapChar, 00);
 	return result;
 }
 
@@ -2593,6 +2644,30 @@ HOOK(void, __fastcall, MsgLookAtEnd, 0x00E3F3B0, void* This, void* notSonicConte
 	originalMsgLookAtEnd(This, notSonicContext);
 }
 
+//Super Sonic
+HOOK(int, __fastcall, CSonicStatePluginSuperSonicStart, 0x11D6840, uint32_t This)
+{
+	int result = originalCSonicStatePluginSuperSonicStart(This);
+	printf("SUPER SONIC START\n");
+
+	if(obj_CustomizeSonicPlayerRenderable)
+		obj_CustomizeSonicPlayerRenderable->SetSuper(true);
+	RefreshCustomizeSonic(SelectCategory::All);
+	
+	return result;
+}
+HOOK(int, __fastcall, CSonicStatePluginSuperSonicEnd, 0x11D6720, uint32_t This)
+{
+	int result = originalCSonicStatePluginSuperSonicEnd(This);
+	printf("SUPER SONIC END\n");
+
+	if (obj_CustomizeSonicPlayerRenderable)
+		obj_CustomizeSonicPlayerRenderable->SetSuper(false);
+	RefreshCustomizeSonic(SelectCategory::All);
+
+	return result;
+}
+
 //Parameter Editor Options
 HOOK(void, __cdecl, InitializeApplicationUIParams, 0x00D65180, Sonic::CParameterFile* This)
 {
@@ -2637,6 +2712,8 @@ void InstallCustomUI::applyPatches(ModInfo_t* modInfo)
 	INSTALL_HOOK(CPlayerAddCallback);
 	INSTALL_HOOK(MsgLookAtStart);
 	INSTALL_HOOK(MsgLookAtEnd);
+	INSTALL_HOOK(CSonicStatePluginSuperSonicStart);
+	INSTALL_HOOK(CSonicStatePluginSuperSonicEnd);
 	INSTALL_HOOK(InitializeApplicationUIParams);
 	//if (ActivateButton >= 5 && ActivateButton <= 8)
 		WRITE_JUMP(0xD97B56, (void*)0xD97B9E); // Ignore D-pad input for Sonic's control

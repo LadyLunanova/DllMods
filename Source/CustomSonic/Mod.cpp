@@ -5,6 +5,7 @@
 //#include <filesystem>
 
 void ReadConfig();
+void IsBounceModEnabled(bool enabled);
 void ReadJson(std::string jsonFilePath, int cCat);
 static std::string jsonFilePathHead;
 static std::string jsonFilePathBody;
@@ -76,12 +77,33 @@ EXPORT void Init(ModInfo_t* modInfo)
 		ReadJson(jsonFilePathAddShoes, 2);
 		jsonFilePathAddShoes.clear();
 	}
-
+	for (auto& mod : *modInfo->ModList)
+	{
+		jsonFilePathAddHandR = mod->Path;
+		jsonFilePathAddHandR.erase(jsonFilePathAddHandR.find_last_of("\\/") + 1);
+		jsonFilePathAddHandR += "AddCustomizeHandR.json";
+		ReadJson(jsonFilePathAddHandR, 3);
+		jsonFilePathAddHandR.clear();
+	}
+	for (auto& mod : *modInfo->ModList)
+	{
+		jsonFilePathAddHandL = mod->Path;
+		jsonFilePathAddHandL.erase(jsonFilePathAddHandL.find_last_of("\\/") + 1);
+		jsonFilePathAddHandL += "AddCustomizeHandL.json";
+		ReadJson(jsonFilePathAddHandL, 4);
+		jsonFilePathAddHandL.clear();
+	}
 
 	ReadConfig();
 	InstallSetup::applyPatches();
 	InstallCustomUI::applyPatches(modInfo);
 	InstallSonicPlayer::applyPatches();
+
+	if (GetModuleHandle(L"BAPBounce.dll"))
+		IsBounceModEnabled(true);
+	else
+		IsBounceModEnabled(false);
+
 }
 EXPORT void PostInit()
 {

@@ -95,6 +95,7 @@ float PrevRotation = 0.0f;
 bool IsPreviewOpen = true;
 
 static std::string saveFilePath;
+bool IsBounceEnabled = false;
 
 int CHudVarVisSel = 0;
 int CHudVarScroll = 0;
@@ -132,24 +133,23 @@ void WriteINI(FILE* iniFile)
 	printf("\n");
 	char buffer[1024]{};
 	snprintf(buffer, sizeof(buffer),
-		"%s\n"
-		"%s%s\n"
-		"%s%s\n"
-		"%s%s\n"
-		"%s%s\n"
-		"%s%s\n"
-		"%s%d\n"
-		"%s%d\n"
-		"%s%d\n"
-		"%s%d\n"
-		"%s%d\n"
-		"%s%d\n"
-		"%s%d\n"
-		"%s%d\n"
-		"%s%d\n"
-		"%s%d\n"
-		"%s%d\n"
-		"%s%s\n",
+		"%s\n"    //[Select]
+		"%s%s\n"  //SelectShoes
+		"%s%s\n"  //SelectBody
+		"%s%s\n"  //SelectHead
+		"%s%s\n"  //SelectHandL
+		"%s%s\n"  //SelectHandR
+		"%s%d\n"  //SelectAltShoes
+		"%s%d\n"  //SelectAltBody
+		"%s%d\n"  //SelectAltHead
+		"%s%d\n"  //SelectAltHandL
+		"%s%d\n"  //SelectAltHandR
+		"%s%d\n"  //SelectSnSonMat
+		"%s%d\n"  //SelectEyelid
+		"%s%d\n"  //SelectSsnHead
+		"%s%d\n"  //SelectSsnForm
+		"%s%d\n"  //SelectJumpBall
+		"%s%s\n", //IsPreviewOpen
 		"[Select]",
 		"SelectShoes=", s_ItemDataShoes[SelectShoesData].Name.c_str(),
 		"SelectBody=", s_ItemDataBody[SelectBodyData].Name.c_str(),
@@ -162,7 +162,6 @@ void WriteINI(FILE* iniFile)
 		"SelectAltHandL=", s_ItemDataHandL[SelectHandLData].AltSelect,
 		"SelectAltHandR=", s_ItemDataHandR[SelectHandRData].AltSelect,
 		"SelectSnSonMat=", SelectSnSonMat,
-		"SelectSsnSonMat=", SelectSsnSonMat,
 		"SelectEyelid=", SelectEyelid,
 		"SelectSsnHead=", SelectSsnHead,
 		"SelectSsnForm=", SelectSsnForm,
@@ -197,7 +196,6 @@ void ReadINI(std::string saveFilePath)
 	s_ItemDataHandL[SelectHandLData].AltSelect = reader->GetInteger("Select", "SelectAltHandL", s_ItemDataHandL[SelectHandLData].AltSelect);
 	s_ItemDataHandR[SelectHandRData].AltSelect = reader->GetInteger("Select", "SelectAltHandR", s_ItemDataHandR[SelectHandRData].AltSelect);
 	SelectSnSonMat = (SelectSnSonMatType)reader->GetInteger("Select", "SelectSnSonMat", SelectSnSonMat);
-	SelectSsnSonMat = (SelectSsnSonMatType)reader->GetInteger("Select", "SelectSsnSonMat", SelectSsnSonMat);
 	SelectEyelid = (SelectEyelidType)reader->GetInteger("Select", "SelectEyelid", SelectEyelid);
 	SelectSsnHead = (SelectSsnHeadType)reader->GetInteger("Select", "SelectSsnHead", SelectSsnHead);
 	SelectSsnForm = (SelectSsnFormType)reader->GetInteger("Select", "SelectSsnForm", SelectSsnForm);
@@ -213,6 +211,11 @@ void ReadConfig()
 
 	if (Common::IsModEnabled("Sonic Unleashed HUD"))
 		IsUnleashedHUD = true;
+}
+
+void IsBounceModEnabled(bool enabled)
+{
+	IsBounceEnabled = enabled;
 }
 
 //Menu SFX

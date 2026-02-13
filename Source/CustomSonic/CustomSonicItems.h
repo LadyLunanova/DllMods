@@ -61,15 +61,14 @@ int SelectHandLData = 0;
 enum SelectSonicBodyType
 {
 	SBSnMaterial,
-	SBSsnMaterial,
 	SBEyelids,
 	SBSuperHead,
 	SBSuperForm,
 	SBJumpball,
 	SBBounceball,
-	SBOverflow06,
-	SBOverflow07,
-	SBOverflow08,
+	SBOverflow01,
+	SBOverflow02,
+	SBOverflow03,
 };
 
 SelectSonicBodyType SelectSonicBody = SelectSonicBodyType::SBSnMaterial;
@@ -77,15 +76,14 @@ SelectSonicBodyType SelectSonicBody = SelectSonicBodyType::SBSnMaterial;
 static std::map<int, const char*> MAP_FILE_SONICBODY =
 {
 	{ SBSnMaterial,			"SBSnMaterial" },
-	{ SBSsnMaterial,		"SBSsnMaterial" },
 	{ SBEyelids,			"SBEyelids" },
 	{ SBSuperHead,			"SBSuperHead" },
 	{ SBSuperForm,			"SBSuperForm" },
 	{ SBJumpball,			"SBJumpball" },
 	{ SBBounceball,			"SBBounceball" },
-	{ SBOverflow06,			"Null" },
-	{ SBOverflow07,			"Null" },
-	{ SBOverflow08,			"Null" },
+	{ SBOverflow01,			"Null" },
+	{ SBOverflow02,			"Null" },
+	{ SBOverflow03,			"Null" },
 };
 
 ////------Special Setup------////
@@ -111,16 +109,11 @@ enum SelectSnSonMatType
 	SnMatPink,
 	SnMatBlack,
 };
-enum SelectSsnSonMatType
+enum SelectEyelidType
 {
-	SsnMatOriginal,
-	SsnMatCustom,
-	SsnMatHyper,
-	SsnMatRed,
-	SsnMatGreen,
-	SsnMatPink,
-	SsnMatBlack,
-	SsnMatPurple,
+	EyelidDefault,
+	EyelidLashes,
+	EyelidSkin,
 };
 enum SelectSsnHeadType
 {
@@ -131,20 +124,9 @@ enum SelectSsnHeadType
 enum SelectSsnFormType
 {
 	SsnFormSuper,
+	SsnFormSuper2,
 	SsnFormHyper,
-	SsnFormFleetway,
-	SsnFormUltra,
 	SsnFormDark,
-	SsnFormDarkspine,
-	SsnFormFire,
-	SsnFormExcalibur,
-	SsnFormCyber,
-};
-enum SelectEyelidType
-{
-	EyelidDefault,
-	EyelidLashes,
-	EyelidSkin,
 };
 enum SelectJumpBallType
 {
@@ -152,9 +134,9 @@ enum SelectJumpBallType
 	JumpBallSWA,
 	JumpBallBetaSWA,
 	JumpBallBAP,
+	JumpBallSA1,
 	JumpBallLW,
 	JumpBallForces,
-	JumpBallSA1,
 	JumpBallSA2,
 	JumpBallNoVFX,
 	JumpBallNoBall,
@@ -165,17 +147,16 @@ enum SelectBounceBallType
 	BounceBallDefault,
 	BounceBallSWA,
 	BounceBallBetaSWA,
+	BounceBallSA1,
 	BounceBallLW,
 	BounceBallForces,
-	BounceBallSA1,
 	BounceBallNoVFX,
 };
 
 SelectSnSonMatType SelectSnSonMat = SelectSnSonMatType::SnMatOriginal;
-SelectSsnSonMatType SelectSsnSonMat = SelectSsnSonMatType::SsnMatOriginal;
+SelectEyelidType SelectEyelid = SelectEyelidType::EyelidDefault;
 SelectSsnHeadType SelectSsnHead = SelectSsnHeadType::SsnFormDefault;
 SelectSsnFormType SelectSsnForm = SelectSsnFormType::SsnFormSuper;
-SelectEyelidType SelectEyelid = SelectEyelidType::EyelidDefault;
 SelectJumpBallType SelectJumpBall = SelectJumpBallType::JumpBallDefault;
 SelectBounceBallType SelectBounceBall = SelectBounceBallType::BounceBallBAP;
 
@@ -191,18 +172,27 @@ void MsgJumpModelHide(bool Enabled)
 	isJumpBallHide = Enabled;
 }
 
-Hedgehog::Base::CSharedString CModelHeadString()
+Hedgehog::Base::CSharedString CModelHeadString(bool in_isSuper)
 {
 	char result[512]{};
 
 	auto mapChar = s_ItemDataHead[SelectHeadData].Name;
 	auto mapAltCount = s_ItemDataHead[SelectHeadData].AltCount;
 	auto mapAltSelect = s_ItemDataHead[SelectHeadData].AltSelect;
+	const char* texExtForm = "";
+	const char* texExtSn = "_Sn_";
+	const char* texExtSsn = "_Ssn_";
+
+	if (!in_isSuper)
+		texExtForm = texExtSn;
+	else
+		texExtForm = texExtSsn;
 
 	if (mapAltCount >= 1)
-		sprintf(result, "chr_Sn_%s_%02d", mapChar.c_str(), mapAltSelect);
+		sprintf(result, "chr%s%s_%02d", texExtForm, mapChar.c_str(), mapAltSelect);
 	else
-		sprintf(result, "chr_Sn_%s", mapChar.c_str());
+		sprintf(result, "chr%s%s", texExtForm, mapChar.c_str());
+
 
 	return Hedgehog::Base::CSharedString(result);
 }
@@ -304,23 +294,31 @@ Hedgehog::Base::CSharedString CModelEyelidString()
 	//printf("chr_Sn_%s%s\n", texExtVar);
 	return Hedgehog::Base::CSharedString(result);
 }
-Hedgehog::Base::CSharedString CModelBaseHeadString()
+Hedgehog::Base::CSharedString CModelBaseHeadString(bool in_isSuper)
 {
 	char result[512]{};
 
 	auto mapHeadHideHead = s_ItemDataHead[SelectHeadData].HideHead;
 	const char* texExtVis = "BdyHead";
 	const char* texExtInv = "";
+	const char* texExtForm = "";
+	const char* texExtSn = "_Sn_";
+	const char* texExtSsn = "_Ssn_";
+
+	if (!in_isSuper)
+		texExtForm = texExtSn;
+	else
+		texExtForm = texExtSsn;
 
 	if (mapHeadHideHead)
-		sprintf(result, "chr_Sn_%s", texExtInv);
+		sprintf(result, "chr%s%s", texExtForm, texExtInv);
 	else
-		sprintf(result, "chr_Sn_%s", texExtVis);
+		sprintf(result, "chr%s%s", texExtForm, texExtVis);
 
 	return Hedgehog::Base::CSharedString(result);
 }
 
-Hedgehog::Base::CSharedString CMaterialBodyString()
+Hedgehog::Base::CSharedString CMaterialBodyString(bool in_isSuper)
 {
 	char result[512]{};
 
@@ -332,6 +330,7 @@ Hedgehog::Base::CSharedString CMaterialBodyString()
 	const char* texExtGreen = "chr_sn_body_green"; //Green
 	const char* texExtPink = "chr_sn_body_pink"; //Pink
 	const char* texExtBlack = "chr_sn_body_black"; //Black
+	const char* texExtSuper = "chr_ssn_body_original"; //Black
 
 	switch (SelectSnSonMat)
 	{
@@ -357,6 +356,9 @@ Hedgehog::Base::CSharedString CMaterialBodyString()
 		texExtVar = texExtBlack;
 		break;
 	}
+
+	if (in_isSuper)
+		texExtVar = texExtSuper;
 
 	sprintf(result, "%s", texExtVar);
 	//printf("%s%s\n", mapChar, texExtVar);
@@ -548,6 +550,7 @@ public:
 
 	bool m_isHeadLoaded{};
 	bool m_isCastShadows{ true };
+	bool m_isSuper{ false };
 
 	struct ArDataStruct
 	{
@@ -622,9 +625,9 @@ public:
 			ArDataStruct arBaseHeadData{};
 			ArDataStruct arEyelidData{};
 
-			arHeadData = LoadArchiveDatabase(ArchiveHeadString(), CModelHeadString(), "chr_sn_body_original", CMaterialBodyString());
-			arBaseHeadData = LoadArchiveDatabase(ArchiveBaseHeadString(), CModelBaseHeadString(), "chr_sn_body_original", CMaterialBodyString());
-			arEyelidData = LoadArchiveDatabase(ArchiveEyelidString(), CModelEyelidString(), "chr_sn_body_original", CMaterialBodyString());
+			arHeadData = LoadArchiveDatabase(ArchiveHeadString(), CModelHeadString(m_isSuper), "chr_sn_body_original", CMaterialBodyString(m_isSuper));
+			arBaseHeadData = LoadArchiveDatabase(ArchiveBaseHeadString(), CModelBaseHeadString(m_isSuper), "chr_sn_body_original", CMaterialBodyString(m_isSuper));
+			arEyelidData = LoadArchiveDatabase(ArchiveEyelidString(), CModelEyelidString(), "chr_sn_body_original", CMaterialBodyString(m_isSuper));
 
 			m_spHeadMdlData = arHeadData.m_spModelData;
 			m_spHeadMatData = arHeadData.m_spMaterialData;
@@ -645,7 +648,7 @@ public:
 		{
 			ArDataStruct arBodyData{};
 
-			arBodyData = LoadArchiveDatabase(ArchiveBodyString(), CModelBodyString(), "chr_sn_body_original", CMaterialBodyString());
+			arBodyData = LoadArchiveDatabase(ArchiveBodyString(), CModelBodyString(), "chr_sn_body_original", CMaterialBodyString(m_isSuper));
 
 			m_spBodyMdlData = arBodyData.m_spModelData;
 			m_spBodyMatData = arBodyData.m_spMaterialData;
@@ -770,7 +773,7 @@ public:
 		auto isModelEnabled = pPlayer->m_spCharacterModel->m_Enabled && !isJumpBallHide;
 
 		if (m_spSnHead != nullptr)
-			m_spSnHead->m_Enabled = isModelEnabled;
+			m_spSnHead->m_Enabled = isModelEnabled; //(isSuper ? false : isModelEnabled);
 		if (m_spSnBody != nullptr)
 			m_spSnBody->m_Enabled = isModelEnabled;
 		if (m_spSnShoes != nullptr)
@@ -783,6 +786,8 @@ public:
 			m_spSnEyelid->m_Enabled = isModelEnabled;
 		if (m_spSnBaseHead != nullptr)
 			m_spSnBaseHead->m_Enabled = isModelEnabled;
+		
+		//printf("%s\n", m_isSuper ? "SUPER SONIC TRUE" : "SUPER SONIC FALSE");
 
 		UpdateRenderables(this, "Player");
 	}
@@ -799,6 +804,11 @@ public:
 		}
 
 		return true;
+	}
+
+	void SetSuper(bool in_isSuper)
+	{
+		m_isSuper = in_isSuper;
 	}
 
 	void KillCallback() override

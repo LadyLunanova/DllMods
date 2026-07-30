@@ -763,31 +763,50 @@ public:
 
 	void UpdateSerial(const Hedgehog::Universe::SUpdateInfo& in_rUpdateInfo) override
 	{
-		const int playerID = GetGameDocument()->m_pMember->m_PlayerIDs.begin()[0];
-		const Sonic::Player::CPlayerSpeedContext* pContext = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID))->GetContext();
-		const Sonic::Player::CPlayerSpeed* pPlayer = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID));
+		auto playerID = GetGameDocument()->m_pMember->m_PlayerIDs.begin()[0];
+		auto pPlayer = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID));
+		auto pContext = pPlayer->GetContext();
 
-		m_spMatrixNode = pContext->m_spModelMatrixNode;
-		m_spPose = pPlayer->m_spCharacterModel->m_spInstanceInfo->m_spPose;
+		if (m_isSuper)
+		{
+			if (auto pSpRenderable = static_cast<Sonic::Player::CSonicSpRenderableSsn*>(m_pMessageManager->GetMessageActor(pContext->m_SuperRenderableActorID)))
+			{
+				m_spMatrixNode = pSpRenderable->m_spField160;
+
+				if (auto pAnimationPose = pSpRenderable->GetAnimationPose())
+					m_spPose = pAnimationPose->m_pInstanceInfo->m_spPose;
+			}
+		}
+		else
+		{
+			m_spMatrixNode = pContext->m_spModelMatrixNode;
+			m_spPose = pPlayer->m_spCharacterModel->m_spInstanceInfo->m_spPose;
+		}
 		
-		auto isModelEnabled = pPlayer->m_spCharacterModel->m_Enabled && !isJumpBallHide;
+		bool isSonicSpinVisible{};
 
-		if (m_spSnHead != nullptr)
-			m_spSnHead->m_Enabled = isModelEnabled; //(isSuper ? false : isModelEnabled);
-		if (m_spSnBody != nullptr)
+		if (auto pSonicSpin = static_cast<Sonic::Player::CSonicSpin*>(m_pMessageManager->GetMessageActor(pContext->m_SonicSpinActorID)))
+			pSonicSpin->SendMessageSelfImm(Sonic::Message::MsgIsVisible(&isSonicSpinVisible));
+
+		auto isModelEnabled = pPlayer->m_spCharacterModel->m_Enabled && !isSonicSpinVisible && !isJumpBallHide;
+
+		if (m_spSnHead)
+			m_spSnHead->m_Enabled = isModelEnabled; // (m_isSuper ? false : isModelEnabled);
+		if (m_spSnBody)
 			m_spSnBody->m_Enabled = isModelEnabled;
-		if (m_spSnShoes != nullptr)
+		if (m_spSnShoes)
 			m_spSnShoes->m_Enabled = isModelEnabled;
-		if (m_spSnHandR != nullptr)
+		if (m_spSnHandR)
 			m_spSnHandR->m_Enabled = isModelEnabled;
-		if (m_spSnHandL != nullptr)
+		if (m_spSnHandL)
 			m_spSnHandL->m_Enabled = isModelEnabled;
-		if (m_spSnEyelid != nullptr)
+		if (m_spSnEyelid)
 			m_spSnEyelid->m_Enabled = isModelEnabled;
-		if (m_spSnBaseHead != nullptr)
+		if (m_spSnBaseHead)
 			m_spSnBaseHead->m_Enabled = isModelEnabled;
 		
-		//printf("%s\n", m_isSuper ? "SUPER SONIC TRUE" : "SUPER SONIC FALSE");
+		// printf("%s\n", isModelEnabled ? "SHOW MODEL" : "HIDE MODEL");
+		// printf("%s\n", m_isSuper ? "SUPER SONIC TRUE" : "SUPER SONIC FALSE");
 
 		UpdateRenderables(this, "Player");
 	}

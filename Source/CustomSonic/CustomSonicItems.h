@@ -303,12 +303,27 @@ Hedgehog::Base::CSharedString CModelBaseHeadString(bool in_isSuper)
 	const char* texExtInv = "";
 	const char* texExtForm = "";
 	const char* texExtSn = "_Sn_";
-	const char* texExtSsn = "_Ssn_";
+	const char* texExtSsn1 = "_Ssn1_";
+	const char* texExtSsn2 = "_Ssn2_";
+	const char* texExtSsn3 = "_Ssn3_";
 
 	if (!in_isSuper)
 		texExtForm = texExtSn;
 	else
-		texExtForm = texExtSsn;
+	{
+		switch (SelectSsnHead)
+		{
+		case SsnFormDefault:
+			texExtForm = texExtSsn1;
+			break;
+		case SsnFormShadow:
+			texExtForm = texExtSsn2;
+			break;
+		case SsnFormUpward:
+			texExtForm = texExtSsn3;
+			break;
+		}
+	}
 
 	if (mapHeadHideHead)
 		sprintf(result, "chr%s%s", texExtForm, texExtInv);
@@ -330,7 +345,11 @@ Hedgehog::Base::CSharedString CMaterialBodyString(bool in_isSuper)
 	const char* texExtGreen = "chr_sn_body_green"; //Green
 	const char* texExtPink = "chr_sn_body_pink"; //Pink
 	const char* texExtBlack = "chr_sn_body_black"; //Black
-	const char* texExtSuper = "chr_ssn_body_original"; //Black
+
+	const char* texExtSuper = "chr_ssn_body_original"; //Super
+	const char* texExtSuper2 = "chr_ssn_body_ss2"; //Super2
+	const char* texExtHyper = "chr_ssn_body_hyper"; //Hyper
+	const char* texExtDark = "chr_ssn_body_dark"; //Dark
 
 	switch (SelectSnSonMat)
 	{
@@ -358,7 +377,23 @@ Hedgehog::Base::CSharedString CMaterialBodyString(bool in_isSuper)
 	}
 
 	if (in_isSuper)
-		texExtVar = texExtSuper;
+	{
+		switch (SelectSsnForm)
+		{
+		case SsnFormSuper:
+			texExtVar = texExtSuper;
+			break;
+		case SsnFormSuper2:
+			texExtVar = texExtSuper2;
+			break;
+		case SsnFormHyper:
+			texExtVar = texExtHyper;
+			break;
+		case SsnFormDark:
+			texExtVar = texExtDark;
+			break;
+		}
+	}
 
 	sprintf(result, "%s", texExtVar);
 	//printf("%s%s\n", mapChar, texExtVar);

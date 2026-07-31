@@ -145,7 +145,7 @@ public:
 		const int playerID = GetGameDocument()->m_pMember->m_PlayerIDs.begin()[0];
 		const Sonic::Player::CPlayerSpeedContext* pContext = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID))->GetContext();
 		m_isSuper = pContext->m_pStateFlag->m_Flags[pContext->eStateFlag_InvokeSuperSonic];
-		printf("%s\n", m_isSuper ? "SUPER TRUE" : "SUPER FALSE");
+		//printf("%s\n", m_isSuper ? "SUPER TRUE" : "SUPER FALSE");
 		const char* strEyeModel = "chr_Sonic_HD";
 		const char* strEyeSnModel = "chr_Sonic_HD";
 		const char* strEyeSsnModel = "chr_SuperSonic_HD";
@@ -833,6 +833,7 @@ void CHudUISelect()
 				else
 					SelectSsnHead = SsnFormDefault;
 				CHudUISFXSelect(true);
+				RefreshCustomizeSonic(SelectCategory::Head);
 				return;
 				break;
 			case (enum SelectSonicBodyType)SBSuperForm:
@@ -841,6 +842,7 @@ void CHudUISelect()
 				else
 					SelectSsnForm = SsnFormSuper;
 				CHudUISFXSelect(true);
+				RefreshCustomizeSonic(SelectCategory::All);
 				return;
 				break;
 			case (enum SelectSonicBodyType)SBJumpball:

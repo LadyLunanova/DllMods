@@ -102,12 +102,17 @@ enum class SelectCategory : uint32_t
 enum SelectSnSonMatType
 {
 	SnMatOriginal,
-	SnMatCustom,
-	SnMatS4E2,
-	SnMatRed,
-	SnMatGreen,
+	SnMatMagenta,
 	SnMatPink,
+	SnMatRed,
+	SnMatOrange,
+	SnMatYellow,
+	SnMatGreen,
+	SnMatCyan,
 	SnMatBlack,
+	SnMatWhite,
+	SnMatS4E2,
+	SnMatCustom,
 };
 enum SelectEyelidType
 {
@@ -339,12 +344,17 @@ Hedgehog::Base::CSharedString CMaterialBodyString(bool in_isSuper)
 
 	const char* texExtVar = "chr_sn_body_original";
 	const char* texExtOG = "chr_sn_body_original"; //OG
-	const char* texExtCustom = "chr_sn_body_custom"; //Custom
-	const char* texExtS4E2 = "chr_sn_body_s4e2"; //S4E2
-	const char* texExtRed = "chr_sn_body_red"; //Red
-	const char* texExtGreen = "chr_sn_body_green"; //Green
+	const char* texExtMagenta = "chr_sn_body_magenta"; //Magenta
 	const char* texExtPink = "chr_sn_body_pink"; //Pink
+	const char* texExtRed = "chr_sn_body_red"; //Red
+	const char* texExtOrange = "chr_sn_body_orange"; //Orange
+	const char* texExtYellow = "chr_sn_body_yellow"; //Yellow
+	const char* texExtGreen = "chr_sn_body_green"; //Green
+	const char* texExtCyan = "chr_sn_body_cyan"; //Cyan
 	const char* texExtBlack = "chr_sn_body_black"; //Black
+	const char* texExtWhite = "chr_sn_body_white"; //White
+	const char* texExtS4E2 = "chr_sn_body_s4e2"; //S4E2
+	const char* texExtCustom = "chr_sn_body_custom"; //Custom
 
 	const char* texExtSuper = "chr_ssn_body_original"; //Super
 	const char* texExtSuper2 = "chr_ssn_body_ss2"; //Super2
@@ -356,23 +366,38 @@ Hedgehog::Base::CSharedString CMaterialBodyString(bool in_isSuper)
 	case SnMatOriginal:
 		texExtVar = texExtOG;
 		break;
-	case SnMatCustom:
-		texExtVar = texExtCustom;
-		break;
-	case SnMatS4E2:
-		texExtVar = texExtS4E2;
-		break;
-	case SnMatRed:
-		texExtVar = texExtRed;
-		break;
-	case SnMatGreen:
-		texExtVar = texExtGreen;
+	case SnMatMagenta:
+		texExtVar = texExtMagenta;
 		break;
 	case SnMatPink:
 		texExtVar = texExtPink;
 		break;
+	case SnMatRed:
+		texExtVar = texExtRed;
+		break;
+	case SnMatOrange:
+		texExtVar = texExtOrange;
+		break;
+	case SnMatYellow:
+		texExtVar = texExtYellow;
+		break;
+	case SnMatGreen:
+		texExtVar = texExtGreen;
+		break;
+	case SnMatCyan:
+		texExtVar = texExtCyan;
+		break;
 	case SnMatBlack:
 		texExtVar = texExtBlack;
+		break;
+	case SnMatWhite:
+		texExtVar = texExtWhite;
+		break;
+	case SnMatS4E2:
+		texExtVar = texExtS4E2;
+		break;
+	case SnMatCustom:
+		texExtVar = texExtCustom;
 		break;
 	}
 

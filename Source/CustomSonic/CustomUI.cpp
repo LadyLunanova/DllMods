@@ -810,7 +810,7 @@ void CHudUISelect()
 			switch (CHudVarTrueSel)
 			{
 			case (enum SelectSonicBodyType)SBSnMaterial:
-				if (SelectSnSonMat != SnMatBlack)
+				if (SelectSnSonMat != SnMatCustom)
 					SelectSnSonMat = (SelectSnSonMatType)(SelectSnSonMat + 1);
 				else
 					SelectSnSonMat = SnMatOriginal;

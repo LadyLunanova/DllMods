@@ -34,9 +34,9 @@ enum PlayerSelectJumpBallType
 	JumpBallSWA,
 	JumpBallBetaSWA,
 	JumpBallBAP,
+	JumpBallSA1,
 	JumpBallLW,
 	JumpBallForces,
-	JumpBallSA1,
 	JumpBallSA2,
 	JumpBallNoVFX,
 	JumpBallNoBall,
@@ -620,9 +620,9 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 
 		if (PlayerSelectJumpBall == (enum PlayerSelectJumpBallType)JumpBallNoBall)
 			sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_JumpShortReleaseTime] = 256.0f;
-		else if ((PlayerSelectJumpBall == (enum PlayerSelectJumpBallType)JumpBallLW)
-			|| (PlayerSelectJumpBall == (enum PlayerSelectJumpBallType)JumpBallForces)
-			|| (PlayerSelectJumpBall == (enum PlayerSelectJumpBallType)JumpBallSA1))
+		else if ((PlayerSelectJumpBall == (enum PlayerSelectJumpBallType)JumpBallSA1)
+			|| (PlayerSelectJumpBall == (enum PlayerSelectJumpBallType)JumpBallLW)
+			|| (PlayerSelectJumpBall == (enum PlayerSelectJumpBallType)JumpBallForces))
 		{
 			sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_JumpShortReleaseTime] = 0.0f;
 			sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_VertVelocityBallToFall] = -1000.0f;

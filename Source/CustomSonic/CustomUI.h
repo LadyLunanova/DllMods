@@ -1,5 +1,9 @@
 #pragma once
 
+#include "CustomSonicAPI.h"
+
+using namespace CustomSonicAPI;
+
 // Get Stage ID
 // Original code by Brianuuu: https://github.com/brianuuu
 inline uint32_t GetMultiLevelAddress(uint32_t initAddress, std::vector<uint32_t> offsets)
@@ -144,10 +148,10 @@ void WriteINI(FILE* iniFile)
 		"%s%d\n"  //SelectAltHead
 		"%s%d\n"  //SelectAltHandL
 		"%s%d\n"  //SelectAltHandR
-		"%s%d\n"  //SelectSnSonMat
+		"%s%d\n"  //SelectSnMaterial
 		"%s%d\n"  //SelectEyelid
 		"%s%d\n"  //SelectSsnHead
-		"%s%d\n"  //SelectSsnForm
+		"%s%d\n"  //SelectSsnMaterial
 		"%s%d\n"  //SelectJumpBall
 		"%s%s\n", //IsPreviewOpen
 		"[Select]",
@@ -161,10 +165,10 @@ void WriteINI(FILE* iniFile)
 		"SelectAltHead=", s_ItemDataHead[SelectHeadData].AltSelect,
 		"SelectAltHandL=", s_ItemDataHandL[SelectHandLData].AltSelect,
 		"SelectAltHandR=", s_ItemDataHandR[SelectHandRData].AltSelect,
-		"SelectSnSonMat=", SelectSnSonMat,
+		"SelectSnMaterial=", SelectSnMaterial,
 		"SelectEyelid=", SelectEyelid,
 		"SelectSsnHead=", SelectSsnHead,
-		"SelectSsnForm=", SelectSsnForm,
+		"SelectSsnMaterial=", SelectSsnMaterial,
 		"SelectJumpBall=", SelectJumpBall,
 		"IsPreviewOpen=", (IsPreviewOpen ? "true" : "false"));
 	fputs(buffer, iniFile);
@@ -195,11 +199,11 @@ void ReadINI(std::string saveFilePath)
 	s_ItemDataHead[SelectHeadData].AltSelect = reader->GetInteger("Select", "SelectAltHead", s_ItemDataHead[SelectHeadData].AltSelect);
 	s_ItemDataHandL[SelectHandLData].AltSelect = reader->GetInteger("Select", "SelectAltHandL", s_ItemDataHandL[SelectHandLData].AltSelect);
 	s_ItemDataHandR[SelectHandRData].AltSelect = reader->GetInteger("Select", "SelectAltHandR", s_ItemDataHandR[SelectHandRData].AltSelect);
-	SelectSnSonMat = (SelectSnSonMatType)reader->GetInteger("Select", "SelectSnSonMat", SelectSnSonMat);
-	SelectEyelid = (SelectEyelidType)reader->GetInteger("Select", "SelectEyelid", SelectEyelid);
-	SelectSsnHead = (SelectSsnHeadType)reader->GetInteger("Select", "SelectSsnHead", SelectSsnHead);
-	SelectSsnForm = (SelectSsnFormType)reader->GetInteger("Select", "SelectSsnForm", SelectSsnForm);
-	SelectJumpBall = (SelectJumpBallType)reader->GetInteger("Select", "SelectJumpBall", SelectJumpBall);
+	SelectSnMaterial = (SelectSnMaterialType)reader->GetInteger("Select", "SelectSnSonMat", int(SelectSnMaterial));
+	SelectEyelid = (SelectEyelidType)reader->GetInteger("Select", "SelectEyelid", int(SelectEyelid));
+	SelectSsnHead = (SelectSsnHeadType)reader->GetInteger("Select", "SelectSsnHead", int(SelectSsnHead));
+	SelectSsnMaterial = (SelectSsnMaterialType)reader->GetInteger("Select", "SelectSsnForm", int(SelectSsnMaterial));
+	SelectJumpBall = (SelectJumpBallType)reader->GetInteger("Select", "SelectJumpBall", int(SelectJumpBall));
 	IsPreviewOpen = reader->GetBoolean("Select", "IsPreviewOpen", IsPreviewOpen);
 }
 

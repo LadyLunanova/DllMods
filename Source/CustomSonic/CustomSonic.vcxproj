@@ -176,6 +176,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CustomSonicItems.cpp" />
     <ClCompile Include="CustomUI.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="InstallSetup.cpp" />
@@ -195,6 +196,7 @@
     <ClCompile Include="SonicPlayer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CustomSonicAPI.h" />
     <ClInclude Include="InstallCustomUI.h" />
     <ClInclude Include="CustomSonicItems.h" />
     <ClInclude Include="CustomUI.h" />

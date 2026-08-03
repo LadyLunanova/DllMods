@@ -9,6 +9,7 @@
     <ClCompile Include="SonicPlayer.cpp" />
     <ClCompile Include="InstallSetup.cpp" />
     <ClCompile Include="NPCAnim.h" />
+    <ClCompile Include="CustomSonicItems.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -20,5 +21,6 @@
     <ClInclude Include="InstallSetup.h" />
     <ClInclude Include="Path.h" />
     <ClInclude Include="CamMath.h" />
+    <ClInclude Include="CustomSonicAPI.h" />
   </ItemGroup>
 </Project>

@@ -6,6 +6,7 @@
 #include "CustomUI.h"
 #include "NPCAnim.h"
 #include "CamMath.h"
+#include "CustomSonicAPI.h"
 
 //Debug Display setup
 Chao::CSD::RCPtr<Chao::CSD::CProject> prDebugTxtScreen;
@@ -315,7 +316,7 @@ public:
 		{
 			auto& msgRefreshCustomizeSonic = static_cast<MsgRefreshCustomizeSonic&>(in_rMsg);
 			
-			RemoveRenderable("HUD_AfterModel", m_spSnEyes, true);
+			RemoveRenderable("HUD_AfterModel", m_spSnEyes, true); //should be "HUD_OverlayModel", using "HUD_AfterModel" to overlap temporarily
 			m_isEyesLoaded = false;
 
 			RefreshModels(this, "HUD_AfterModel", msgRefreshCustomizeSonic.m_Category);
@@ -802,75 +803,104 @@ void CHudUISelect()
 		return;
 		break;
 	case UIMiscOption:
-		if (CHudVarTrueSel >= SBOverflow01)
+		if (CHudVarTrueSel >= int(SelectOptionType::Overflow01))
+		{
 			CHudUISFXSelect(false);
+		}
 		else
 		{
 			CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
-			switch (CHudVarTrueSel)
+
+			switch ((SelectOptionType)CHudVarTrueSel)
 			{
-			case (enum SelectSonicBodyType)SBSnMaterial:
-				if (SelectSnSonMat != SnMatCustom)
-					SelectSnSonMat = (SelectSnSonMatType)(SelectSnSonMat + 1);
-				else
-					SelectSnSonMat = SnMatOriginal;
-				CHudUISFXSelect(true);
-				RefreshCustomizeSonic(SelectCategory::All);
-				return;
-				break;
-			case (enum SelectSonicBodyType)SBEyelids:
-				if (SelectEyelid != EyelidSkin)
-					SelectEyelid = (SelectEyelidType)(SelectEyelid + 1);
-				else
-					SelectEyelid = EyelidDefault;
-				CHudUISFXSelect(true);
-				RefreshCustomizeSonic(SelectCategory::All);
-				return;
-				break;
-			case (enum SelectSonicBodyType)SBSuperHead:
-				if (SelectSsnHead != SsnFormUpward)
-					SelectSsnHead = (SelectSsnHeadType)(SelectSsnHead + 1);
-				else
-					SelectSsnHead = SsnFormDefault;
-				CHudUISFXSelect(true);
-				RefreshCustomizeSonic(SelectCategory::Head);
-				return;
-				break;
-			case (enum SelectSonicBodyType)SBSuperForm:
-				if (SelectSsnForm != SsnFormDark)
-					SelectSsnForm = (SelectSsnFormType)(SelectSsnForm + 1);
-				else
-					SelectSsnForm = SsnFormSuper;
-				CHudUISFXSelect(true);
-				RefreshCustomizeSonic(SelectCategory::All);
-				return;
-				break;
-			case (enum SelectSonicBodyType)SBJumpball:
-				if (SelectJumpBall != JumpBallNoBall)
-					SelectJumpBall = (SelectJumpBallType)(SelectJumpBall + 1);
-				else
-					SelectJumpBall = JumpBallDefault;
-				CHudUISFXSelect(true);
-				return;
-				break;
-			case (enum SelectSonicBodyType)SBBounceball:
-				if (IsBounceEnabled == true)
+				case SelectOptionType::SnMaterial:
 				{
-					if (SelectBounceBall != BounceBallNoVFX)
-						SelectBounceBall = (SelectBounceBallType)(SelectBounceBall + 1);
+					if (SelectSnMaterial != SelectSnMaterialType::Custom)
+						SelectSnMaterial = SelectSnMaterialType(int(SelectSnMaterial) + 1);
 					else
-						SelectBounceBall = BounceBallBAP;
-					//////////////////////////////////////////////////////////////////// IMPLEMENT CROSS-MOD MESSAGES
+						SelectSnMaterial = SelectSnMaterialType::Default;
+
 					CHudUISFXSelect(true);
+					RefreshCustomizeSonic(SelectCategory::All);
+
+					return;
 				}
-				else
-					CHudUISFXSelect(false);
-				return;
-				break;
+					
+				case SelectOptionType::Eyelids:
+				{
+					if (SelectEyelid != SelectEyelidType::Skin)
+						SelectEyelid = SelectEyelidType(int(SelectEyelid) + 1);
+					else
+						SelectEyelid = SelectEyelidType::Default;
+
+					CHudUISFXSelect(true);
+					RefreshCustomizeSonic(SelectCategory::All);
+
+					return;
+				}
+					
+				case SelectOptionType::SuperHead:
+				{
+					if (SelectSsnHead != SelectSsnHeadType::Upward)
+						SelectSsnHead = SelectSsnHeadType(int(SelectSsnHead) + 1);
+					else
+						SelectSsnHead = SelectSsnHeadType::Default;
+
+					CHudUISFXSelect(true);
+					RefreshCustomizeSonic(SelectCategory::Head);
+
+					return;
+				}
+
+				case SelectOptionType::SsnMaterial:
+				{
+					if (SelectSsnMaterial != SelectSsnMaterialType::Dark)
+						SelectSsnMaterial = SelectSsnMaterialType(int(SelectSsnMaterial) + 1);
+					else
+						SelectSsnMaterial = SelectSsnMaterialType::Default;
+
+					CHudUISFXSelect(true);
+					RefreshCustomizeSonic(SelectCategory::All);
+
+					return;
+				}
+					
+				case SelectOptionType::JumpBall:
+				{
+					if (SelectJumpBall != SelectJumpBallType::NoBall)
+						SelectJumpBall = SelectJumpBallType(int(SelectJumpBall) + 1);
+					else
+						SelectJumpBall = SelectJumpBallType::Default;
+
+					CHudUISFXSelect(true);
+
+					return;
+				}
+					
+				case SelectOptionType::BounceBall:
+				{
+					if (IsBounceEnabled == true)
+					{
+						if (SelectBounceBall != SelectBounceBallType::NoVFX)
+						{
+							SelectBounceBall = SelectBounceBallType(int(SelectBounceBall) + 1);
+						}
+						else
+						{
+							SelectBounceBall = SelectBounceBallType::BAP;
+						}
+						
+						CHudUISFXSelect(true);
+					}
+					else
+					{
+						CHudUISFXSelect(false);
+					}
+
+					return;
+				}
 			}
 		}
-		return;
-		break;
 	}
 }
 
@@ -1748,28 +1778,30 @@ const char* CHudUIThumbHandLString(int id, char* result)
 		sprintf(result, "ui_%s%s", mapChar.c_str(), active ? texExtOn : texExtOff);
 	return result;
 }
-const char* CHudUIThumbSonicBodyString(int id, char* result)
+
+const char* CHudUIThumbOptionsString(int id, char* result)
 {
 	if (((CHudVarScroll * 3) + id) >= 6)
 	{
 		sprintf(result, "ui_Null");
 		return result;
 	}
-	auto mapChar = MAP_FILE_SONICBODY[SBSnMaterial + (CHudVarScroll * 3) + id];
-	auto mapInt = (SBSnMaterial + (CHudVarScroll * 3) + id);
+
+	auto mapChar = SelectOptionNameMap[SelectOptionType(int(SelectOptionType::SnMaterial) + (CHudVarScroll * 3) + id)];
+	auto mapInt = (int(SelectOptionType::SnMaterial) + (CHudVarScroll * 3) + id);
 	const char* texExtUI = "ui_";
 
-	if (mapChar == MAP_FILE_SONICBODY[SBSnMaterial + (CHudVarScroll * 3)])
-		sprintf(result, "%s%s_%02d", texExtUI, mapChar, SelectSnSonMat);
-	else if (mapChar == MAP_FILE_SONICBODY[SBEyelids + (CHudVarScroll * 3)])
+	if (mapChar == SelectOptionNameMap[SelectOptionType(int(SelectOptionType::SnMaterial) + (CHudVarScroll * 3))])
+		sprintf(result, "%s%s_%02d", texExtUI, mapChar, SelectSnMaterial);
+	else if (mapChar == SelectOptionNameMap[SelectOptionType(int(SelectOptionType::Eyelids) + (CHudVarScroll * 3))])
 		sprintf(result, "%s%s_%02d", texExtUI, mapChar, SelectEyelid);
-	else if (mapChar == MAP_FILE_SONICBODY[SBSuperHead + (CHudVarScroll * 3)])
+	else if (mapChar == SelectOptionNameMap[SelectOptionType(int(SelectOptionType::SuperHead) + (CHudVarScroll * 3))])
 		sprintf(result, "%s%s_%02d", texExtUI, mapChar, SelectSsnHead);
-	else if (mapChar == MAP_FILE_SONICBODY[SBSuperForm + (CHudVarScroll * 3)])
-		sprintf(result, "%s%s_%02d", texExtUI, mapChar, SelectSsnForm);
-	else if (mapChar == MAP_FILE_SONICBODY[SBJumpball + (CHudVarScroll * 3)])
+	else if (mapChar == SelectOptionNameMap[SelectOptionType(int(SelectOptionType::SsnMaterial) + (CHudVarScroll * 3))])
+		sprintf(result, "%s%s_%02d", texExtUI, mapChar, SelectSsnMaterial);
+	else if (mapChar == SelectOptionNameMap[SelectOptionType(int(SelectOptionType::JumpBall) + (CHudVarScroll * 3))])
 		sprintf(result, "%s%s_%02d", texExtUI, mapChar, SelectJumpBall);
-	else if (mapChar == MAP_FILE_SONICBODY[SBBounceball + (CHudVarScroll * 3)])
+	else if (mapChar == SelectOptionNameMap[SelectOptionType(int(SelectOptionType::BounceBall) + (CHudVarScroll * 3))])
 	{
 		if (IsBounceEnabled == true)
 			sprintf(result, "%s%s_%02d", texExtUI, mapChar, SelectBounceBall);
@@ -1837,7 +1869,7 @@ void CHudUIThumbManager(Sonic::CGameObject* This)
 		break;
 	case UIMiscOption:
 		for (int i = 0; i <= 8; i++)
-			CHudUITexsetData(This, i + 6, CHudUIThumbSonicBodyString(i, SBBuffer));
+			CHudUITexsetData(This, i + 6, CHudUIThumbOptionsString(i, SBBuffer));
 		scBBTextArea->GetNode("textarea_textbox")->SetPatternIndex(UIMiscOption);
 		if (IsUnleashedHUD)
 			scSWATagTxt->GetNode("img")->SetPatternIndex(UIMiscOption);

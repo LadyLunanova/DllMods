@@ -23,3 +23,4 @@ EXPORT void Init()
 	//MessageBoxA(nullptr, "Hook Now", "Window", MB_OK);
 	InstallSonicPlayer::applyPatches();
 }
+

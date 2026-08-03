@@ -1,6 +1,9 @@
 #include "Mod.h"
 #include "NPCAnim.h"
 #include "SonicPlayer.h"
+#include "CustomSonicAPI.h"
+
+static Mod_t* g_pCustomSonic;
 
 //Base Sonic Handling
 HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed* This, void* _, const hh::fnd::SUpdateInfo& updateInfo)
@@ -57,6 +60,13 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 //Modern Sonic States
 HOOK(void, __fastcall, EnterStompBounce, 0x01254CA0, hh::fnd::CStateMachineBase::CStateBase* This)
 {
+	if (g_pCustomSonic)
+	{
+		CustomSonicAPI::MsgGetCustomSonicSelection msg{};
+		GetModLoaderAPI()->SendMessageImm(g_pCustomSonic, CustomSonicAPI::MsgGetCustomSonicSelection::ID, &msg);
+		SelectBounceBall = (SelectBounceBallType)msg.SelectBounceBall;
+	}
+
 	if (!ModernBounceEnable)
 	{
 		WRITE_MEMORY(0x16D6474, size_t, 0x01254870); //Set stomp's processMessage to the original
@@ -84,31 +94,32 @@ HOOK(void, __fastcall, EnterStompBounce, 0x01254CA0, hh::fnd::CStateMachineBase:
 	{
 		switch (SelectBounceBall)
 		{
-		case (enum SelectJumpBallVFXType)BounceBallNoVFX:
+		case SelectBounceBallType::NoVFX:
 			return;
 			break;
-		case (enum SelectJumpBallVFXType)BounceBallBAP:
+		case SelectBounceBallType::BAP:
 			Common::fCGlitterCreate(sonic, BounceBallVfxHandle, middlematrixNode, "ef_ch_sng_yh1_bounceattack", 1);  //Create Ball VFX
 			break;
-		case (enum SelectJumpBallVFXType)BounceBallForces:
-			obj_SonicJumpBallWarsRenderable = boost::make_shared<JumpballWarsAnimRenderable>();
-			Sonic::CGameDocument::GetInstance()->AddGameObject(obj_SonicJumpBallWarsRenderable);
-			pPlayer->m_spCharacterModel->m_Enabled = false;
-			break;
-		case (enum SelectJumpBallVFXType)BounceBallBetaSWA:
+		case SelectBounceBallType::BetaSWA:
 			Common::fCGlitterCreate(sonic, BounceBallVfxHandle, middlematrixNode, "ef_ch_sng_yh1_swaspinattack", 1);  //Create Ball VFX
 			break;
-		case (enum SelectJumpBallVFXType)BounceBallSWA:
+		case SelectBounceBallType::SWA:
 			Common::fCGlitterCreate(sonic, BounceBallVfxHandle, middlematrixNode, "ef_ch_sng_yh1_swaretailspinattack", 1);  //Create Ball VFX
 			break;
-		case (enum SelectJumpBallVFXType)BounceBallSA1:
+		case SelectBounceBallType::SA1:
+		case SelectBounceBallType::SA2:
 			obj_SonicJumpBallSA1Renderable = boost::make_shared<JumpballSA1AnimRenderable>();
 			Sonic::CGameDocument::GetInstance()->AddGameObject(obj_SonicJumpBallSA1Renderable);
 			pPlayer->m_spCharacterModel->m_Enabled = false;
 			break;
-		case (enum SelectJumpBallVFXType)BounceBallLW:
+		case SelectBounceBallType::LW:
 			obj_SonicJumpBallLWRenderable = boost::make_shared<JumpballLWAnimRenderable>();
 			Sonic::CGameDocument::GetInstance()->AddGameObject(obj_SonicJumpBallLWRenderable);
+			pPlayer->m_spCharacterModel->m_Enabled = false;
+			break;
+		case SelectBounceBallType::Forces:
+			obj_SonicJumpBallWarsRenderable = boost::make_shared<JumpballWarsAnimRenderable>();
+			Sonic::CGameDocument::GetInstance()->AddGameObject(obj_SonicJumpBallWarsRenderable);
 			pPlayer->m_spCharacterModel->m_Enabled = false;
 			break;
 		default:
@@ -120,28 +131,33 @@ HOOK(void, __fastcall, EnterStompBounce, 0x01254CA0, hh::fnd::CStateMachineBase:
 	{
 		switch (SelectBounceBall)
 		{
-		case (enum SelectJumpBallVFXType)BounceBallNoVFX:
+		case SelectBounceBallType::NoVFX:
 			return;
 			break;
-		case (enum SelectJumpBallVFXType)BounceBallBAP:
-			Common::fCGlitterCreate(sonic, BounceBallVfxHandle, middlematrixNode, "ef_ch_sps_yh1_bounceattack", 1);
+		case SelectBounceBallType::BAP:
+			Common::fCGlitterCreate(sonic, BounceBallVfxHandle, middlematrixNode, "ef_ch_sps_yh1_bounceattack", 1);  //Create Ball VFX
 			break;
-		case (enum SelectJumpBallVFXType)BounceBallForces:
-
+		case SelectBounceBallType::BetaSWA:
+			Common::fCGlitterCreate(sonic, BounceBallVfxHandle, middlematrixNode, "ef_ch_sps_yh1_swaspinattack", 1);  //Create Ball VFX
 			break;
-		case (enum SelectJumpBallVFXType)BounceBallBetaSWA:
-			Common::fCGlitterCreate(sonic, BounceBallVfxHandle, middlematrixNode, "ef_ch_sps_yh1_swaspinattack", 1);
+		case SelectBounceBallType::SWA:
+			Common::fCGlitterCreate(sonic, BounceBallVfxHandle, middlematrixNode, "ef_ch_sps_yh1_swaretailspinattack", 1);  //Create Ball VFX
 			break;
-		case (enum SelectJumpBallVFXType)BounceBallSWA:
-			Common::fCGlitterCreate(sonic, BounceBallVfxHandle, middlematrixNode, "ef_ch_sps_yh1_swaretailspinattack", 1);
-			break;
-		case (enum SelectJumpBallVFXType)BounceBallSA1:
+		case SelectBounceBallType::SA1:
+		case SelectBounceBallType::SA2:
 			obj_SonicJumpBallSA1Renderable = boost::make_shared<JumpballSA1AnimRenderable>();
 			Sonic::CGameDocument::GetInstance()->AddGameObject(obj_SonicJumpBallSA1Renderable);
+			pPlayer->m_spCharacterModel->m_Enabled = false;
 			break;
-		case (enum SelectJumpBallVFXType)BounceBallLW:
+		case SelectBounceBallType::LW:
 			obj_SonicJumpBallLWRenderable = boost::make_shared<JumpballLWAnimRenderable>();
 			Sonic::CGameDocument::GetInstance()->AddGameObject(obj_SonicJumpBallLWRenderable);
+			pPlayer->m_spCharacterModel->m_Enabled = false;
+			break;
+		case SelectBounceBallType::Forces:
+			obj_SonicJumpBallWarsRenderable = boost::make_shared<JumpballWarsAnimRenderable>();
+			Sonic::CGameDocument::GetInstance()->AddGameObject(obj_SonicJumpBallWarsRenderable);
+			pPlayer->m_spCharacterModel->m_Enabled = false;
 			break;
 		default:
 			Common::fCGlitterCreate(sonic, BounceBallVfxHandle, middlematrixNode, "ef_ch_sps_yh1_spinattack", 1);
@@ -256,12 +272,12 @@ HOOK(void, __fastcall, StompBounce, 0x012548C0, hh::fnd::CStateMachineBase::CSta
 
 			if (IsSuper)
 			{
-				if (SelectBounceBall != 2)
+				if (SelectBounceBall != SelectBounceBallType::SWA)
 					Common::fCGlitterCreate(sonic, BounceLandVfxHandle, groundmatrixNode, "ef_ch_sps_yh1_bounceland", 1);  //Create Super Stomp Land VFX
 			}
 			else
 			{
-				if (SelectBounceBall != 2)
+				if (SelectBounceBall != SelectBounceBallType::SWA)
 					Common::fCGlitterCreate(sonic, BounceLandVfxHandle, groundmatrixNode, "ef_ch_sng_yh1_bounceland", 1);  //Create Normal Stomp Land VFX
 			}
 
@@ -502,14 +518,15 @@ HOOK(void, __cdecl, InitializeApplicationParams_BOUNCE, 0x00D65180, Sonic::CPara
 	cat_Bounce_Gen->CreateParamBool(&ModernBlueTrail, "Enable Blue Trail Creation");
 	cat_Bounce_Gen->CreateParamTypeList((uint32_t*)&SelectBounceBall, "Ball VFX Type", "Choose what VFX gets used when bouncing",
 		{
-			{ "Bounce Attack+", (enum SelectJumpBallVFXType)BounceBallBAP},
-			{ "Main Jumpball", (enum SelectJumpBallVFXType)BounceBallDefault},
-			{ "Unleashed Ball", (enum SelectJumpBallVFXType)BounceBallSWA},
-			{ "Beta Unleashed Ball", (enum SelectJumpBallVFXType)BounceBallBetaSWA},
-			{ "Lost World Ball", (enum SelectJumpBallVFXType)BounceBallLW},
-			{ "Forces Ball", (enum SelectJumpBallVFXType)BounceBallForces},
-			{ "Adventure Ball", (enum SelectJumpBallVFXType)BounceBallSA1},
-			{ "No VFX", (enum SelectJumpBallVFXType)BounceBallNoVFX},
+			{ "Bounce Attack+", (uint32_t)SelectBounceBallType::BAP},
+			{ "Main Jumpball", (uint32_t)SelectBounceBallType::Original},
+			{ "Unleashed Ball", (uint32_t)SelectBounceBallType::SWA},
+			{ "Beta Unleashed Ball", (uint32_t)SelectBounceBallType::BetaSWA},
+			{ "Adventure Ball", (uint32_t)SelectBounceBallType::SA1},
+			{ "Adventure 2 Ball", (uint32_t)SelectBounceBallType::SA2},
+			{ "Lost World Ball", (uint32_t)SelectBounceBallType::LW},
+			{ "Forces Ball", (uint32_t)SelectBounceBallType::Forces},
+			{ "No VFX", (uint32_t)SelectBounceBallType::NoVFX},
 		});
 	cat_Bounce_Gen->CreateParamBool(&ModernLWBounce, "Lost World Style Bounce");
 	cat_Bounce_Gen->CreateParamBool(&ModernBounceHorCnl, "Cancel Horizontal Momentum");
@@ -560,6 +577,7 @@ HOOK(void, __cdecl, InitializeApplicationParams_BOUNCE, 0x00D65180, Sonic::CPara
 //Install Sonic
 void InstallSonicPlayer::applyPatches()
 {
+	g_pCustomSonic = (Mod_t*)GetModLoaderAPI()->FindMod("ladylunanova.blueblur.customsonicbase");
 	INSTALL_HOOK(CPlayerSpeedUpdate);
 	INSTALL_HOOK(EnterStompBounce);
 	INSTALL_HOOK(StompBounce);

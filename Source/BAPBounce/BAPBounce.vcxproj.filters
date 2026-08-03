@@ -11,5 +11,6 @@
     <ClInclude Include="NPCAnim.h" />
     <ClInclude Include="SonicPlayer.h" />
     <ClInclude Include="Mod.h" />
+    <ClInclude Include="CustomSonicAPI.h" />
   </ItemGroup>
 </Project>

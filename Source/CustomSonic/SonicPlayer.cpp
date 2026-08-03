@@ -4,6 +4,7 @@
 //////Globals//////
 SharedPtrTypeless WildfireVfxHandle;
 SharedPtrTypeless JumpballVfxHandle;
+
 bool WildFireActive = false;
 void MsgWildFire(int Enabled)
 {
@@ -12,6 +13,7 @@ void MsgWildFire(int Enabled)
 	else
 		WildFireActive = false;
 }
+
 bool ParticleLightActive = false;
 void ParticleLightGet(int Enabled)
 {
@@ -20,6 +22,7 @@ void ParticleLightGet(int Enabled)
 	else
 		ParticleLightActive = false;
 }
+
 bool JumpBlueTrailActive = false;
 void JumpBlueTrailGet(int Enabled)
 {
@@ -28,24 +31,13 @@ void JumpBlueTrailGet(int Enabled)
 	else
 		JumpBlueTrailActive = false;
 }
-enum PlayerSelectJumpBallType
+
+SelectJumpBallType PlayerSelectJumpBall = SelectJumpBallType::Default;
+void MsgJumpBall(SelectJumpBallType BallType)
 {
-	JumpBallDefault,
-	JumpBallSWA,
-	JumpBallBetaSWA,
-	JumpBallBAP,
-	JumpBallSA1,
-	JumpBallLW,
-	JumpBallForces,
-	JumpBallSA2,
-	JumpBallNoVFX,
-	JumpBallNoBall,
-};
-PlayerSelectJumpBallType PlayerSelectJumpBall = PlayerSelectJumpBallType::JumpBallDefault;
-void MsgJumpBall(int BallType)
-{
-	PlayerSelectJumpBall = (PlayerSelectJumpBallType)BallType;
+	PlayerSelectJumpBall = BallType;
 }
+
 void CreateCustomizeSonicPlayerRenderable();
 void KillCustomizeSonicPlayerRenderable();
 
@@ -81,6 +73,7 @@ public:
 	boost::shared_ptr<Sonic::CNPCAnimation> m_spNPCAnimation;
 	const Hedgehog::Base::CSharedString& sngSpinModel = "chr_sonic_spin_SA1";
 	const Hedgehog::Base::CSharedString& spsSpinModel = "chr_supersonic_spin_SA1";
+	//SharedPtrTypeless SA2ballVfxHandle;
 	bool hasChangedState = false;
 
 	bool isVisible = true;
@@ -144,6 +137,10 @@ public:
 		//////Start Animation
 		m_spNPCAnimation->m_spAnimationStateMachine->ChangeState("LOOP");
 
+		////Spawn VFX
+		//auto BallNode = m_spElement->GetNode("mesh_ball"); //Set up bone matrix for VFX
+		//Common::fCGlitterCreate(cpcontext->m_spContext.get(), SA2ballVfxHandle, &BallNode, "ef_ch_sng_yh1_sa2spinattack", 1);  //Create VFX
+
 		//////Hide Sonic
 		pPlayer->m_spCharacterModel->m_Enabled = false;
 		context->m_pPlayer->SendMessageImm(context->m_SuperRenderableActorID, boost::make_shared<Sonic::Message::MsgSetVisible>(false));
@@ -200,6 +197,7 @@ public:
 		const Sonic::Player::CPlayer* cpcontext = static_cast<Sonic::Player::CPlayer*>(m_pMessageManager->GetMessageActor(playerID));
 		pPlayer->m_spCharacterModel->m_Enabled = true;
 		context->m_pPlayer->SendMessageImm(context->m_SuperRenderableActorID, boost::make_shared<Sonic::Message::MsgSetVisible>(true));
+		//Common::fCGlitterEnd(cpcontext->m_spContext.get(), SA2ballVfxHandle, true); //Destroy Ball VFX
 		MsgJumpModelHide(false);
 	}
 };
@@ -613,24 +611,28 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	{
 		CreateCustomizeSonicPlayerRenderable();
 
-		if (WildFireActive == true)
+		if (WildFireActive)
 			SpawnFireParticle(This);
-		if (WildFireActive == false)
+		else
 			KillFireParticle(This);
 
-		if (PlayerSelectJumpBall == (enum PlayerSelectJumpBallType)JumpBallNoBall)
-			sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_JumpShortReleaseTime] = 256.0f;
-		else if ((PlayerSelectJumpBall == (enum PlayerSelectJumpBallType)JumpBallSA1)
-			|| (PlayerSelectJumpBall == (enum PlayerSelectJumpBallType)JumpBallLW)
-			|| (PlayerSelectJumpBall == (enum PlayerSelectJumpBallType)JumpBallForces))
+		switch (PlayerSelectJumpBall)
 		{
-			sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_JumpShortReleaseTime] = 0.0f;
-			sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_VertVelocityBallToFall] = -1000.0f;
-		}
-		else
-		{
-			sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_JumpShortReleaseTime);
-			sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_VertVelocityBallToFall);
+			case SelectJumpBallType::NoBall:
+				sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_JumpShortReleaseTime] = 256.0f;
+				break;
+				
+			case SelectJumpBallType::SA1:
+			case SelectJumpBallType::LW:
+			case SelectJumpBallType::Forces:
+				sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_JumpShortReleaseTime] = 0.0f;
+				sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_VertVelocityBallToFall] = -1000.0f;
+				break;
+
+			default:
+				sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_JumpShortReleaseTime);
+				sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_VertVelocityBallToFall);
+				break;
 		}
 	}
 
@@ -661,74 +663,72 @@ HOOK(void, __fastcall, CSonicStateJumpBallStartState, 0x011BCBE0, hh::fnd::CStat
 	{
 		switch (PlayerSelectJumpBall)
 		{
-		case (enum PlayerSelectJumpBallType)JumpBallNoVFX:
-		case (enum PlayerSelectJumpBallType)JumpBallNoBall:
-			return;
-			break;
-		case (enum PlayerSelectJumpBallType)JumpBallBAP:
-			Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sng_yh1_bounceattack", 1);
-			break;
-		case (enum PlayerSelectJumpBallType)JumpBallBetaSWA:
-			Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sng_yh1_swaspinattack", 1);
-			break;
-		case (enum PlayerSelectJumpBallType)JumpBallSWA:
-			Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sng_yh1_swaretailspinattack", 1);
-			break;
-		case (enum PlayerSelectJumpBallType)JumpBallSA2:
-			Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sng_yh1_sa2spinattack", 1);
-			break;
-		case (enum PlayerSelectJumpBallType)JumpBallSA1:
-			obj_SonicJumpBallSA1Renderable = boost::make_shared<JumpballSA1AnimRenderable>();
-			Sonic::CGameDocument::GetInstance()->AddGameObject(obj_SonicJumpBallSA1Renderable);
-			break;
-		case (enum PlayerSelectJumpBallType)JumpBallLW:
-			obj_SonicJumpBallLWRenderable = boost::make_shared<JumpballLWAnimRenderable>();
-			Sonic::CGameDocument::GetInstance()->AddGameObject(obj_SonicJumpBallLWRenderable);
-			break;
-		case (enum PlayerSelectJumpBallType)JumpBallForces:
-			obj_SonicJumpBallWarsRenderable = boost::make_shared<JumpballWarsAnimRenderable>();
-			Sonic::CGameDocument::GetInstance()->AddGameObject(obj_SonicJumpBallWarsRenderable);
-			break;
-		default:
-			Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sng_yh1_spinattack", 1);
-			break;
+			case SelectJumpBallType::NoVFX:
+			case SelectJumpBallType::NoBall:
+				return;
+			case SelectJumpBallType::BAP:
+				Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sng_yh1_bounceattack", 1);
+				break;
+			case SelectJumpBallType::BetaSWA:
+				Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sng_yh1_swaspinattack", 1);
+				break;
+			case SelectJumpBallType::SWA:
+				Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sng_yh1_swaretailspinattack", 1);
+				break;
+			case SelectJumpBallType::SA2:
+				Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sng_yh1_sa2spinattack", 1);
+				break;
+			case SelectJumpBallType::SA1:
+				obj_SonicJumpBallSA1Renderable = boost::make_shared<JumpballSA1AnimRenderable>();
+				Sonic::CGameDocument::GetInstance()->AddGameObject(obj_SonicJumpBallSA1Renderable);
+				break;
+			case SelectJumpBallType::LW:
+				obj_SonicJumpBallLWRenderable = boost::make_shared<JumpballLWAnimRenderable>();
+				Sonic::CGameDocument::GetInstance()->AddGameObject(obj_SonicJumpBallLWRenderable);
+				break;
+			case SelectJumpBallType::Forces:
+				obj_SonicJumpBallWarsRenderable = boost::make_shared<JumpballWarsAnimRenderable>();
+				Sonic::CGameDocument::GetInstance()->AddGameObject(obj_SonicJumpBallWarsRenderable);
+				break;
+			default:
+				Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sng_yh1_spinattack", 1);
+				break;
 		}
 	}
 	else
 	{
 		switch (PlayerSelectJumpBall)
 		{
-		case (enum PlayerSelectJumpBallType)JumpBallNoVFX:
-		case (enum PlayerSelectJumpBallType)JumpBallNoBall:
-			return;
-			break;
-		case (enum PlayerSelectJumpBallType)JumpBallBAP:
-			Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sps_yh1_bounceattack", 1);
-			break;
-		case (enum PlayerSelectJumpBallType)JumpBallBetaSWA:
-			Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sps_yh1_swaspinattack", 1);
-			break;
-		case (enum PlayerSelectJumpBallType)JumpBallSWA:
-			Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sps_yh1_swaretailspinattack", 1);
-			break;
-		case (enum PlayerSelectJumpBallType)JumpBallSA2:
-			Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sps_yh1_sa2spinattack", 1);
-			break;
-		case (enum PlayerSelectJumpBallType)JumpBallSA1:
-			obj_SonicJumpBallSA1Renderable = boost::make_shared<JumpballSA1AnimRenderable>();
-			Sonic::CGameDocument::GetInstance()->AddGameObject(obj_SonicJumpBallSA1Renderable);
-			break;
-		case (enum PlayerSelectJumpBallType)JumpBallLW:
-			obj_SonicJumpBallLWRenderable = boost::make_shared<JumpballLWAnimRenderable>();
-			Sonic::CGameDocument::GetInstance()->AddGameObject(obj_SonicJumpBallLWRenderable);
-			break;
-		case (enum PlayerSelectJumpBallType)JumpBallForces:
-			obj_SonicJumpBallWarsRenderable = boost::make_shared<JumpballWarsAnimRenderable>();
-			Sonic::CGameDocument::GetInstance()->AddGameObject(obj_SonicJumpBallWarsRenderable);
-			break;
-		default:
-			Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sps_yh1_spinattack", 1);
-			break;
+			case SelectJumpBallType::NoVFX:
+			case SelectJumpBallType::NoBall:
+				return;
+			case SelectJumpBallType::BAP:
+				Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sps_yh1_bounceattack", 1);
+				break;
+			case SelectJumpBallType::BetaSWA:
+				Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sps_yh1_swaspinattack", 1);
+				break;
+			case SelectJumpBallType::SWA:
+				Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sps_yh1_swaretailspinattack", 1);
+				break;
+			case SelectJumpBallType::SA2:
+				Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sps_yh1_sa2spinattack", 1);
+				break;
+			case SelectJumpBallType::SA1:
+				obj_SonicJumpBallSA1Renderable = boost::make_shared<JumpballSA1AnimRenderable>();
+				Sonic::CGameDocument::GetInstance()->AddGameObject(obj_SonicJumpBallSA1Renderable);
+				break;
+			case SelectJumpBallType::LW:
+				obj_SonicJumpBallLWRenderable = boost::make_shared<JumpballLWAnimRenderable>();
+				Sonic::CGameDocument::GetInstance()->AddGameObject(obj_SonicJumpBallLWRenderable);
+				break;
+			case SelectJumpBallType::Forces:
+				obj_SonicJumpBallWarsRenderable = boost::make_shared<JumpballWarsAnimRenderable>();
+				Sonic::CGameDocument::GetInstance()->AddGameObject(obj_SonicJumpBallWarsRenderable);
+				break;
+			default:
+				Common::fCGlitterCreate(sonic, JumpballVfxHandle, middlematrixNode, "ef_ch_sps_yh1_spinattack", 1);
+				break;
 		}
 	}
 

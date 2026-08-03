@@ -1,8 +1,9 @@
 #include <Common.h>
+#include "CustomSonicAPI.h"
+#include "CustomSonicItems.h"
 #include "InstallSetup.h"
 #include "InstallCustomUI.h"
 #include "SonicPlayer.h"
-//#include <filesystem>
 
 void ReadConfig();
 void IsBounceModEnabled(bool enabled);
@@ -23,6 +24,7 @@ EXPORT void PreInit()
 {
 	GetModLoaderAPI()->SendMessageToLoader(ML_MSG_REQ_LARGE_ADDRESS_AWARE, nullptr);
 }
+
 EXPORT void Init(ModInfo_t* modInfo)
 {
 	jsonFilePathHead = modInfo->CurrentMod->Path;
@@ -105,7 +107,34 @@ EXPORT void Init(ModInfo_t* modInfo)
 		IsBounceModEnabled(false);
 
 }
+
 EXPORT void PostInit()
 {
 	InstallSetup::applyPostPatches();
+}
+
+EXPORT void ProcessMessage(size_t id, void* data)
+{
+	switch (id)
+	{
+		case CustomSonicAPI::MsgGetCustomSonicSelection::ID:
+		{
+			auto pMsg = (CustomSonicAPI::MsgGetCustomSonicSelection*)data;
+
+			pMsg->HeadName = s_ItemDataHead[SelectHeadData].Name.c_str();
+			pMsg->BodyName = s_ItemDataBody[SelectBodyData].Name.c_str();
+			pMsg->ShoesName = s_ItemDataShoes[SelectShoesData].Name.c_str();
+			pMsg->HandRName = s_ItemDataHandR[SelectHandRData].Name.c_str();
+			pMsg->HandLName = s_ItemDataHandL[SelectHandLData].Name.c_str();
+			
+			pMsg->SelectSnMaterial = SelectSnMaterial;
+			pMsg->SelectEyelid = SelectEyelid;
+			pMsg->SelectSsnHead = SelectSsnHead;
+			pMsg->SelectSsnMaterial = SelectSsnMaterial;
+			pMsg->SelectJumpBall = SelectJumpBall;
+			pMsg->SelectBounceBall = SelectBounceBall;
+			
+			break;
+		}
+	}
 }

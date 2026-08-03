@@ -192,6 +192,7 @@
     <ClCompile Include="SonicPlayer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CustomSonicAPI.h" />
     <ClInclude Include="Mod.h" />
     <ClInclude Include="NPCAnim.h" />
     <ClInclude Include="Pch.h" />

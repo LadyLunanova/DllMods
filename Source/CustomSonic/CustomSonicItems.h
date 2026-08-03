@@ -1,6 +1,10 @@
 #pragma once
+
 #include <fstream>
 #include <json/json.hpp>
+#include "CustomSonicAPI.h"
+
+using namespace CustomSonicAPI;
 using nlohmann::json;
 
 ////------Item Setup------////
@@ -12,7 +16,7 @@ struct ItemDataHead
 	int AltSelect;
 	bool HideHead;
 };
-inline std::vector<ItemDataHead> s_ItemDataHead;
+extern std::vector<ItemDataHead> s_ItemDataHead;
 
 struct ItemDataBody
 {
@@ -23,8 +27,8 @@ struct ItemDataBody
 	bool HideHandR;
 	bool HideHandL;
 };
-inline std::vector<ItemDataBody> s_ItemDataBody;
-inline ItemDataBody s_ItemDataBodyPrev{};
+extern std::vector<ItemDataBody> s_ItemDataBody;
+extern ItemDataBody s_ItemDataBodyPrev;
 
 struct ItemDataShoes
 {
@@ -32,7 +36,7 @@ struct ItemDataShoes
 	int AltCount;
 	int AltSelect;
 };
-inline std::vector<ItemDataShoes> s_ItemDataShoes;
+extern std::vector<ItemDataShoes> s_ItemDataShoes;
 
 struct ItemDataHandR
 {
@@ -40,7 +44,7 @@ struct ItemDataHandR
 	int AltCount;
 	int AltSelect;
 };
-inline std::vector<ItemDataHandR> s_ItemDataHandR;
+extern std::vector<ItemDataHandR> s_ItemDataHandR;
 
 struct ItemDataHandL
 {
@@ -48,43 +52,31 @@ struct ItemDataHandL
 	int AltCount;
 	int AltSelect;
 };
-inline std::vector<ItemDataHandL> s_ItemDataHandL;
+extern std::vector<ItemDataHandL> s_ItemDataHandL;
 
-int SelectHeadData = 0;
-int SelectBodyData = 0;
-int SelectShoesData = 0;
-int SelectHandRData = 0;
-int SelectHandLData = 0;
+extern int SelectHeadData;
+extern int SelectBodyData;
+extern int SelectShoesData;
+extern int SelectHandRData;
+extern int SelectHandLData;
 
 ////------Hardcoded Item Setup------////
 
-enum SelectSonicBodyType
+enum class SelectOptionType
 {
-	SBSnMaterial,
-	SBEyelids,
-	SBSuperHead,
-	SBSuperForm,
-	SBJumpball,
-	SBBounceball,
-	SBOverflow01,
-	SBOverflow02,
-	SBOverflow03,
+	SnMaterial,
+	Eyelids,
+	SuperHead,
+	SsnMaterial,
+	JumpBall,
+	BounceBall,
+	Overflow01,
+	Overflow02,
+	Overflow03
 };
 
-SelectSonicBodyType SelectSonicBody = SelectSonicBodyType::SBSnMaterial;
-
-static std::map<int, const char*> MAP_FILE_SONICBODY =
-{
-	{ SBSnMaterial,			"SBSnMaterial" },
-	{ SBEyelids,			"SBEyelids" },
-	{ SBSuperHead,			"SBSuperHead" },
-	{ SBSuperForm,			"SBSuperForm" },
-	{ SBJumpball,			"SBJumpball" },
-	{ SBBounceball,			"SBBounceball" },
-	{ SBOverflow01,			"Null" },
-	{ SBOverflow02,			"Null" },
-	{ SBOverflow03,			"Null" },
-};
+extern SelectOptionType SelectOption;
+extern std::map<SelectOptionType, const char*> SelectOptionNameMap;
 
 ////------Special Setup------////
 
@@ -99,460 +91,35 @@ enum class SelectCategory : uint32_t
 	All = Head | Body | Shoes | HandR | HandL
 };
 
-enum SelectSnSonMatType
-{
-	SnMatOriginal,
-	SnMatMagenta,
-	SnMatPink,
-	SnMatRed,
-	SnMatOrange,
-	SnMatYellow,
-	SnMatGreen,
-	SnMatCyan,
-	SnMatBlack,
-	SnMatWhite,
-	SnMatS4E2,
-	SnMatCustom,
-};
-enum SelectEyelidType
-{
-	EyelidDefault,
-	EyelidLashes,
-	EyelidSkin,
-};
-enum SelectSsnHeadType
-{
-	SsnFormDefault,
-	SsnFormShadow,
-	SsnFormUpward,
-};
-enum SelectSsnFormType
-{
-	SsnFormSuper,
-	SsnFormSuper2,
-	SsnFormHyper,
-	SsnFormDark,
-};
-enum SelectJumpBallType
-{
-	JumpBallDefault,
-	JumpBallSWA,
-	JumpBallBetaSWA,
-	JumpBallBAP,
-	JumpBallSA1,
-	JumpBallLW,
-	JumpBallForces,
-	JumpBallSA2,
-	JumpBallNoVFX,
-	JumpBallNoBall,
-};
-enum SelectBounceBallType
-{
-	BounceBallBAP,
-	BounceBallDefault,
-	BounceBallSWA,
-	BounceBallBetaSWA,
-	BounceBallSA1,
-	BounceBallLW,
-	BounceBallForces,
-	BounceBallNoVFX,
-};
+extern SelectSnMaterialType SelectSnMaterial;
+extern SelectEyelidType SelectEyelid;
+extern SelectSsnHeadType SelectSsnHead;
+extern SelectSsnMaterialType SelectSsnMaterial;
+extern SelectJumpBallType SelectJumpBall;
+extern SelectBounceBallType SelectBounceBall;
 
-SelectSnSonMatType SelectSnSonMat = SelectSnSonMatType::SnMatOriginal;
-SelectEyelidType SelectEyelid = SelectEyelidType::EyelidDefault;
-SelectSsnHeadType SelectSsnHead = SelectSsnHeadType::SsnFormDefault;
-SelectSsnFormType SelectSsnForm = SelectSsnFormType::SsnFormSuper;
-SelectJumpBallType SelectJumpBall = SelectJumpBallType::JumpBallDefault;
-SelectBounceBallType SelectBounceBall = SelectBounceBallType::BounceBallBAP;
+extern int HyperFrameCycle;
+extern bool isRenderableCreated;
+extern bool isJumpBallHide;
 
-int HyperFrameCycle = 0;
-bool isRenderableCreated = false;
-bool isJumpBallHide = false;
+void MsgJumpModelHide(bool Enabled);
 
-void MsgWildFire(int Enabled);
-void MsgJumpBall(int BallType);
+Hedgehog::Base::CSharedString CModelHeadString(bool in_isSuper);
+Hedgehog::Base::CSharedString CModelBodyString();
+Hedgehog::Base::CSharedString CModelHandLString();
+Hedgehog::Base::CSharedString CModelHandRString();
+Hedgehog::Base::CSharedString CModelShoeString();
+Hedgehog::Base::CSharedString CModelEyelidString();
+Hedgehog::Base::CSharedString CModelBaseHeadString(bool in_isSuper);
+Hedgehog::Base::CSharedString CMaterialBodyString(bool in_isSuper);
 
-void MsgJumpModelHide(bool Enabled)
-{
-	isJumpBallHide = Enabled;
-}
-
-Hedgehog::Base::CSharedString CModelHeadString(bool in_isSuper)
-{
-	char result[512]{};
-
-	auto mapChar = s_ItemDataHead[SelectHeadData].Name;
-	auto mapAltCount = s_ItemDataHead[SelectHeadData].AltCount;
-	auto mapAltSelect = s_ItemDataHead[SelectHeadData].AltSelect;
-	const char* texExtForm = "";
-	const char* texExtSn = "_Sn_";
-	const char* texExtSsn = "_Ssn_";
-
-	if (!in_isSuper)
-		texExtForm = texExtSn;
-	else
-		texExtForm = texExtSsn;
-
-	if (mapAltCount >= 1)
-		sprintf(result, "chr%s%s_%02d", texExtForm, mapChar.c_str(), mapAltSelect);
-	else
-		sprintf(result, "chr%s%s", texExtForm, mapChar.c_str());
-
-
-	return Hedgehog::Base::CSharedString(result);
-}
-Hedgehog::Base::CSharedString CModelBodyString()
-{
-	char result[512]{};
-
-	auto mapChar = s_ItemDataBody[SelectBodyData].Name;
-	auto mapAltCount = s_ItemDataBody[SelectBodyData].AltCount;
-	auto mapAltSelect = s_ItemDataBody[SelectBodyData].AltSelect;
-
-	if (mapAltCount >= 1)
-		sprintf(result, "chr_Sn_%s_%02d", mapChar.c_str(), mapAltSelect);
-	else
-		sprintf(result, "chr_Sn_%s", mapChar.c_str());
-
-	return Hedgehog::Base::CSharedString(result);
-}
-Hedgehog::Base::CSharedString CModelHandLString()
-{
-	char result[512]{};
-
-	auto mapBodyHideHandL = s_ItemDataBody[SelectBodyData].HideHandL;
-	auto mapChar = s_ItemDataHandL[SelectHandLData].Name;
-	auto mapAltCount = s_ItemDataHandL[SelectHandLData].AltCount;
-	auto mapAltSelect = s_ItemDataHandL[SelectHandLData].AltSelect;
-
-	if (!mapBodyHideHandL)
-	{
-		if (mapAltCount >= 1)
-			sprintf(result, "chr_Sn_%s_%02d", mapChar.c_str(), mapAltSelect);
-		else
-			sprintf(result, "chr_Sn_%s", mapChar.c_str());
-	}
-	else
-		sprintf(result, "");
-
-	return Hedgehog::Base::CSharedString(result);
-}
-Hedgehog::Base::CSharedString CModelHandRString()
-{
-	char result[512]{};
-
-	auto mapBodyHideHandR = s_ItemDataBody[SelectBodyData].HideHandR;
-	auto mapChar = s_ItemDataHandR[SelectHandRData].Name;
-	auto mapAltCount = s_ItemDataHandR[SelectHandRData].AltCount;
-	auto mapAltSelect = s_ItemDataHandR[SelectHandRData].AltSelect;
-
-	if (!mapBodyHideHandR)
-	{
-		if (mapAltCount >= 1)
-			sprintf(result, "chr_Sn_%s_%02d", mapChar.c_str(), mapAltSelect);
-		else
-			sprintf(result, "chr_Sn_%s", mapChar.c_str());
-	}
-	else
-		sprintf(result, "");
-
-	return Hedgehog::Base::CSharedString(result);
-}
-Hedgehog::Base::CSharedString CModelShoeString()
-{
-	char result[512]{};
-
-	auto mapBodyHideShoes = s_ItemDataBody[SelectBodyData].HideShoes;
-	auto mapChar = s_ItemDataShoes[SelectShoesData].Name;
-	auto mapAltCount = s_ItemDataShoes[SelectShoesData].AltCount;
-	auto mapAltSelect = s_ItemDataShoes[SelectShoesData].AltSelect;
-
-	if (!mapBodyHideShoes)
-	{
-		if (mapAltCount >= 1)
-			sprintf(result, "chr_Sn_%s_%02d", mapChar.c_str(), mapAltSelect);
-		else
-			sprintf(result, "chr_Sn_%s", mapChar.c_str());
-	}
-	else
-		sprintf(result, "");
-
-	return Hedgehog::Base::CSharedString(result);
-}
-Hedgehog::Base::CSharedString CModelEyelidString()
-{
-	char result[512]{};
-
-	const char* texExtVar = "";
-	const char* texExt0 = "BdyEyeDefault";
-	const char* texExt1 = "BdyEyeLash";
-	const char* texExt2 = "BdyEyeSkin";
-
-	if (SelectEyelid == EyelidDefault)
-		texExtVar = texExt0;
-	else if (SelectEyelid == EyelidLashes)
-		texExtVar = texExt1;
-	else if (SelectEyelid == EyelidSkin)
-		texExtVar = texExt2;
-
-	sprintf(result, "chr_Sn_%s", texExtVar);
-	//printf("chr_Sn_%s%s\n", texExtVar);
-	return Hedgehog::Base::CSharedString(result);
-}
-Hedgehog::Base::CSharedString CModelBaseHeadString(bool in_isSuper)
-{
-	char result[512]{};
-
-	auto mapHeadHideHead = s_ItemDataHead[SelectHeadData].HideHead;
-	const char* texExtVis = "BdyHead";
-	const char* texExtInv = "";
-	const char* texExtForm = "";
-	const char* texExtSn = "_Sn_";
-	const char* texExtSsn1 = "_Ssn1_";
-	const char* texExtSsn2 = "_Ssn2_";
-	const char* texExtSsn3 = "_Ssn3_";
-
-	if (!in_isSuper)
-		texExtForm = texExtSn;
-	else
-	{
-		switch (SelectSsnHead)
-		{
-		case SsnFormDefault:
-			texExtForm = texExtSsn1;
-			break;
-		case SsnFormShadow:
-			texExtForm = texExtSsn2;
-			break;
-		case SsnFormUpward:
-			texExtForm = texExtSsn3;
-			break;
-		}
-	}
-
-	if (mapHeadHideHead)
-		sprintf(result, "chr%s%s", texExtForm, texExtInv);
-	else
-		sprintf(result, "chr%s%s", texExtForm, texExtVis);
-
-	return Hedgehog::Base::CSharedString(result);
-}
-
-Hedgehog::Base::CSharedString CMaterialBodyString(bool in_isSuper)
-{
-	char result[512]{};
-
-	const char* texExtVar = "chr_sn_body_original";
-	const char* texExtOG = "chr_sn_body_original"; //OG
-	const char* texExtMagenta = "chr_sn_body_magenta"; //Magenta
-	const char* texExtPink = "chr_sn_body_pink"; //Pink
-	const char* texExtRed = "chr_sn_body_red"; //Red
-	const char* texExtOrange = "chr_sn_body_orange"; //Orange
-	const char* texExtYellow = "chr_sn_body_yellow"; //Yellow
-	const char* texExtGreen = "chr_sn_body_green"; //Green
-	const char* texExtCyan = "chr_sn_body_cyan"; //Cyan
-	const char* texExtBlack = "chr_sn_body_black"; //Black
-	const char* texExtWhite = "chr_sn_body_white"; //White
-	const char* texExtS4E2 = "chr_sn_body_s4e2"; //S4E2
-	const char* texExtCustom = "chr_sn_body_custom"; //Custom
-
-	const char* texExtSuper = "chr_ssn_body_original"; //Super
-	const char* texExtSuper2 = "chr_ssn_body_ss2"; //Super2
-	const char* texExtHyper = "chr_ssn_body_hyper"; //Hyper
-	const char* texExtDark = "chr_ssn_body_dark"; //Dark
-
-	switch (SelectSnSonMat)
-	{
-	case SnMatOriginal:
-		texExtVar = texExtOG;
-		break;
-	case SnMatMagenta:
-		texExtVar = texExtMagenta;
-		break;
-	case SnMatPink:
-		texExtVar = texExtPink;
-		break;
-	case SnMatRed:
-		texExtVar = texExtRed;
-		break;
-	case SnMatOrange:
-		texExtVar = texExtOrange;
-		break;
-	case SnMatYellow:
-		texExtVar = texExtYellow;
-		break;
-	case SnMatGreen:
-		texExtVar = texExtGreen;
-		break;
-	case SnMatCyan:
-		texExtVar = texExtCyan;
-		break;
-	case SnMatBlack:
-		texExtVar = texExtBlack;
-		break;
-	case SnMatWhite:
-		texExtVar = texExtWhite;
-		break;
-	case SnMatS4E2:
-		texExtVar = texExtS4E2;
-		break;
-	case SnMatCustom:
-		texExtVar = texExtCustom;
-		break;
-	}
-
-	if (in_isSuper)
-	{
-		switch (SelectSsnForm)
-		{
-		case SsnFormSuper:
-			texExtVar = texExtSuper;
-			break;
-		case SsnFormSuper2:
-			texExtVar = texExtSuper2;
-			break;
-		case SsnFormHyper:
-			texExtVar = texExtHyper;
-			break;
-		case SsnFormDark:
-			texExtVar = texExtDark;
-			break;
-		}
-	}
-
-	sprintf(result, "%s", texExtVar);
-	//printf("%s%s\n", mapChar, texExtVar);
-	return Hedgehog::Base::CSharedString(result);
-}
-
-Hedgehog::Base::CSharedString ArchiveHeadString()
-{
-	char result[512]{};
-
-	auto mapChar = s_ItemDataHead[SelectHeadData].Name;
-	auto mapAltCount = s_ItemDataHead[SelectHeadData].AltCount;
-	auto mapAltSelect = s_ItemDataHead[SelectHeadData].AltSelect;
-
-	if (mapAltCount >= 1)
-		sprintf(result, "Customize/ctp_Head/%s_%02d", mapChar.c_str(), mapAltSelect);
-	else
-		sprintf(result, "Customize/ctp_Head/%s", mapChar.c_str());
-
-	return Hedgehog::Base::CSharedString(result);
-}
-Hedgehog::Base::CSharedString ArchiveBodyString()
-{
-	char result[512]{};
-
-	auto mapChar = s_ItemDataBody[SelectBodyData].Name;
-	auto mapAltCount = s_ItemDataBody[SelectBodyData].AltCount;
-	auto mapAltSelect = s_ItemDataBody[SelectBodyData].AltSelect;
-
-	if (mapAltCount >= 1)
-		sprintf(result, "Customize/ctp_Body/%s_%02d", mapChar.c_str(), mapAltSelect);
-	else
-		sprintf(result, "Customize/ctp_Body/%s", mapChar.c_str());
-
-	return Hedgehog::Base::CSharedString(result);
-}
-Hedgehog::Base::CSharedString ArchiveShoeString()
-{
-	char result[512]{};
-
-	auto mapBodyHideShoes = s_ItemDataBody[SelectBodyData].HideShoes;
-	auto mapChar = s_ItemDataShoes[SelectShoesData].Name;
-	auto mapAltCount = s_ItemDataShoes[SelectShoesData].AltCount;
-	auto mapAltSelect = s_ItemDataShoes[SelectShoesData].AltSelect;
-
-	if (!mapBodyHideShoes)
-	{
-		if (mapAltCount >= 1)
-			sprintf(result, "Customize/ctp_Shoes/%s_%02d", mapChar.c_str(), mapAltSelect);
-		else
-			sprintf(result, "Customize/ctp_Shoes/%s", mapChar.c_str());
-	}
-	else
-		sprintf(result, "");
-
-	return Hedgehog::Base::CSharedString(result);
-}
-Hedgehog::Base::CSharedString ArchiveHandRString()
-{
-	char result[512]{};
-
-	auto mapBodyHideHandR = s_ItemDataBody[SelectBodyData].HideHandR;
-	auto mapChar = s_ItemDataHandR[SelectHandRData].Name;
-	auto mapAltCount = s_ItemDataHandR[SelectHandRData].AltCount;
-	auto mapAltSelect = s_ItemDataHandR[SelectHandRData].AltSelect;
-
-	if (!mapBodyHideHandR)
-	{
-		if (mapAltCount >= 1)
-			sprintf(result, "Customize/ctp_Hand_R/%s_%02d", mapChar.c_str(), mapAltSelect);
-		else
-			sprintf(result, "Customize/ctp_Hand_R/%s", mapChar.c_str());
-	}
-	else
-		sprintf(result, "");
-
-	return Hedgehog::Base::CSharedString(result);
-}
-Hedgehog::Base::CSharedString ArchiveHandLString()
-{
-	char result[512]{};
-
-	auto mapBodyHideHandL = s_ItemDataBody[SelectBodyData].HideHandL;
-	auto mapChar = s_ItemDataHandL[SelectHandLData].Name;
-	auto mapAltCount = s_ItemDataHandL[SelectHandLData].AltCount;
-	auto mapAltSelect = s_ItemDataHandL[SelectHandLData].AltSelect;
-
-	if (!mapBodyHideHandL)
-	{
-		if (mapAltCount >= 1)
-			sprintf(result, "Customize/ctp_Hand_L/%s_%02d", mapChar.c_str(), mapAltSelect);
-		else
-			sprintf(result, "Customize/ctp_Hand_L/%s", mapChar.c_str());
-	}
-	else
-		sprintf(result, "");
-
-	return Hedgehog::Base::CSharedString(result);
-}
-Hedgehog::Base::CSharedString ArchiveEyelidString()
-{
-	char result[512]{};
-
-	const char* texExtVar = "";
-	const char* texExt0 = "BdyEyeDefault";
-	const char* texExt1 = "BdyEyeLash";
-	const char* texExt2 = "BdyEyeSkin";
-
-	if (SelectEyelid == EyelidDefault)
-		texExtVar = texExt0;
-	else if (SelectEyelid == EyelidLashes)
-		texExtVar = texExt1;
-	else if (SelectEyelid == EyelidSkin)
-		texExtVar = texExt2;
-	
-	sprintf(result, "Customize/bdy_Body/%s", texExtVar);
-
-	return result;
-}
-Hedgehog::Base::CSharedString ArchiveBaseHeadString()
-{
-	char result[512]{};
-
-	auto mapHeadHideHead = s_ItemDataHead[SelectHeadData].HideHead;
-	const char* texExtVis = "BdyHead";
-	const char* texExtInv = "";
-
-	if (mapHeadHideHead)
-		sprintf(result, "Customize/bdy_Body/%s", texExtInv);
-	else
-		sprintf(result, "Customize/bdy_Body/%s", texExtVis);
-
-	return Hedgehog::Base::CSharedString(result);
-}
+Hedgehog::Base::CSharedString ArchiveHeadString();
+Hedgehog::Base::CSharedString ArchiveBodyString();
+Hedgehog::Base::CSharedString ArchiveShoeString();
+Hedgehog::Base::CSharedString ArchiveHandRString();
+Hedgehog::Base::CSharedString ArchiveHandLString();
+Hedgehog::Base::CSharedString ArchiveEyelidString();
+Hedgehog::Base::CSharedString ArchiveBaseHeadString();
 
 class MsgRefreshCustomizeSonic : public Hedgehog::Universe::MessageTypeSet
 {
@@ -896,106 +463,9 @@ public:
 		RemoveRenderables();
 	}
 };
-boost::shared_ptr<CustomizeSonicPlayerRenderable> obj_CustomizeSonicPlayerRenderable;
+extern boost::shared_ptr<CustomizeSonicPlayerRenderable> obj_CustomizeSonicPlayerRenderable;
 
-void CreateCustomizeSonicPlayerRenderable()
-{
-	if (!isRenderableCreated)
-	{
-		obj_CustomizeSonicPlayerRenderable = boost::make_shared<CustomizeSonicPlayerRenderable>();
-		Sonic::CGameDocument::GetInstance()->AddGameObject(obj_CustomizeSonicPlayerRenderable);
-		isRenderableCreated = true;
-	}
-}
-
-void KillCustomizeSonicPlayerRenderable()
-{
-	if (isRenderableCreated)
-	{
-		obj_CustomizeSonicPlayerRenderable->Kill();
-		obj_CustomizeSonicPlayerRenderable = nullptr;
-		isRenderableCreated = false;
-		//printf("KILL RENDERABLE\n");
-	}
-}
-
-void OnFrameHandler()
-{
-	//Send Wildfire VFX
-	if (s_ItemDataBody[SelectBodyData].Name == "BdWildFire")
-		MsgWildFire(1);
-	else
-		MsgWildFire(0);
-
-	MsgJumpBall(SelectJumpBall);
-
-	if (HyperFrameCycle >= 59)
-		HyperFrameCycle = 0;
-	else
-		HyperFrameCycle++;
-
-}
-
-void ReadJson(std::string jsonFilePath, int cCat)
-{
-	std::ifstream stream(jsonFilePath);
-	if (stream.is_open())
-	{
-		json json;
-		stream >> json;
-
-		switch (cCat)
-		{
-		case 0:
-			for (const auto& obj : json)
-			{
-				auto& itemData = s_ItemDataHead.emplace_back();
-				itemData.Name = obj["Name"];
-				itemData.AltCount = obj["AltCount"];
-				itemData.HideHead = obj["HideHead"];
-				itemData.AltSelect = 0;
-			}
-			break;
-		case 1:
-			for (const auto& obj : json)
-			{
-				auto& itemData = s_ItemDataBody.emplace_back();
-				itemData.Name = obj["Name"];
-				itemData.AltCount = obj["AltCount"];
-				itemData.HideShoes = obj["HideShoes"];
-				itemData.HideHandR = obj["HideHandR"];
-				itemData.HideHandL = obj["HideHandL"];
-				itemData.AltSelect = 0;
-			}
-			break;
-		case 2:
-			for (const auto& obj : json)
-			{
-				auto& itemData = s_ItemDataShoes.emplace_back();
-				itemData.Name = obj["Name"];
-				itemData.AltCount = obj["AltCount"];
-				itemData.AltSelect = 0;
-			}
-			break;
-		case 3:
-			for (const auto& obj : json)
-			{
-				auto& itemData = s_ItemDataHandR.emplace_back();
-				itemData.Name = obj["Name"];
-				itemData.AltCount = obj["AltCount"];
-				itemData.AltSelect = 0;
-			}
-			break;
-		case 4:
-			for (const auto& obj : json)
-			{
-				auto& itemData = s_ItemDataHandL.emplace_back();
-				itemData.Name = obj["Name"];
-				itemData.AltCount = obj["AltCount"];
-				itemData.AltSelect = 0;
-			}
-			break;
-		}
-
-	}
-}
+void CreateCustomizeSonicPlayerRenderable();
+void KillCustomizeSonicPlayerRenderable();
+void OnFrameHandler();
+void ReadJson(std::string jsonFilePath, int cCat);

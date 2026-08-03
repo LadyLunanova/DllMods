@@ -14,6 +14,8 @@
 
 #include <INIReader.h>
 
+#include <HE1ML/ModLoader.h>
+
 #include <Helpers.h>
 
 #define EXPORT extern "C" __declspec(dllexport)

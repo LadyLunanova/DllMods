@@ -430,7 +430,25 @@ HOOK(void, __fastcall, ClassicStompBounce, 0x01255240, hh::fnd::CStateMachineBas
 
 	if (IsGrounded)  //Check if sonic is touching the ground and check config option
 	{
-		sonic->PlaySound(2001027, true); //Play bounce SFX
+		//sonic->PlaySound(2001027, true); //Play bounce SFX
+		switch (ClassicSoundType)
+		{
+		case 0:
+			sonic->PlaySound(694206660, true); //Play bounce SFX
+			break;
+		case 1:
+			sonic->PlaySound(694206661, true); //Play bounce SFX
+			break;
+		case 2:
+			sonic->PlaySound(694206662, true); //Play bounce SFX
+			break;
+		case 3:
+			sonic->PlaySound(2001027, true); //Play bounce SFX
+			break;
+		case 4:
+			sonic->PlaySound(6001007, true); //Play bounce SFX
+			break;
+		}
 
 		if (ClassicBounceTricking || IsInWater || (ClassicLWBounce && BounceCount >= 2)) //Check for tricking option and water
 		{
@@ -556,6 +574,14 @@ HOOK(void, __cdecl, InitializeApplicationParams_BOUNCE, 0x00D65180, Sonic::CPara
 
 	cat_Bounce_Cla->CreateParamBool(&ClassicBounceEnable, "Enable bouncing for Modern Sonic");
 	cat_Bounce_Cla->CreateParamBool(&ClassicBounceTrigger, "Enable bouncing when pressing one of the triggers mid-air");
+	cat_Bounce_Cla->CreateParamTypeList((uint32_t*)&ClassicSoundType, "Sound Type", "Choose what SFX gets played when you bounce",
+		{
+			{ "SA2", 0},
+			{ "06", 1},
+			{ "LW", 2},
+			{ "Jump", 3},
+			{ "Bubble Shield", 4},
+		});
 	cat_Bounce_Cla->CreateParamBool(&ClassicBlueTrail, "Enable Blue Trail Creation");
 	cat_Bounce_Cla->CreateParamBool(&ClassicLWBounce, "Lost World Style Bounce");
 	cat_Bounce_Cla->CreateParamBool(&ClassicBounceHorCnl, "Cancel Horizontal Momentum");

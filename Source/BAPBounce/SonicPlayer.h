@@ -191,6 +191,7 @@ SelectBounceBallType SelectBounceBall = SelectBounceBallType::BAP;
 //Classic
 bool  ClassicBounceEnable = true;
 bool  ClassicBounceTrigger = true;
+int   ClassicSoundType = 0;
 bool  ClassicBlueTrail = false;
 bool  ClassicLWBounce = false;
 bool  ClassicBounceHorCnl = false;
@@ -598,6 +599,7 @@ void WriteINI(FILE* iniFile)
 		"%s\n"   //[Classic]
 		"%s%s\n" //ClassicBounceEnable
 		"%s%s\n" //ClassicBounceTrigger
+		"%s%d\n" //ClassicSoundType
 		"%s%s\n" //ClassicLWBounce
 		"%s%s\n" //ClassicBounceHorCnl
 		"%s%s\n" //ClassicNoBounceEnemy
@@ -630,6 +632,7 @@ void WriteINI(FILE* iniFile)
 		"[Classic]",
 		"ClassicBounceEnable", ClassicBounceEnable,
 		"ClassicBounceTrigger", ClassicBounceTrigger,
+		"ClassicSoundType=", ClassicSoundType,
 		"ClassicLWBounce", ClassicLWBounce,
 		"ClassicBounceHorCnl", ClassicBounceHorCnl,
 		"ClassicNoBounceEnemy", ClassicNoBounceEnemy,
@@ -665,7 +668,6 @@ void ReadINI(std::string saveFilePath)
 	ModernSoundType = reader->GetInteger("Modern", "ModernSoundType", ModernSoundType);
 	ModernBounceVO = reader->GetBoolean("Modern", "ModernBounceVO", ModernBounceVO);
 	ModernBallType = reader->GetInteger("Modern", "ModernBallType", ModernBallType);
-	//printf("BALL TYPE: %d\n", ModernBallType);
 	SelectBounceBall = (SelectBounceBallType)ModernBallType;
 	ModernLWBounce = reader->GetBoolean("Modern", "ModernLWBounce", ModernLWBounce);
 	ModernBounceHorCnl = reader->GetBoolean("Modern", "ModernBounceHorCnl", ModernBounceHorCnl);
@@ -682,6 +684,7 @@ void ReadINI(std::string saveFilePath)
 	//Classic
 	ClassicBounceEnable = reader->GetBoolean("Classic", "ClassicBounceEnable", ClassicBounceEnable);
 	ClassicBounceTrigger = reader->GetBoolean("Classic", "ClassicBounceTrigger", ClassicBounceTrigger);
+	ClassicSoundType = reader->GetInteger("Classic", "ClassicSoundType", ClassicSoundType);
 	ClassicLWBounce = reader->GetBoolean("Classic", "ClassicLWBounce", ClassicLWBounce);
 	ClassicBounceHorCnl = reader->GetBoolean("Classic", "ClassicBounceHorCnl", ClassicBounceHorCnl);
 	ClassicNoBounceEnemy = reader->GetBoolean("Classic", "ClassicNoBounceEnemy", ClassicNoBounceEnemy);

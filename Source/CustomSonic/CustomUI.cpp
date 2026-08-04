@@ -103,7 +103,7 @@ static void* fCAnimationStateMachineSetBlend(Sonic::CAnimationStateMachine* This
 	return result;
 }
 
-class CustomizeSonicPreviewRenderable : public CustomizeSonicRenderable, public Sonic::CGameObject
+class CObjCustomSonicPreview : public CObjCustomSonicBase, public Sonic::CGameObject
 {
 public:
 	boost::shared_ptr<Hedgehog::Mirage::CSingleElement> m_spSnEyes{};
@@ -338,7 +338,18 @@ public:
 		RemoveRenderables();
 	}
 };
-boost::shared_ptr<CustomizeSonicPreviewRenderable> obj_CustomizeSonicPreviewRenderable;
+boost::shared_ptr<CObjCustomSonicPreview> obj_CObjCustomSonicPreview;
+
+class CCustomSonicPreviewRenderable : public Hedgehog::Mirage::CSingleElement
+{
+public:
+
+
+	void Render(const Hedgehog::Mirage::CRenderInfo& in_rRenderInfo, Hedgehog::Base::CStringSymbol in_RenderLevel, uint32_t in_Unknown) override
+	{
+		// TODO
+	}
+};
 
 
 //Menu Functions
@@ -396,8 +407,8 @@ void CHudUISceneDestroy()
 		Chao::CSD::CProject::DestroyScene(prFittingScreenSWA.Get(), scSWAScrollBG);
 	if (scSWASelect)
 		Chao::CSD::CProject::DestroyScene(prFittingScreenSWA.Get(), scSWASelect);
-	if (obj_CustomizeSonicPreviewRenderable)
-		obj_CustomizeSonicPreviewRenderable->Kill();
+	if (obj_CObjCustomSonicPreview)
+		obj_CObjCustomSonicPreview->Kill();
 }
 
 void KillScreen()
@@ -605,8 +616,8 @@ void CHudUIOpen(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo&
 		CHudUIPlayAnim(scBBPrevBtmTxt, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 0.5f);
 		CHudUIPlayAnim(scBBPrevBtmBtn, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 2.0f);
 
-		obj_CustomizeSonicPreviewRenderable = boost::make_shared<CustomizeSonicPreviewRenderable>();
-		Sonic::CGameDocument::GetInstance()->AddGameObject(obj_CustomizeSonicPreviewRenderable);
+		obj_CObjCustomSonicPreview = boost::make_shared<CObjCustomSonicPreview>();
+		Sonic::CGameDocument::GetInstance()->AddGameObject(obj_CObjCustomSonicPreview);
 	}
 	if (IsPreviewOpen == false)
 	{
@@ -729,11 +740,11 @@ void RefreshCustomizeSonic(SelectCategory in_category = SelectCategory::All)
 
 	MsgRefreshCustomizeSonic msgRefreshCustomizeSonic{ SelectCategory(category) };
 
-	if (obj_CustomizeSonicPlayerRenderable)
-		obj_CustomizeSonicPlayerRenderable->SendMessageImm<MsgRefreshCustomizeSonic>(obj_CustomizeSonicPlayerRenderable->m_ActorID, msgRefreshCustomizeSonic);
+	if (obj_CObjCustomSonicPlayer)
+		obj_CObjCustomSonicPlayer->SendMessageImm<MsgRefreshCustomizeSonic>(obj_CObjCustomSonicPlayer->m_ActorID, msgRefreshCustomizeSonic);
 
-	if (obj_CustomizeSonicPreviewRenderable)
-		obj_CustomizeSonicPreviewRenderable->SendMessageImm<MsgRefreshCustomizeSonic>(obj_CustomizeSonicPreviewRenderable->m_ActorID, msgRefreshCustomizeSonic);
+	if (obj_CObjCustomSonicPreview)
+		obj_CObjCustomSonicPreview->SendMessageImm<MsgRefreshCustomizeSonic>(obj_CObjCustomSonicPreview->m_ActorID, msgRefreshCustomizeSonic);
 
 	s_ItemDataBodyPrev = currBodyData;
 }
@@ -1402,8 +1413,8 @@ void CHedUIPreview()
 		IsPreviewOpen = true;
 		CHudUISFXOpen();
 
-		obj_CustomizeSonicPreviewRenderable = boost::make_shared<CustomizeSonicPreviewRenderable>();
-		Sonic::CGameDocument::GetInstance()->AddGameObject(obj_CustomizeSonicPreviewRenderable);
+		obj_CObjCustomSonicPreview = boost::make_shared<CObjCustomSonicPreview>();
+		Sonic::CGameDocument::GetInstance()->AddGameObject(obj_CObjCustomSonicPreview);
 	}
 	if (IsPreviewOpen == true && PrevOpenTimer == 0)
 	{
@@ -1417,8 +1428,8 @@ void CHedUIPreview()
 		IsPreviewOpen = false;
 		CHudUISFXExit();
 
-		if (obj_CustomizeSonicPreviewRenderable)
-			obj_CustomizeSonicPreviewRenderable->Kill();
+		if (obj_CObjCustomSonicPreview)
+			obj_CObjCustomSonicPreview->Kill();
 	}
 	CHudUIPlayAnim(scBBBtmBtn, "Left_ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 }
@@ -1473,13 +1484,13 @@ void CHudUISwitch(int Type)
 			{
 				CHudTabSel = UIPartBody;
 				if (PrevCatAnim)
-					obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_BODY");
+					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_BODY");
 			}
 			if (IsInMenuChangeL)
 			{
 				CHudTabSel = UIMiscOption;
 				if (PrevCatAnim)
-					obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_MISC");
+					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_MISC");
 			}
 			break;
 		case UIPartBody:
@@ -1487,13 +1498,13 @@ void CHudUISwitch(int Type)
 			{
 				CHudTabSel = UIPartHead;
 				if (PrevCatAnim)
-					obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_HEAD");
+					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_HEAD");
 			}
 			if (IsInMenuChangeL)
 			{
 				CHudTabSel = UIPartShoes;
 				if (PrevCatAnim)
-					obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_SHOES");
+					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_SHOES");
 			}
 			break;
 		case UIPartHead:
@@ -1501,13 +1512,13 @@ void CHudUISwitch(int Type)
 			{
 				CHudTabSel = UIPartHandL;
 				if (PrevCatAnim)
-					obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_HANDL");
+					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_HANDL");
 			}
 			if (IsInMenuChangeL)
 			{
 				CHudTabSel = UIPartBody;
 				if (PrevCatAnim)
-					obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_BODY");
+					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_BODY");
 			}
 			break;
 		case UIPartHandL:
@@ -1515,13 +1526,13 @@ void CHudUISwitch(int Type)
 			{
 				CHudTabSel = UIPartHandR;
 				if (PrevCatAnim)
-					obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_HANDR");
+					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_HANDR");
 			}
 			if (IsInMenuChangeL)
 			{
 				CHudTabSel = UIPartHead;
 				if (PrevCatAnim)
-					obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_HEAD");
+					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_HEAD");
 			}
 			break;
 		case UIPartHandR:
@@ -1529,13 +1540,13 @@ void CHudUISwitch(int Type)
 			{
 				CHudTabSel = UIMiscOption;
 				if (PrevCatAnim)
-					obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_MISC");
+					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_MISC");
 			}
 			if (IsInMenuChangeL)
 			{
 				CHudTabSel = UIPartHandL;
 				if (PrevCatAnim)
-					obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_HANDL");
+					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_HANDL");
 			}
 			break;
 		case UIMiscOption:
@@ -1543,13 +1554,13 @@ void CHudUISwitch(int Type)
 			{
 				CHudTabSel = UIPartShoes;
 				if (PrevCatAnim)
-					obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_SHOES");
+					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_SHOES");
 			}
 			if (IsInMenuChangeL)
 			{
 				CHudTabSel = UIPartHandR;
 				if (PrevCatAnim)
-					obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_HANDR");
+					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_HANDR");
 			}
 			break;
 		}
@@ -1598,8 +1609,8 @@ void CHudUIExit(int Type)
 			CHudUIPlayAnim(scBBPrevBtmTxt, "Intro_Anim", 17.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -0.5f);
 			CHudUIPlayAnim(scBBPrevBtmBtn, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -1.0f);
 
-			if (obj_CustomizeSonicPreviewRenderable)
-				obj_CustomizeSonicPreviewRenderable->Kill();
+			if (obj_CObjCustomSonicPreview)
+				obj_CObjCustomSonicPreview->Kill();
 		}
 
 		if (scBBDeco)
@@ -2202,17 +2213,17 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 					switch (PrevAnim)
 					{
 					case 0:
-						obj_CustomizeSonicPreviewRenderable->ChangeAnimation("FITTING");
+						obj_CObjCustomSonicPreview->ChangeAnimation("FITTING");
 						PrevCatAnim = false;
 						PrevAnim = 1;
 						break;
 					case 1:
-						obj_CustomizeSonicPreviewRenderable->ChangeAnimation("IDLE");
+						obj_CObjCustomSonicPreview->ChangeAnimation("IDLE");
 						PrevCatAnim = false;
 						PrevAnim = 2;
 						break;
 					case 2:
-						obj_CustomizeSonicPreviewRenderable->ChangeAnimation("RUN");
+						obj_CObjCustomSonicPreview->ChangeAnimation("RUN");
 						PrevCatAnim = false;
 						PrevAnim = 3;
 						break;
@@ -2220,22 +2231,22 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 						switch (CHudTabSel)
 						{
 						case UIPartShoes:
-							obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_SHOES");
+							obj_CObjCustomSonicPreview->ChangeAnimation("CAT_SHOES");
 							break;
 						case UIPartBody:
-							obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_BODY");
+							obj_CObjCustomSonicPreview->ChangeAnimation("CAT_BODY");
 							break;
 						case UIPartHead:
-							obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_HEAD");
+							obj_CObjCustomSonicPreview->ChangeAnimation("CAT_HEAD");
 							break;
 						case UIPartHandL:
-							obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_HANDL");
+							obj_CObjCustomSonicPreview->ChangeAnimation("CAT_HANDL");
 							break;
 						case UIPartHandR:
-							obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_HANDR");
+							obj_CObjCustomSonicPreview->ChangeAnimation("CAT_HANDR");
 							break;
 						case UIMiscOption:
-							obj_CustomizeSonicPreviewRenderable->ChangeAnimation("CAT_MISC");
+							obj_CObjCustomSonicPreview->ChangeAnimation("CAT_MISC");
 							break;
 						}
 						PrevCatAnim = true;
@@ -2684,8 +2695,8 @@ HOOK(int, __fastcall, CSonicStatePluginSuperSonicStart, 0x11D6840, uint32_t This
 	int result = originalCSonicStatePluginSuperSonicStart(This);
 	printf("SUPER SONIC START\n");
 
-	if(obj_CustomizeSonicPlayerRenderable)
-		obj_CustomizeSonicPlayerRenderable->SetSuper(true);
+	if(obj_CObjCustomSonicPlayer)
+		obj_CObjCustomSonicPlayer->SetSuper(true);
 	RefreshCustomizeSonic(SelectCategory::All);
 	
 	return result;
@@ -2695,8 +2706,8 @@ HOOK(int, __fastcall, CSonicStatePluginSuperSonicEnd, 0x11D6720, uint32_t This)
 	int result = originalCSonicStatePluginSuperSonicEnd(This);
 	printf("SUPER SONIC END\n");
 
-	if (obj_CustomizeSonicPlayerRenderable)
-		obj_CustomizeSonicPlayerRenderable->SetSuper(false);
+	if (obj_CObjCustomSonicPlayer)
+		obj_CObjCustomSonicPlayer->SetSuper(false);
 	RefreshCustomizeSonic(SelectCategory::All);
 
 	return result;

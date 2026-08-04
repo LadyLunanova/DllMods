@@ -153,6 +153,7 @@ void WriteINI(FILE* iniFile)
 		"%s%d\n"  //SelectSsnHead
 		"%s%d\n"  //SelectSsnMaterial
 		"%s%d\n"  //SelectJumpBall
+		"%s%d\n"  //SelectBounceBall
 		"%s%s\n", //IsPreviewOpen
 		"[Select]",
 		"SelectShoes=", s_ItemDataShoes[SelectShoesData].Name.c_str(),
@@ -170,6 +171,7 @@ void WriteINI(FILE* iniFile)
 		"SelectSsnHead=", SelectSsnHead,
 		"SelectSsnMaterial=", SelectSsnMaterial,
 		"SelectJumpBall=", SelectJumpBall,
+		"SelectBounceBall=", SelectBounceBall,
 		"IsPreviewOpen=", (IsPreviewOpen ? "true" : "false"));
 	fputs(buffer, iniFile);
 	fclose(iniFile);
@@ -204,6 +206,7 @@ void ReadINI(std::string saveFilePath)
 	SelectSsnHead = (SelectSsnHeadType)reader->GetInteger("Select", "SelectSsnHead", int(SelectSsnHead));
 	SelectSsnMaterial = (SelectSsnMaterialType)reader->GetInteger("Select", "SelectSsnForm", int(SelectSsnMaterial));
 	SelectJumpBall = (SelectJumpBallType)reader->GetInteger("Select", "SelectJumpBall", int(SelectJumpBall));
+	SelectBounceBall = (SelectBounceBallType)reader->GetInteger("Select", "SelectBounceBall", int(SelectBounceBall));
 	IsPreviewOpen = reader->GetBoolean("Select", "IsPreviewOpen", IsPreviewOpen);
 }
 

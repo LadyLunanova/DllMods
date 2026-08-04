@@ -39,7 +39,7 @@ int HyperFrameCycle{};
 bool isRenderableCreated{};
 bool isJumpBallHide{};
 
-boost::shared_ptr<CustomizeSonicPlayerRenderable> obj_CustomizeSonicPlayerRenderable;
+boost::shared_ptr<CObjCustomSonicPlayer> obj_CObjCustomSonicPlayer;
 
 void MsgJumpModelHide(bool Enabled)
 {
@@ -453,8 +453,8 @@ void CreateCustomizeSonicPlayerRenderable()
 {
 	if (!isRenderableCreated)
 	{
-		obj_CustomizeSonicPlayerRenderable = boost::make_shared<CustomizeSonicPlayerRenderable>();
-		Sonic::CGameDocument::GetInstance()->AddGameObject(obj_CustomizeSonicPlayerRenderable);
+		obj_CObjCustomSonicPlayer = boost::make_shared<CObjCustomSonicPlayer>();
+		Sonic::CGameDocument::GetInstance()->AddGameObject(obj_CObjCustomSonicPlayer);
 		isRenderableCreated = true;
 	}
 }
@@ -463,8 +463,8 @@ void KillCustomizeSonicPlayerRenderable()
 {
 	if (isRenderableCreated)
 	{
-		obj_CustomizeSonicPlayerRenderable->Kill();
-		obj_CustomizeSonicPlayerRenderable = nullptr;
+		obj_CObjCustomSonicPlayer->Kill();
+		obj_CObjCustomSonicPlayer = nullptr;
 		isRenderableCreated = false;
 		//printf("KILL RENDERABLE\n");
 	}

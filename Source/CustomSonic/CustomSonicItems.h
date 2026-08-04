@@ -142,7 +142,7 @@ public:
     }
 };
 
-class CustomizeSonicRenderable
+class CObjCustomSonicBase
 {
 public:
 	boost::shared_ptr<Hedgehog::Database::CDatabase> m_spDatabase{};
@@ -372,7 +372,7 @@ public:
 	}
 };
 
-class CustomizeSonicPlayerRenderable : public CustomizeSonicRenderable, public Sonic::CGameObject3D
+class CObjCustomSonicPlayer : public CObjCustomSonicBase, public Sonic::CGameObject3D
 {
 public:
 	void AddCallback(const Hedgehog::Base::THolder<Sonic::CWorld>& in_rWorldHolder, Sonic::CGameDocument* in_pGameDocument, const boost::shared_ptr<Hedgehog::Database::CDatabase>& in_spDatabase) override
@@ -463,7 +463,7 @@ public:
 		RemoveRenderables();
 	}
 };
-extern boost::shared_ptr<CustomizeSonicPlayerRenderable> obj_CustomizeSonicPlayerRenderable;
+extern boost::shared_ptr<CObjCustomSonicPlayer> obj_CObjCustomSonicPlayer;
 
 void CreateCustomizeSonicPlayerRenderable();
 void KillCustomizeSonicPlayerRenderable();

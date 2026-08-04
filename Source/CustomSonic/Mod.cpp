@@ -105,7 +105,6 @@ EXPORT void Init(ModInfo_t* modInfo)
 		IsBounceModEnabled(true);
 	else
 		IsBounceModEnabled(false);
-
 }
 
 EXPORT void PostInit()

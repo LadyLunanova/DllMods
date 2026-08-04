@@ -582,6 +582,7 @@ void WriteINI(FILE* iniFile)
 		"%s%s\n" //ModernBounceTrigger
 		"%s%d\n" //ModernSoundType
 		"%s%s\n" //ModernBounceVO
+		"%s%s\n" //ModernBlueTrail
 		"%s%d\n" //ModernBallType
 		"%s%s\n" //ModernLWBounce
 		"%s%s\n" //ModernBounceHorCnl
@@ -600,6 +601,7 @@ void WriteINI(FILE* iniFile)
 		"%s%s\n" //ClassicBounceEnable
 		"%s%s\n" //ClassicBounceTrigger
 		"%s%d\n" //ClassicSoundType
+		"%s%s\n" //ClassicBlueTrail
 		"%s%s\n" //ClassicLWBounce
 		"%s%s\n" //ClassicBounceHorCnl
 		"%s%s\n" //ClassicNoBounceEnemy
@@ -616,6 +618,7 @@ void WriteINI(FILE* iniFile)
 		"ModernBounceTrigger=", ModernBounceTrigger,
 		"ModernSoundType=", ModernSoundType,
 		"ModernBounceVO=", ModernBounceVO,
+		"ModernBlueTrail=", ModernBlueTrail,
 		"ModernBallType=", ModernBallType,
 		"ModernLWBounce=", ModernLWBounce,
 		"ModernBounceHorCnl=", ModernBounceHorCnl,
@@ -633,6 +636,7 @@ void WriteINI(FILE* iniFile)
 		"ClassicBounceEnable", ClassicBounceEnable,
 		"ClassicBounceTrigger", ClassicBounceTrigger,
 		"ClassicSoundType=", ClassicSoundType,
+		"ClassicBlueTrail=", ClassicBlueTrail,
 		"ClassicLWBounce", ClassicLWBounce,
 		"ClassicBounceHorCnl", ClassicBounceHorCnl,
 		"ClassicNoBounceEnemy", ClassicNoBounceEnemy,
@@ -667,6 +671,7 @@ void ReadINI(std::string saveFilePath)
 	ModernBounceTrigger = reader->GetBoolean("Modern", "ModernBounceTrigger", ModernBounceTrigger);
 	ModernSoundType = reader->GetInteger("Modern", "ModernSoundType", ModernSoundType);
 	ModernBounceVO = reader->GetBoolean("Modern", "ModernBounceVO", ModernBounceVO);
+	ModernBlueTrail = reader->GetBoolean("Modern", "ModernBlueTrail", ModernBlueTrail);
 	ModernBallType = reader->GetInteger("Modern", "ModernBallType", ModernBallType);
 	SelectBounceBall = (SelectBounceBallType)ModernBallType;
 	ModernLWBounce = reader->GetBoolean("Modern", "ModernLWBounce", ModernLWBounce);
@@ -685,6 +690,7 @@ void ReadINI(std::string saveFilePath)
 	ClassicBounceEnable = reader->GetBoolean("Classic", "ClassicBounceEnable", ClassicBounceEnable);
 	ClassicBounceTrigger = reader->GetBoolean("Classic", "ClassicBounceTrigger", ClassicBounceTrigger);
 	ClassicSoundType = reader->GetInteger("Classic", "ClassicSoundType", ClassicSoundType);
+	ClassicBlueTrail = reader->GetBoolean("Classic", "ClassicBlueTrail", ClassicBlueTrail);
 	ClassicLWBounce = reader->GetBoolean("Classic", "ClassicLWBounce", ClassicLWBounce);
 	ClassicBounceHorCnl = reader->GetBoolean("Classic", "ClassicBounceHorCnl", ClassicBounceHorCnl);
 	ClassicNoBounceEnemy = reader->GetBoolean("Classic", "ClassicNoBounceEnemy", ClassicNoBounceEnemy);

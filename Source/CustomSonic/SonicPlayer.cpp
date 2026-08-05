@@ -41,6 +41,30 @@ void MsgJumpBall(SelectJumpBallType BallType)
 void CreateCustomizeSonicPlayerRenderable();
 void KillCustomizeSonicPlayerRenderable();
 
+// Get Stage ID
+// Original code by Brianuuu: https://github.com/brianuuu
+inline uint32_t GetMultiLevelAddress(uint32_t initAddress, std::vector<uint32_t> offsets)
+{
+	uint32_t address = *(uint32_t*)initAddress;
+	for (uint32_t i = 0; i < offsets.size(); i++)
+	{
+		uint32_t const& offset = offsets[i];
+		address += offset;
+
+		if (i < offsets.size() - 1)
+		{
+			address = *(uint32_t*)address;
+		}
+	}
+	return address;
+}
+inline uint32_t GetCurrentStageID()
+{
+	uint32_t stageIDAddress = GetMultiLevelAddress(0x1E66B34, { 0x4, 0x1B4, 0x80, 0x0 });
+	return *(uint32_t*)stageIDAddress;
+}
+bool pamRestrict = false;
+
 //////Renderables//////
 void MsgJumpModelHide(bool Enabled);
 static uint32_t pCAnimationStateMachineSetBlend = 0xCE0720;
@@ -605,9 +629,20 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	bool PressedRight = input.IsTapped(Sonic::eKeyState_DpadRight);
 	bool PressedY = input.IsTapped(Sonic::eKeyState_Y);
 	bool IsModernSonic = (Sonic::Player::CSonicClassicContext::GetInstance() == nullptr) && (Sonic::Player::CSonicSpContext::GetInstance() == nullptr);
+	bool IsClassicSonic = (Sonic::Player::CSonicClassicContext::GetInstance() != nullptr) && (Sonic::Player::CSonicSpContext::GetInstance() == nullptr);
 	bool IsSuper = sonic->m_pStateFlag->m_Flags[sonic->eStateFlag_InvokeSuperSonic];
+	uint8_t getPackedID = GetCurrentStageID();
 
-	if (IsModernSonic)
+	if (IsClassicSonic || getPackedID == !pam000)
+		pamRestrict = false;
+
+	if (getPackedID == pam000 && PressedY)
+	{
+		pamRestrict = true;
+		This->m_spCharacterModel->m_Enabled = false;
+	}
+
+	if (IsModernSonic && !pamRestrict)
 	{
 		CreateCustomizeSonicPlayerRenderable();
 
@@ -616,12 +651,14 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 		else
 			KillFireParticle(This);
 
+		if (getPackedID == pam000 && PressedY)
+			KillCustomizeSonicPlayerRenderable();
+
 		switch (PlayerSelectJumpBall)
 		{
 			case SelectJumpBallType::NoBall:
 				sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_JumpShortReleaseTime] = 256.0f;
 				break;
-				
 			case SelectJumpBallType::SA1:
 			case SelectJumpBallType::LW:
 			case SelectJumpBallType::Forces:
@@ -635,10 +672,9 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 				break;
 		}
 	}
+	else
+		KillCustomizeSonicPlayerRenderable();
 
-	//printf(sonic->GetCurrentAnimationName().c_str());
-	//printf(This->m_StateMachine.GetCurrentState()->GetStateName().c_str());
-	//printf("\n");
 
 	originalCPlayerSpeedUpdate(This, _, updateInfo);
 

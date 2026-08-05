@@ -1483,13 +1483,13 @@ void CHudUISwitch(int Type)
 			if (IsInMenuChangeR)
 			{
 				CHudTabSel = UIPartBody;
-				if (PrevCatAnim)
+				if (PrevCatAnim && obj_CObjCustomSonicPreview)
 					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_BODY");
 			}
 			if (IsInMenuChangeL)
 			{
 				CHudTabSel = UIMiscOption;
-				if (PrevCatAnim)
+				if (PrevCatAnim && obj_CObjCustomSonicPreview)
 					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_MISC");
 			}
 			break;
@@ -1497,13 +1497,13 @@ void CHudUISwitch(int Type)
 			if (IsInMenuChangeR)
 			{
 				CHudTabSel = UIPartHead;
-				if (PrevCatAnim)
+				if (PrevCatAnim && obj_CObjCustomSonicPreview)
 					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_HEAD");
 			}
 			if (IsInMenuChangeL)
 			{
 				CHudTabSel = UIPartShoes;
-				if (PrevCatAnim)
+				if (PrevCatAnim && obj_CObjCustomSonicPreview)
 					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_SHOES");
 			}
 			break;
@@ -1511,13 +1511,13 @@ void CHudUISwitch(int Type)
 			if (IsInMenuChangeR)
 			{
 				CHudTabSel = UIPartHandL;
-				if (PrevCatAnim)
+				if (PrevCatAnim && obj_CObjCustomSonicPreview)
 					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_HANDL");
 			}
 			if (IsInMenuChangeL)
 			{
 				CHudTabSel = UIPartBody;
-				if (PrevCatAnim)
+				if (PrevCatAnim && obj_CObjCustomSonicPreview)
 					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_BODY");
 			}
 			break;
@@ -1525,13 +1525,13 @@ void CHudUISwitch(int Type)
 			if (IsInMenuChangeR)
 			{
 				CHudTabSel = UIPartHandR;
-				if (PrevCatAnim)
+				if (PrevCatAnim && obj_CObjCustomSonicPreview)
 					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_HANDR");
 			}
 			if (IsInMenuChangeL)
 			{
 				CHudTabSel = UIPartHead;
-				if (PrevCatAnim)
+				if (PrevCatAnim && obj_CObjCustomSonicPreview)
 					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_HEAD");
 			}
 			break;
@@ -1539,13 +1539,13 @@ void CHudUISwitch(int Type)
 			if (IsInMenuChangeR)
 			{
 				CHudTabSel = UIMiscOption;
-				if (PrevCatAnim)
+				if (PrevCatAnim && obj_CObjCustomSonicPreview)
 					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_MISC");
 			}
 			if (IsInMenuChangeL)
 			{
 				CHudTabSel = UIPartHandL;
-				if (PrevCatAnim)
+				if (PrevCatAnim && obj_CObjCustomSonicPreview)
 					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_HANDL");
 			}
 			break;
@@ -1553,13 +1553,13 @@ void CHudUISwitch(int Type)
 			if (IsInMenuChangeR)
 			{
 				CHudTabSel = UIPartShoes;
-				if (PrevCatAnim)
+				if (PrevCatAnim && obj_CObjCustomSonicPreview)
 					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_SHOES");
 			}
 			if (IsInMenuChangeL)
 			{
 				CHudTabSel = UIPartHandR;
-				if (PrevCatAnim)
+				if (PrevCatAnim && obj_CObjCustomSonicPreview)
 					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_HANDR");
 			}
 			break;

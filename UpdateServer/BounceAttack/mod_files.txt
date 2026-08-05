@@ -1,0 +1,13 @@
+delete SA2Bounce.dll
+delete SA2Bounce.json
+delete SA2Bounce.ini
+delete disk/bb3/SonicBounce.ar.00
+delete disk/bb3/SonicBounce.arl
+add disk/bb3/+Sonic.ar.00
+add disk/bb3/+Sonic.arl
+add disk/bb3/+SonicClassic.ar.00
+add disk/bb3/+SonicClassic.arl
+add BAPBounce.dll
+add BAPBounce.ini
+add BAPBounce.json
+add mod.ini

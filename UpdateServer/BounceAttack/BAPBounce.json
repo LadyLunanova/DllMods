@@ -1,0 +1,614 @@
+{
+   "Groups":[
+	{
+         "Name":"Modern",
+         "DisplayName":"Modern Bounce Options",
+         "Elements":
+         [
+			{
+			"Name": "ModernBounceEnable",
+			"Description": [
+				"Enable bouncing for Modern Sonic."
+			],
+			"DisplayName": "Enable Bounce",
+			"Type":"bool",
+			"MinValue":null,
+			"MaxValue":null,
+			"DefaultValue":true
+			},
+			{
+			"Name": "ModernBounceTrigger",
+			"Description": [
+				"Enable bouncing when pressing one of the triggers mid-air.",
+				"(Modern Sonic)"
+			],
+			"DisplayName": "Trigger Bounce",
+			"Type":"bool",
+			"MinValue":null,
+			"MaxValue":null,
+			"DefaultValue":false
+			},
+			{
+               "Name":"ModernSoundType",
+               "DisplayName":"Sound Type",
+               "Description":[
+                  "Choose what SFX gets played when you bounce.",
+				  "(Modern Sonic)"
+               ],
+               "Type":"MSoundType",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":"0"
+            },
+			{
+			"Name": "ModernBounceVO",
+			"Description": [
+				"Play one of Sonic's voicelines when you bounce.",
+				"(Modern Sonic Only)"
+			],
+			"DisplayName": "Bounce Voicelines",
+			"Type":"bool",
+			"MinValue":null,
+			"MaxValue":null,
+			"DefaultValue":true
+			},
+			{
+			"Name": "ModernBlueTrail",
+			"Description": [
+				"Spawn a blue trail when bouncing.",
+				"(Modern Sonic)"
+			],
+			"DisplayName": "Blue Trail",
+			"Type":"bool",
+			"MinValue":null,
+			"MaxValue":null,
+			"DefaultValue":true
+			},
+			{
+               "Name":"ModernBallType",
+               "DisplayName":"Jumpball Type",
+               "Description":[
+                  "Choose what jumpball gets used when bouncing.",
+				  "(Modern Sonic Only)"
+               ],
+               "Type":"BallType",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":"0"
+            },
+			{
+			"Name": "ModernLWBounce",
+			"Description": [
+				"Bounce a maximum of 3 times, making Sonic trick after the 3rd bounce.",
+				"(Modern Sonic)"
+			],
+			"DisplayName": "Lost World Style Bounce",
+			"Type":"bool",
+			"MinValue":null,
+			"MaxValue":null,
+			"DefaultValue":false
+			},
+			{
+			"Name": "ModernBounceHorCnl",
+			"Description": [
+				"Cancel Sonic's horizontal momentum when bouncing.",
+				"(Modern Sonic)"
+			],
+			"DisplayName": "Cancel Horizontal Momentum",
+			"Type":"bool",
+			"MinValue":null,
+			"MaxValue":null,
+			"DefaultValue":false
+			},
+			{
+			"Name": "ModernNoBounceEnemy",
+			"Description": [
+				"Go through enemies instead of bouncing on them.",
+				"(It still kills them though)",
+				"(Modern Sonic)"
+			],
+			"DisplayName": "Go through enemies",
+			"Type":"bool",
+			"MinValue":null,
+			"MaxValue":null,
+			"DefaultValue":false
+			},
+			{
+               "Name":"ModernGroundActionType",
+               "DisplayName":"Ground Action Type",
+               "Description":[
+                  "Choose what happens when you touch the ground when bouncing.",
+				  "(Modern Sonic Only)"
+               ],
+               "Type":"GroundType",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":"0"
+            },
+			{
+			"Name": "ModernBounceTricking",
+			"Description": [
+				"Bouncing makes sonic trick instead of curling into a ball.",
+				"(Modern Sonic)"
+			],
+			"DisplayName": "Bounce Tricking",
+			"Type":"bool",
+			"MinValue":null,
+			"MaxValue":null,
+			"DefaultValue":false
+			},
+            {
+               "Name":"ModernBounce01",
+               "DisplayName":"1st Bounce Height",
+               "Description":[
+                  "The speed of Sonic's 1st bounce.",
+				  "(Default: 17)",
+				  "(Measured in meters/s)",
+				  "(Modern Sonic)"
+               ],
+               "Type":"float",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":17
+            },
+            {
+               "Name":"ModernBounce02",
+               "DisplayName":"2nd Bounce Height",
+               "Description":[
+                  "The speed of Sonic's 2nd bounce.",
+				  "(Default: 18.5)",
+				  "(Measured in meters/s)",
+				  "(Modern Sonic)"
+               ],
+               "Type":"float",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":18.5
+            },
+			{
+               "Name":"ModernBounce03",
+               "DisplayName":"3rd Bounce Height",
+               "Description":[
+                  "The speed of Sonic's 3rd bounce.",
+				  "(Default: 20)",
+				  "(Measured in meters/s)",
+				  "(Modern Sonic)"
+               ],
+               "Type":"float",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":20
+            },
+			{
+               "Name":"ModernBounce04",
+               "DisplayName":"4th Bounce Height",
+               "Description":[
+                  "The speed of Sonic's 4th bounce.",
+				  "(Default: 22)",
+				  "(Measured in meters/s)",
+				  "(Modern Sonic)"
+               ],
+               "Type":"float",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":22
+            },
+			{
+               "Name":"ModernBounce05",
+               "DisplayName":"5th/Final Bounce Height",
+               "Description":[
+                  "The speed of Sonic's 5th/final bounce.",
+				  "(Default: 24)",
+				  "(Measured in meters/s)",
+				  "(Modern Sonic)"
+               ],
+               "Type":"float",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":24
+            },
+			{
+               "Name":"ModernBounceDrop",
+               "DisplayName":"Bounce Downwards Speed",
+               "Description":[
+                  "The initial downward speed of bouncing.",
+				  "(Default: 21)",
+				  "(Measured in meters/s)",
+				  "(Modern Sonic)"
+               ],
+               "Type":"float",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":21
+            },
+			{
+               "Name":"ModernBounceMulti",
+               "DisplayName":"Bounce Acceleration Multiplier",
+               "Description":[
+                  "Multiplier for the downward acceleration.",
+				  "(Default: 1)",
+				  "(Accelaration adds 1.022 downwards velocity each frame)",
+				  "(Modern Sonic)"
+               ],
+               "Type":"float",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":1
+            },
+         ]
+      },
+      {
+         "Name":"Classic",
+         "DisplayName":"Classic Bounce Options",
+         "Elements":
+         [
+			{
+			"Name": "ClassicBounceEnable",
+			"Description": [
+				"Enable bouncing for Classic Sonic."
+			],
+			"DisplayName": "Enable Bounce",
+			"Type":"bool",
+			"MinValue":null,
+			"MaxValue":null,
+			"DefaultValue":true
+			},
+			{
+			"Name": "ClassicBounceTrigger",
+			"Description": [
+				"Enable bouncing when pressing one of the triggers mid-air.",
+				"(Classic Sonic)"
+			],
+			"DisplayName": "Trigger Bounce",
+			"Type":"bool",
+			"MinValue":null,
+			"MaxValue":null,
+			"DefaultValue":false
+			},
+			{
+               "Name":"ClassicSoundType",
+               "DisplayName":"Sound Type",
+               "Description":[
+                  "Choose what SFX gets played when you bounce.",
+				  "(Classic Sonic)"
+               ],
+               "Type":"CSoundType",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":"0"
+            },
+			{
+			"Name": "ClassicBlueTrail",
+			"Description": [
+				"Spawn a blue trail when bouncing.",
+				"(Classic Sonic)"
+			],
+			"DisplayName": "Blue Trail",
+			"Type":"bool",
+			"MinValue":null,
+			"MaxValue":null,
+			"DefaultValue":true
+			},
+			{
+			"Name": "ClassicLWBounce",
+			"Description": [
+				"Bounce a maximum of 3 times, making Sonic trick after the 3rd bounce.",
+				"(Classic Sonic)"
+			],
+			"DisplayName": "Lost World Style Bounce",
+			"Type":"bool",
+			"MinValue":null,
+			"MaxValue":null,
+			"DefaultValue":false
+			},
+			{
+			"Name": "ClassicBounceHorCnl",
+			"Description": [
+				"Cancel Sonic's horizontal momentum when bouncing.",
+				"(Classic Sonic)"
+			],
+			"DisplayName": "Cancel Horizontal Momentum",
+			"Type":"bool",
+			"MinValue":null,
+			"MaxValue":null,
+			"DefaultValue":false
+			},
+			{
+			"Name": "ClassicNoBounceEnemy",
+			"Description": [
+				"Go through enemies instead of bouncing on them.",
+				"(It still kills them though)",
+				"(Classic Sonic)"
+			],
+			"DisplayName": "Go through enemies",
+			"Type":"bool",
+			"MinValue":null,
+			"MaxValue":null,
+			"DefaultValue":false
+			},
+			{
+			"Name": "ClassicBounceTricking",
+			"Description": [
+				"Bouncing makes sonic trick instead of curling into a ball.",
+				"(Classic Sonic)"
+			],
+			"DisplayName": "Bounce Tricking",
+			"Type":"bool",
+			"MinValue":null,
+			"MaxValue":null,
+			"DefaultValue":false
+			},
+            {
+               "Name":"ClassicBounce01",
+               "DisplayName":"1st Bounce Height",
+               "Description":[
+                  "The speed of Sonic's 1st bounce.",
+				  "(Default: 17)",
+				  "(Measured in meters/s)",
+				  "(Classic Sonic)"
+               ],
+               "Type":"float",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":17
+            },
+            {
+               "Name":"ClassicBounce02",
+               "DisplayName":"2nd Bounce Height",
+               "Description":[
+                  "The speed of Sonic's 2nd bounce.",
+				  "(Default: 18.5)",
+				  "(Measured in meters/s)",
+				  "(Classic Sonic)"
+               ],
+               "Type":"float",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":18.5
+            },
+			{
+               "Name":"ClassicBounce03",
+               "DisplayName":"3rd Bounce Height",
+               "Description":[
+                  "The speed of Sonic's 3rd bounce.",
+				  "(Default: 20)",
+				  "(Measured in meters/s)",
+				  "(Classic Sonic)"
+               ],
+               "Type":"float",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":20
+            },
+			{
+               "Name":"ClassicBounce04",
+               "DisplayName":"4th Bounce Height",
+               "Description":[
+                  "The speed of Sonic's 4th bounce.",
+				  "(Default: 22)",
+				  "(Measured in meters/s)",
+				  "(Classic Sonic)"
+               ],
+               "Type":"float",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":22
+            },
+			{
+               "Name":"ClassicBounce05",
+               "DisplayName":"5th/Final Bounce Height",
+               "Description":[
+                  "The speed of Sonic's 5th/final bounce.",
+				  "(Default: 24)",
+				  "(Measured in meters/s)",
+				  "(Classic Sonic)"
+               ],
+               "Type":"float",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":24
+            },
+			{
+               "Name":"ClassicBounceDrop",
+               "DisplayName":"Bounce Downwards Speed",
+               "Description":[
+                  "The initial downward speed of bouncing.",
+				  "(Default: 21)",
+				  "(Measured in meters/s)",
+				  "(Classic Sonic)"
+               ],
+               "Type":"float",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":21
+            },
+			{
+               "Name":"ClassicBounceMulti",
+               "DisplayName":"Bounce Acceleration Multiplier",
+               "Description":[
+                  "Multiplier for the downward acceleration.",
+				  "(Default: 1)",
+				  "(Accelaration adds 1.022 downwards velocity each frame)",
+				  "(Classic Sonic)"
+               ],
+               "Type":"float",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":1
+            },
+         ]
+      }
+   ],
+   "Enums":{
+      "GroundType":[
+         {
+            "DisplayName":"Always Bounce",
+            "Value":"0",
+            "Description":[
+               "Always bounces when touching the ground.",
+            ]
+         },
+         {
+            "DisplayName":"Hold B to Bounce",
+            "Value":"1",
+            "Description":[
+               "Bounces if you touch the ground while holding the B button, otherwise Stomps or Slides.",
+            ]
+         },
+		 {
+            "DisplayName":"Hold B to Stomp/Slide",
+            "Value":"2",
+            "Description":[
+               "Stomps or slides if you touch the ground while holding the B button, otherwise bounces.",
+            ]
+         },
+		 {
+            "DisplayName":"Always Stomp",
+            "Value":"3",
+            "Description":[
+               "Always Stomp or slide if you touch the ground.",
+            ]
+         }
+      ],
+      "BallType":[
+         {
+            "DisplayName":"Bounce Attack+",
+            "Value":"0",
+            "Description":[
+               "Use a new custom VFX ball."
+            ]
+         },
+         {
+            "DisplayName":"Default Jumpball",
+            "Value":"1",
+            "Description":[
+               "Use the default jumpball as the bounce ball."
+            ]
+         },
+         {
+            "DisplayName":"Unleashed",
+            "Value":"2",
+            "Description":[
+               "Use the Unleashed jumpball as the bounce ball."
+            ]
+         },
+         {
+            "DisplayName":"Beta Unleashed",
+            "Value":"3",
+            "Description":[
+               "Use the Unleashed Beta jumpball as the bounce ball."
+            ]
+         },
+		 {
+            "DisplayName":"Adventure 1",
+            "Value":"4",
+            "Description":[
+               "Use the Adventure 1 jumpball as the bounce ball."
+            ]
+         },
+		 {
+            "DisplayName":"Adventure 2",
+            "Value":"5",
+            "Description":[
+               "Use the Adventure 2 jumpball as the bounce ball."
+            ]
+         },
+         {
+            "DisplayName":"Lost World",
+            "Value":"6",
+            "Description":[
+               "Use the Lost World jumpball as the bounce ball."
+            ]
+         },
+         {
+            "DisplayName":"Forces",
+            "Value":"7",
+            "Description":[
+               "Use the Forces jumpball as the bounce ball."
+            ]
+         },
+         {
+            "DisplayName":"No Ball VFX",
+            "Value":"8",
+            "Description":[
+               "Don't use any VFX for bouncing."
+            ]
+         }
+      ],
+      "MSoundType":[
+         {
+            "DisplayName":"SA2",
+            "Value":"0",
+            "Description":[
+            "Use Sonic Adventure 2's SFX."
+            ]
+         },
+		 {
+            "DisplayName":"06",
+            "Value":"1",
+            "Description":[
+            "Use Sonic 06's SFX."
+            ]
+         },
+		 {
+            "DisplayName":"LW",
+            "Value":"2",
+            "Description":[
+            "Use Sonic Lost World's SFX."
+            ]
+         },
+		 {
+            "DisplayName":"Jump",
+            "Value":"3",
+            "Description":[
+            "Use Sonic's jump SFX."
+            ]
+         },
+		 {
+            "DisplayName":"Stomp",
+            "Value":"4",
+            "Description":[
+            "Use Sonic's stomp SFX."
+            ]
+         }
+      ],
+	  "CSoundType":[
+         {
+            "DisplayName":"SA2",
+            "Value":"0",
+            "Description":[
+            "Use Sonic Adventure 2's SFX."
+            ]
+         },
+		 {
+            "DisplayName":"06",
+            "Value":"1",
+            "Description":[
+            "Use Sonic 06's SFX."
+            ]
+         },
+		 {
+            "DisplayName":"LW",
+            "Value":"2",
+            "Description":[
+            "Use Sonic Lost World's SFX."
+            ]
+         },
+		 {
+            "DisplayName":"Jump",
+            "Value":"3",
+            "Description":[
+            "Use Sonic's jump SFX."
+            ]
+         },
+		 {
+            "DisplayName":"Bubble Shield",
+            "Value":"4",
+            "Description":[
+            "Use the Bubble Shield SFX."
+            ]
+         }
+      ]
+   },
+   "IniFile":"BAPBounce.ini"
+}

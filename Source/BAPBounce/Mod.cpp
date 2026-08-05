@@ -15,7 +15,6 @@ EXPORT void OnFrame()
 		MessageBoxA(nullptr, "The Unleashed Style Stomp code is not compatible with Bounce Attack+, Disable one before rebooting", "Code Incompatibility", MB_ICONERROR);
 		exit(-1);
 	}
-
 }
 
 EXPORT void Init()

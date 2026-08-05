@@ -379,7 +379,7 @@ public:
 
 		auto sonic = Sonic::Player::CPlayerSpeedContext::GetInstance();
 		bool IsSuper = sonic->m_pStateFlag->m_Flags[sonic->eStateFlag_InvokeSuperSonic];
-		printf("%s\n", IsSuper ? "SUPER TRUE" : "SUPER FALSE");
+		//printf("%s\n", IsSuper ? "SUPER TRUE" : "SUPER FALSE");
 
 		////Setup Model
 		hh::mr::CMirageDatabaseWrapper wrapper(in_spDatabase.get());
@@ -437,8 +437,6 @@ public:
 		}
 		m_spNPCAnimation->m_spAnimationPose->Update(in_rUpdateInfo.DeltaTime);
 		m_spNPCAnimation->m_spAnimationStateMachine->UpdateStateMachine(in_rUpdateInfo);
-
-		//printf("%f\n", m_spNPCAnimation->m_spAnimationStateMachine->m_Time);
 	}
 
 	void KillCallback() override
@@ -488,7 +486,7 @@ public:
 
 		auto sonic = Sonic::Player::CPlayerSpeedContext::GetInstance();
 		bool IsSuper = sonic->m_pStateFlag->m_Flags[sonic->eStateFlag_InvokeSuperSonic];
-		printf("%s\n", IsSuper ? "SUPER TRUE" : "SUPER FALSE");
+		//printf("%s\n", IsSuper ? "SUPER TRUE" : "SUPER FALSE");
 
 		////Setup Model
 		hh::mr::CMirageDatabaseWrapper wrapper(in_spDatabase.get());
@@ -558,10 +556,7 @@ public:
 		const Sonic::Player::CPlayerSpeedContext* context = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID))->GetContext();
 		const Sonic::Player::CPlayerSpeed* pPlayer = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID));
 		const Sonic::Player::CPlayer* cpcontext = static_cast<Sonic::Player::CPlayer*>(m_pMessageManager->GetMessageActor(playerID));
-
-		//printf("KILL CALLBACK\n");
 		Common::fCGlitterEnd(cpcontext->m_spContext.get(), WarsballVfxHandle, true); //Destroy Ball VFX
-
 		pPlayer->m_spCharacterModel->m_Enabled = true;
 		context->m_pPlayer->SendMessageImm(context->m_SuperRenderableActorID, boost::make_shared<Sonic::Message::MsgSetVisible>(true));
 	}
@@ -573,7 +568,7 @@ void WriteINI(FILE* iniFile)
 {
 	if (!iniFile)
 		return;
-	printf("WRITING INI");
+	//printf("WRITING INI");
 	printf("\n");
 	char buffer[1024]{};
 	snprintf(buffer, sizeof(buffer),
@@ -654,7 +649,7 @@ void WriteINI(FILE* iniFile)
 
 void ReadINI(std::string saveFilePath)
 {
-	printf("READING INI");
+	//printf("READING INI");
 	printf("\n");
 	INIReader* reader = new INIReader(saveFilePath);
 	if (reader->ParseError() != 0)

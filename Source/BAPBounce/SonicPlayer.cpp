@@ -26,20 +26,15 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	bool HoldB = input.IsDown(Sonic::eKeyState_B);
 
 	if (IsGrounded && !IsStomping && !IsJumping && !IsFalling)
-	{
 		BounceCount = 0;
-	}
 
 	//Classic Sonic
 	if (IsClassicSonic)
 	{
 		if (ClassicLWBounce && (BounceCount >= 3))
 			sonic->m_pStateFlag->m_Flags[sonic->eStateFlag_DisableStomping] = 1;
-		if (!IsDisableStomping && !IsGrounded && !IsOutOfControl && (IsJumping || IsFalling) && ClassicBounceEnable)
-		{
-			if (PressedB || (PressedTrigger && ClassicBounceTrigger))
-				sonic->ChangeState("Stomping");
-		}
+		if (!IsDisableStomping && !IsGrounded && !IsOutOfControl && (IsJumping || IsFalling) && ClassicBounceEnable && (PressedB || (PressedTrigger && ClassicBounceTrigger)))
+			sonic->ChangeState("Stomping");
 	}
 
 	//Modern Sonic
@@ -47,11 +42,8 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	{
 		if (ModernLWBounce && (BounceCount >= 3))
 			sonic->m_pStateFlag->m_Flags[sonic->eStateFlag_DisableStomping] = 1;
-		if (!IsDisableStomping && !IsGrounded && !IsOutOfControl && (IsJumping || IsFalling) && ModernBounceEnable)
-		{
-			if (PressedTrigger && ModernBounceTrigger)
-				sonic->ChangeState("Stomping");
-		}
+		if (!IsDisableStomping && !IsGrounded && !IsOutOfControl && (IsJumping || IsFalling) && ModernBounceEnable && (PressedTrigger && ModernBounceTrigger))
+			sonic->ChangeState("Stomping");
 	}
 
 	originalCPlayerSpeedUpdate(This, _, updateInfo);
@@ -75,13 +67,9 @@ HOOK(void, __fastcall, EnterStompBounce, 0x01254CA0, hh::fnd::CStateMachineBase:
 	}
 
 	if (!ModernNoBounceEnemy) //Check config setting
-	{
 		WRITE_MEMORY(0x16D6474, size_t, 0x11BCAB0); //Replace stomp's processMessage with jump's
-	}
 	else
-	{
 		WRITE_MEMORY(0x16D6474, size_t, 0x01254870); //Set stomp's processMessage to the original
-	}
 
 	auto sonic = (Sonic::Player::CPlayerSpeedContext*)This->m_pContext;
 	auto pPlayer = sonic->m_pPlayer;
@@ -95,7 +83,6 @@ HOOK(void, __fastcall, EnterStompBounce, 0x01254CA0, hh::fnd::CStateMachineBase:
 		switch (SelectBounceBall)
 		{
 		case SelectBounceBallType::NoVFX:
-			return;
 			break;
 		case SelectBounceBallType::BAP:
 			Common::fCGlitterCreate(sonic, BounceBallVfxHandle, middlematrixNode, "ef_ch_sng_yh1_bounceattack", 1);  //Create Ball VFX
@@ -132,7 +119,6 @@ HOOK(void, __fastcall, EnterStompBounce, 0x01254CA0, hh::fnd::CStateMachineBase:
 		switch (SelectBounceBall)
 		{
 		case SelectBounceBallType::NoVFX:
-			return;
 			break;
 		case SelectBounceBallType::BAP:
 			Common::fCGlitterCreate(sonic, BounceBallVfxHandle, middlematrixNode, "ef_ch_sps_yh1_bounceattack", 1);  //Create Ball VFX
@@ -223,15 +209,12 @@ HOOK(void, __fastcall, StompBounce, 0x012548C0, hh::fnd::CStateMachineBase::CSta
 			Common::fCGlitterCreate(sonic, BounceLandVfxHandle, groundmatrixNode, "ef_ch_sng_yh1_stomping2", 1);  //Create Stomp Land VFX
 
 			if (localVelocity.z() > 25.0f) //Check forward speed
-			{
 				player->m_StateMachine.ChangeState("Sliding"); //Change state to slide state
-			}
 			else
 			{
 				localVelocity.z() = 0.0f;
 				localVelocity.x() = 0.0f;
 				player->m_StateMachine.ChangeState("StompingLand"); //Change state to stomping land state
-				//originalStompBounce(This);
 			}
 		}
 		else
@@ -254,11 +237,9 @@ HOOK(void, __fastcall, StompBounce, 0x012548C0, hh::fnd::CStateMachineBase::CSta
 				sonic->PlaySound(2002043, true); //Play bounce SFX
 				break;
 			}
-			//MessageBoxA(nullptr, "SFX time", "Window", MB_OK);
 
 			if (ModernBounceVO)
 			{
-				//sonic->PlaySound(3002008, false); //Play voiceline
 				switch (rand)
 				{
 				case 0:
@@ -271,24 +252,14 @@ HOOK(void, __fastcall, StompBounce, 0x012548C0, hh::fnd::CStateMachineBase::CSta
 			}
 
 			if (IsSuper)
-			{
-				if (SelectBounceBall != SelectBounceBallType::SWA)
-					Common::fCGlitterCreate(sonic, BounceLandVfxHandle, groundmatrixNode, "ef_ch_sps_yh1_bounceland", 1);  //Create Super Stomp Land VFX
-			}
+				Common::fCGlitterCreate(sonic, BounceLandVfxHandle, groundmatrixNode, "ef_ch_sps_yh1_bounceland", 1);  //Create Super Stomp Land VFX
 			else
-			{
-				if (SelectBounceBall != SelectBounceBallType::SWA)
-					Common::fCGlitterCreate(sonic, BounceLandVfxHandle, groundmatrixNode, "ef_ch_sng_yh1_bounceland", 1);  //Create Normal Stomp Land VFX
-			}
+				Common::fCGlitterCreate(sonic, BounceLandVfxHandle, groundmatrixNode, "ef_ch_sng_yh1_bounceland", 1);  //Create Normal Stomp Land VFX
 
 			if (IsInWater || ModernBounceTricking || (ModernLWBounce && BounceCount >= 2)) //Check for tricking option
-			{
 				player->m_StateMachine.ChangeState("HomingAttackAfter"); //Change state to homing attack tricking state
-			}
 			else
-			{
 				player->m_StateMachine.ChangeState("Jump"); //Change state to jump state
-			}
 
 			switch (BounceCount) //Check how many times sonic has bounced
 			{
@@ -308,9 +279,6 @@ HOOK(void, __fastcall, StompBounce, 0x012548C0, hh::fnd::CStateMachineBase::CSta
 				localVelocity.y() = ModernBounce05; //Config Final bounce height
 				break;
 			}
-
-			//player->m_StateMachine.ChangeState("Jump"); //Change state to jump state
-			//player->m_StateMachine.ChangeState("Fall"); //Change state to jump state
 
 			sonic->m_pStateFlag->m_Flags[sonic->eStateFlag_EnableHomingAttack] = 1; //Set allow homing attack flag
 			BounceCount++; //Add to bounce int after bouncing
@@ -341,17 +309,11 @@ HOOK(void, __fastcall, ExitStompBounce, 0x01254B80, hh::fnd::CStateMachineBase::
 	}
 	pPlayer->m_spCharacterModel->m_Enabled = true;
 	if (obj_SonicJumpBallLWRenderable)
-	{
 		obj_SonicJumpBallLWRenderable->SendMessageImm<Sonic::Message::MsgKill>(obj_SonicJumpBallLWRenderable->m_ActorID);
-	}
 	if (obj_SonicJumpBallSA1Renderable)
-	{
 		obj_SonicJumpBallSA1Renderable->SendMessageImm<Sonic::Message::MsgKill>(obj_SonicJumpBallSA1Renderable->m_ActorID);
-	}
 	if (obj_SonicJumpBallWarsRenderable)
-	{
 		obj_SonicJumpBallWarsRenderable->SendMessageImm<Sonic::Message::MsgKill>(obj_SonicJumpBallWarsRenderable->m_ActorID);
-	}
 	Common::fCGlitterEnd(sonic, BounceBallVfxHandle, true); //Destroy Ball VFX
 	sonic->m_Velocity = sonic->m_spMatrixNode->m_Transform.m_Rotation * localVelocity; //Determine sonic's local velocity
 }
@@ -367,13 +329,9 @@ HOOK(void, __fastcall, EnterClassicStompBounce, 0x012555D0, hh::fnd::CStateMachi
 	}
 
 	if (!ClassicNoBounceEnemy) //Check config setting
-	{
 		WRITE_MEMORY(0x16D9268, size_t, 0x1114EB0); //Replace classic stomp's processMessage with jump's
-	}
 	else
-	{
 		WRITE_MEMORY(0x16D9268, size_t, 0x00E49B10); //Set classic stomp's processMessage to the original
-	}
 
 	auto sonic = (Sonic::Player::CPlayerSpeedContext*)This->m_pContext;
 	auto player = sonic->m_pPlayer;
@@ -422,7 +380,6 @@ HOOK(void, __fastcall, ClassicStompBounce, 0x01255240, hh::fnd::CStateMachineBas
 	if (CommonActSwitch(sonic, This))
 	{
 		Common::fCGlitterEnd(sonic, ClassicBounceBallVfxHandle, true); //Destroy Ball VFX
-		//Common::fCGlitterEnd(*PLAYER_CONTEXT, BounceTrailVfxHandle, false); //Stop Creating Ball Trail VFX
 		return;
 	}
 
@@ -430,7 +387,6 @@ HOOK(void, __fastcall, ClassicStompBounce, 0x01255240, hh::fnd::CStateMachineBas
 
 	if (IsGrounded)  //Check if sonic is touching the ground and check config option
 	{
-		//sonic->PlaySound(2001027, true); //Play bounce SFX
 		switch (ClassicSoundType)
 		{
 		case 0:
@@ -451,13 +407,9 @@ HOOK(void, __fastcall, ClassicStompBounce, 0x01255240, hh::fnd::CStateMachineBas
 		}
 
 		if (ClassicBounceTricking || IsInWater || (ClassicLWBounce && BounceCount >= 2)) //Check for tricking option and water
-		{
 			player->m_StateMachine.ChangeState("HomingAttackAfter"); //Change state to homing attack tricking state
-		}
 		else
-		{
 			player->m_StateMachine.ChangeState("Jump"); //Change state to jump state
-		}
 
 		switch (BounceCount) //Check how many times sonic has bounced
 		{
@@ -480,7 +432,6 @@ HOOK(void, __fastcall, ClassicStompBounce, 0x01255240, hh::fnd::CStateMachineBas
 
 		sonic->m_pStateFlag->m_Flags[sonic->eStateFlag_EnableHomingAttack] = 1; //Set allow homing attack flag
 		BounceCount++; //Add to bounce int after bouncing
-
 	}
 
 	localVelocity.y() += (-1.022 * ModernBounceMulti); //Add downward acceleration
@@ -506,9 +457,7 @@ HOOK(void, __fastcall, ExitClassicStompBounce, 0x012554C0, hh::fnd::CStateMachin
 	Common::SonicContextSetCollision(TypeSonicStomping, false, sonic);
 	Common::fCGlitterEnd(sonic, ClassicBounceBallVfxHandle, true); //Destroy Ball VFX
 	if (SparkEffectManager)
-	{
 		StopLocusEffect(SparkEffectManager, "HomingAttack");
-	}
 	sonic->m_Velocity = sonic->m_spMatrixNode->m_Transform.m_Rotation * localVelocity; //Determine sonic's local velocity
 }
 
@@ -517,10 +466,6 @@ HOOK(void, __cdecl, InitializeApplicationParams_BOUNCE, 0x00D65180, Sonic::CPara
 {
 	auto parameterGroupGen = This->CreateParameterGroup("Luna's Mods", "Parameters for Lady Luna's code mods");
 	Sonic::CEditParam* cat_Bounce_Gen = parameterGroupGen->CreateParameterCategory("Bounce Attack+ Modern", "Parameters for Modern Sonic in Bounce Attack+");
-
-	//cat_Bounce->CreateParamInt(&someInt, "Integer");
-	//cat_Bounce->CreateParamBool(&someBool, "Bool");
-	//cat_Bounce->CreateParamFloat(&someFloat, "Float");
 
 	cat_Bounce_Gen->CreateParamBool(&ModernBounceEnable, "Enable bouncing for Modern Sonic");
 	cat_Bounce_Gen->CreateParamBool(&ModernBounceTrigger, "Enable bouncing when pressing one of the triggers mid-air");
@@ -572,7 +517,7 @@ HOOK(void, __cdecl, InitializeApplicationParams_BOUNCE, 0x00D65180, Sonic::CPara
 	auto parameterGroupCla = This->CreateParameterGroup("Luna's Mods", "Parameters for Lady Luna's code mods");
 	Sonic::CEditParam* cat_Bounce_Cla = parameterGroupCla->CreateParameterCategory("Bounce Attack+ Classic", "Parameters for Classic Sonic in Bounce Attack+");
 
-	cat_Bounce_Cla->CreateParamBool(&ClassicBounceEnable, "Enable bouncing for Modern Sonic");
+	cat_Bounce_Cla->CreateParamBool(&ClassicBounceEnable, "Enable bouncing for Classic Sonic");
 	cat_Bounce_Cla->CreateParamBool(&ClassicBounceTrigger, "Enable bouncing when pressing one of the triggers mid-air");
 	cat_Bounce_Cla->CreateParamTypeList((uint32_t*)&ClassicSoundType, "Sound Type", "Choose what SFX gets played when you bounce",
 		{
@@ -612,6 +557,5 @@ void InstallSonicPlayer::applyPatches()
 	INSTALL_HOOK(ClassicStompBounce);
 	INSTALL_HOOK(ExitClassicStompBounce);
 	INSTALL_HOOK(InitializeApplicationParams_BOUNCE);
-
 	ReadINI("BAPBounce.ini");
 }

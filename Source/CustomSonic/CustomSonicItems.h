@@ -392,6 +392,8 @@ public:
 	{
 		auto playerID = GetGameDocument()->m_pMember->m_PlayerIDs.begin()[0];
 		auto pPlayer = static_cast<Sonic::Player::CPlayerSpeed*>(m_pMessageManager->GetMessageActor(playerID));
+		if (pPlayer == nullptr)
+			return RemoveRenderables();
 		auto pContext = pPlayer->GetContext();
 
 		if (m_isSuper)

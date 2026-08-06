@@ -2577,7 +2577,6 @@ HOOK(void, __fastcall, CHudSonicStageUpdate, 0x1098A50, Sonic::CGameObject* This
 	bool Goal = sonic->m_StateMachine.GetCurrentState()->GetStateName() == "Goal";
 	if (IsModernSonic && !ExternalControl && !Goal)
 		CHudFittingMenu(This, Edx, in_rUpdateInfo);
-	//printf("Gameplay HUD\n");
 	originalCHudSonicStageUpdate(This, Edx, in_rUpdateInfo);
 }
 HOOK(void, __fastcall, CHudPlayableMenuUpdate, 0x0108D510, Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo& in_rUpdateInfo)
@@ -2589,7 +2588,6 @@ HOOK(void, __fastcall, CHudPlayableMenuUpdate, 0x0108D510, Sonic::CGameObject* T
 	bool Goal = sonic->m_StateMachine.GetCurrentState()->GetStateName() == "Goal";
 	if (IsModernSonic && !ExternalControl && !Goal)
 		CHudFittingMenu(This, Edx, in_rUpdateInfo);
-	//printf("Hub world HUD\n");
 	originalCHudPlayableMenuUpdate(This, Edx, in_rUpdateInfo);
 }
 
@@ -2658,14 +2656,12 @@ HOOK(void*, __fastcall, UpdateDirectorSimple, 0x1105A60, void* This, void* Edx, 
 {
 	if (IsInMenu)
 		return updateDirectorCustom(context, elapsedTime);
-
 	return originalUpdateDirectorSimple(This, Edx, context, elapsedTime);
 }
 HOOK(void*, __fastcall, UpdateDirectorNormal, 0x11B60B0, void* This, void* Edx, void* context, float elapsedTime)
 {
 	if (IsInMenu)
 		return updateDirectorCustom(context, elapsedTime);
-
 	return originalUpdateDirectorNormal(This, Edx, context, elapsedTime);
 }
 
@@ -2673,19 +2669,11 @@ HOOK(void*, __fastcall, UpdateDirectorNormal, 0x11B60B0, void* This, void* Edx, 
 HOOK(void, __fastcall, MsgLookAtStart, 0x00E3F420, void* This, void* notSonicContext)
 {
 	IsLookAt = true;
-
-	printf("LOOK AT START");
-	printf("\n");
-
 	originalMsgLookAtStart(This, notSonicContext);
 }
 HOOK(void, __fastcall, MsgLookAtEnd, 0x00E3F3B0, void* This, void* notSonicContext)
 {
 	IsLookAt = false;
-
-	printf("LOOK AT END");
-	printf("\n");
-
 	originalMsgLookAtEnd(This, notSonicContext);
 }
 
@@ -2693,7 +2681,6 @@ HOOK(void, __fastcall, MsgLookAtEnd, 0x00E3F3B0, void* This, void* notSonicConte
 HOOK(int, __fastcall, CSonicStatePluginSuperSonicStart, 0x11D6840, uint32_t This)
 {
 	int result = originalCSonicStatePluginSuperSonicStart(This);
-	printf("SUPER SONIC START\n");
 
 	if(obj_CObjCustomSonicPlayer)
 		obj_CObjCustomSonicPlayer->SetSuper(true);
@@ -2704,7 +2691,6 @@ HOOK(int, __fastcall, CSonicStatePluginSuperSonicStart, 0x11D6840, uint32_t This
 HOOK(int, __fastcall, CSonicStatePluginSuperSonicEnd, 0x11D6720, uint32_t This)
 {
 	int result = originalCSonicStatePluginSuperSonicEnd(This);
-	printf("SUPER SONIC END\n");
 
 	if (obj_CObjCustomSonicPlayer)
 		obj_CObjCustomSonicPlayer->SetSuper(false);

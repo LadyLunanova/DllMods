@@ -35,7 +35,6 @@ std::map<SelectOptionType, const char*> SelectOptionNameMap =
 	{ SelectOptionType::Overflow03,  "Null" }
 };
 
-int HyperFrameCycle{};
 bool isRenderableCreated{};
 bool isJumpBallHide{};
 
@@ -304,7 +303,6 @@ Hedgehog::Base::CSharedString CMaterialBodyString(bool in_isSuper)
 	}
 
 	sprintf(result, "%s", texExtVar);
-	//printf("%s%s\n", mapChar, texExtVar);
 	return Hedgehog::Base::CSharedString(result);
 }
 
@@ -466,7 +464,6 @@ void KillCustomizeSonicPlayerRenderable()
 		obj_CObjCustomSonicPlayer->Kill();
 		obj_CObjCustomSonicPlayer = nullptr;
 		isRenderableCreated = false;
-		//printf("KILL RENDERABLE\n");
 	}
 }
 
@@ -479,12 +476,6 @@ void OnFrameHandler()
 		MsgWildFire(0);
 
 	MsgJumpBall(SelectJumpBall);
-
-	if (HyperFrameCycle >= 59)
-		HyperFrameCycle = 0;
-	else
-		HyperFrameCycle++;
-
 }
 
 void ReadJson(std::string jsonFilePath, int cCat)

@@ -41,30 +41,6 @@ void MsgJumpBall(SelectJumpBallType BallType)
 void CreateCustomizeSonicPlayerRenderable();
 void KillCustomizeSonicPlayerRenderable();
 
-// Get Stage ID
-// Original code by Brianuuu: https://github.com/brianuuu
-inline uint32_t GetMultiLevelAddress(uint32_t initAddress, std::vector<uint32_t> offsets)
-{
-	uint32_t address = *(uint32_t*)initAddress;
-	for (uint32_t i = 0; i < offsets.size(); i++)
-	{
-		uint32_t const& offset = offsets[i];
-		address += offset;
-
-		if (i < offsets.size() - 1)
-		{
-			address = *(uint32_t*)address;
-		}
-	}
-	return address;
-}
-inline uint32_t GetCurrentStageID()
-{
-	uint32_t stageIDAddress = GetMultiLevelAddress(0x1E66B34, { 0x4, 0x1B4, 0x80, 0x0 });
-	return *(uint32_t*)stageIDAddress;
-}
-bool pamRestrict = false;
-
 //////Renderables//////
 void MsgJumpModelHide(bool Enabled);
 static uint32_t pCAnimationStateMachineSetBlend = 0xCE0720;
@@ -596,7 +572,6 @@ void SpawnFireParticle(Sonic::Player::CPlayer* player)
 	auto ChestNode = player->m_spCharacterModel->GetNode("Spine1"); //Set up Chest bone matrix for VFX
 	Eigen::Affine3f affine;
 	affine = ChestNode->m_WorldMatrix;
-
 	if (!WildfireVfxHandle)
 		Common::fCGlitterCreate(player->m_spContext.get(), WildfireVfxHandle, &ChestNode, "ef_ch_sng_wildfire", 1);  //Create Fire VFX
 }
@@ -604,7 +579,6 @@ void KillFireParticle(Sonic::Player::CPlayer* player)
 {
 	if (!WildfireVfxHandle)
 		return;
-
 	Common::fCGlitterEnd(player->m_spContext.get(), WildfireVfxHandle, true);
 	WildfireVfxHandle = nullptr;
 }
@@ -631,18 +605,8 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 	bool IsModernSonic = (Sonic::Player::CSonicClassicContext::GetInstance() == nullptr) && (Sonic::Player::CSonicSpContext::GetInstance() == nullptr);
 	bool IsClassicSonic = (Sonic::Player::CSonicClassicContext::GetInstance() != nullptr) && (Sonic::Player::CSonicSpContext::GetInstance() == nullptr);
 	bool IsSuper = sonic->m_pStateFlag->m_Flags[sonic->eStateFlag_InvokeSuperSonic];
-	uint8_t getPackedID = GetCurrentStageID();
-
-	if (IsClassicSonic || getPackedID == !pam000)
-		pamRestrict = false;
-
-	if (getPackedID == pam000 && PressedY)
-	{
-		pamRestrict = true;
-		This->m_spCharacterModel->m_Enabled = false;
-	}
-
-	if (IsModernSonic && !pamRestrict)
+	
+	if (IsModernSonic)
 	{
 		CreateCustomizeSonicPlayerRenderable();
 
@@ -651,30 +615,24 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 		else
 			KillFireParticle(This);
 
-		if (getPackedID == pam000 && PressedY)
-			KillCustomizeSonicPlayerRenderable();
-
 		switch (PlayerSelectJumpBall)
 		{
-			case SelectJumpBallType::NoBall:
-				sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_JumpShortReleaseTime] = 256.0f;
-				break;
-			case SelectJumpBallType::SA1:
-			case SelectJumpBallType::LW:
-			case SelectJumpBallType::Forces:
-				sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_JumpShortReleaseTime] = 0.0f;
-				sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_VertVelocityBallToFall] = -1000.0f;
-				break;
+		case SelectJumpBallType::NoBall:
+			sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_JumpShortReleaseTime] = 256.0f;
+			break;
+		case SelectJumpBallType::SA1:
+		case SelectJumpBallType::LW:
+		case SelectJumpBallType::Forces:
+			sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_JumpShortReleaseTime] = 0.0f;
+			sonic->m_spParameter->m_scpNode->m_ValueMap[Sonic::Player::ePlayerSpeedParameter_VertVelocityBallToFall] = -1000.0f;
+			break;
 
-			default:
-				sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_JumpShortReleaseTime);
-				sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_VertVelocityBallToFall);
-				break;
+		default:
+			sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_JumpShortReleaseTime);
+			sonic->m_spParameter->m_scpNode->m_ValueMap.erase(Sonic::Player::ePlayerSpeedParameter_VertVelocityBallToFall);
+			break;
 		}
 	}
-	else
-		KillCustomizeSonicPlayerRenderable();
-
 
 	originalCPlayerSpeedUpdate(This, _, updateInfo);
 
@@ -683,7 +641,6 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 		CustomParticleLight(0.0, 0.4, 2.0, 1.0, 4.2, This);
 		SuperParticleLight(This);
 	}
-		
 }
 HOOK(void, __fastcall, CSonicStateJumpBallStartState, 0x011BCBE0, hh::fnd::CStateMachineBase::CStateBase* This)
 {

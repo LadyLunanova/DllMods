@@ -14,41 +14,25 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
 		sonic->GetCurrentAnimationName() == "WallJumpB" ||
 		sonic->GetCurrentAnimationName() == "WallJumpC";
 	auto IsInWater = sonic->m_pStateFlag->m_Flags[sonic->eStateFlag_OnWater];
+	auto IsClassicSonic = (Sonic::Player::CSonicClassicContext::GetInstance() != nullptr);
 
-	if ((FallTimer <= 0.0 && IsFalling) || (IsInWater && (ConfWaterFlail == true) && IsFalling))
+	if (((FallTimer <= 0.0 && IsFalling) || (IsInWater && (ConfWaterFlail == true) && IsFalling)) && !IsFlailing && !IsClassicSonic)
 	{
-		if (!IsFlailing)
-		{
-			//sonic->ChangeAnimation("WallJumpA");
-			//sonic->ChangeAnimation("WallJumpB");
-			//sonic->ChangeAnimation("WallJumpC");
-			switch (ConfAnimType)
-			{
-			case 1:
-				sonic->ChangeAnimation("WallJumpB");
-				break;
-			default:
-				sonic->ChangeAnimation("WallJumpC");
-				break;
-			}
-		}
+		if (ConfAnimType == 1)
+			sonic->ChangeAnimation("WallJumpB");
+		else
+			sonic->ChangeAnimation("WallJumpC");
 	}
 
 	if (FallTimer >= 0.0)
-	{
 		FallTimer -= updateInfo.DeltaTime;
-	}
 
 	if (!IsFalling)
-	{
 		FallTimer = 0.0;
-	}
 
-	//printf(sonic->GetCurrentAnimationName().c_str()); //WallJumpC FallFast Fall FallLarge 01118F20
-	//printf(This->m_StateMachine.GetCurrentState()->GetStateName().c_str());
-	//printf(" - ");
-	//printf("%f", FallTimer);
-	//printf("\n");
+	//printf("Anim Name: %s\n", sonic->GetCurrentAnimationName().c_str()); //WallJumpC FallFast Fall FallLarge 01118F20
+	//printf("State Name: %s\n", This->m_StateMachine.GetCurrentState()->GetStateName().c_str());
+	//printf("Fall Timer: %f\n", FallTimer);
 
 	originalCPlayerSpeedUpdate(This, _, updateInfo);
 }
@@ -69,10 +53,6 @@ HOOK(void, __cdecl, InitializeApplicationParams, 0x00D65180, Sonic::CParameterFi
 {
 	auto parameterGroup = This->CreateParameterGroup("Luna's Mods", "Parameters for Lady Luna's code mods");
 	Sonic::CEditParam* cat_Bounce = parameterGroup->CreateParameterCategory("Fail Falling", "Parameters for Flail Falling");
-
-	//cat_Bounce->CreateParamInt(&someInt, "Integer");
-	//cat_Bounce->CreateParamBool(&someBool, "Bool");
-	//cat_Bounce->CreateParamFloat(&someFloat, "Float");
 
 	cat_Bounce->CreateParamBool(&ConfWaterFlail, "Always Flail Underwater");
 	cat_Bounce->CreateParamFloat(&ConfFallTimer, "Flail Timer");

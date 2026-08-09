@@ -4,10 +4,8 @@
     <ClCompile Include="Pch.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="Mod.cpp" />
-    <ClCompile Include="AnimationSetPatcher.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
-    <ClInclude Include="AnimationSetPatcher.h" />
   </ItemGroup>
 </Project>

@@ -57,16 +57,16 @@ boost::shared_ptr<Sonic::CGameObjectCSD> obBBCustomUI;
 boost::shared_ptr<Sonic::CGameObjectCSD> obSWACustomUI;
 static SharedPtrTypeless menuSoundHandle;
 
-enum MenuOptionType
+enum class MenuOptionType
 {
-	UIPartShoes,
-	UIPartBody,
-	UIPartHead,
-	UIPartHandL,
-	UIPartHandR,
-	UIMiscOption,
+	ItemShoes,
+	ItemBody,
+	ItemHead,
+	ItemHandL,
+	ItemHandR,
+	MiscOption,
 };
-MenuOptionType CHudTabSel = MenuOptionType::UIPartShoes;
+MenuOptionType CHudTabSel = MenuOptionType::ItemShoes;
 bool prevblur = false;
 bool IsInMenu = false;
 bool IsInMenuChange = false;
@@ -93,9 +93,18 @@ int ActivateButton = 0;
 float CHudVarScrollBarStarSpinFlt = 0.0f;
 
 int PrevOpenTimer = 0;
-int PrevAnim = 0;
+//int PrevAnim = 0;
+enum class PrevAnimType
+{
+	CATEGORY,
+	FITTING,
+	IDLE,
+	RUN,
+};
+PrevAnimType PrevAnim = PrevAnimType::CATEGORY;
 bool PrevCatAnim = true;
-float PrevRotation = 0.0f;
+float PrevRotation = 1.0f;
+bool PrevMouthLeft = false;
 bool IsPreviewOpen = true;
 
 static std::string saveFilePath;
@@ -133,8 +142,7 @@ void WriteINI(FILE* iniFile)
 {
 	if (!iniFile)
 		return;
-	printf("WRITING INI");
-	printf("\n");
+	printf("WRITING INI\n");
 	char buffer[1024]{};
 	snprintf(buffer, sizeof(buffer),
 		"%s\n"    //[Select]
@@ -148,9 +156,10 @@ void WriteINI(FILE* iniFile)
 		"%s%d\n"  //SelectAltHead
 		"%s%d\n"  //SelectAltHandL
 		"%s%d\n"  //SelectAltHandR
-		"%s%d\n"  //SelectSnMaterial
+		"%s%d\n"  //SelectSnQuill
+		"%s%d\n"  //SelectSsnQuill
 		"%s%d\n"  //SelectEyelid
-		"%s%d\n"  //SelectSsnHead
+		"%s%d\n"  //SelectSnMaterial
 		"%s%d\n"  //SelectSsnMaterial
 		"%s%d\n"  //SelectJumpBall
 		"%s%d\n"  //SelectBounceBall
@@ -166,9 +175,10 @@ void WriteINI(FILE* iniFile)
 		"SelectAltHead=", s_ItemDataHead[SelectHeadData].AltSelect,
 		"SelectAltHandL=", s_ItemDataHandL[SelectHandLData].AltSelect,
 		"SelectAltHandR=", s_ItemDataHandR[SelectHandRData].AltSelect,
-		"SelectSnMaterial=", SelectSnMaterial,
+		"SelectSnQuill=", SelectSnQuill,
+		"SelectSsnQuill=", SelectSsnQuill,
 		"SelectEyelid=", SelectEyelid,
-		"SelectSsnHead=", SelectSsnHead,
+		"SelectSnMaterial=", SelectSnMaterial,
 		"SelectSsnMaterial=", SelectSsnMaterial,
 		"SelectJumpBall=", SelectJumpBall,
 		"SelectBounceBall=", SelectBounceBall,
@@ -179,13 +189,11 @@ void WriteINI(FILE* iniFile)
 
 void ReadINI(std::string saveFilePath)
 {
-	printf("READING INI");
-	printf("\n");
+	printf("READING INI\n");
 	INIReader* reader = new INIReader(saveFilePath);
 	if (reader->ParseError() != 0)
 	{
-		printf("INI PARSE FAIL");
-		printf("\n");
+		printf("INI PARSE FAIL\n");
 		FILE* pFile = fopen(saveFilePath.c_str(), "wb");
 		WriteINI(pFile);
 		reader = new INIReader(saveFilePath);
@@ -201,10 +209,11 @@ void ReadINI(std::string saveFilePath)
 	s_ItemDataHead[SelectHeadData].AltSelect = reader->GetInteger("Select", "SelectAltHead", s_ItemDataHead[SelectHeadData].AltSelect);
 	s_ItemDataHandL[SelectHandLData].AltSelect = reader->GetInteger("Select", "SelectAltHandL", s_ItemDataHandL[SelectHandLData].AltSelect);
 	s_ItemDataHandR[SelectHandRData].AltSelect = reader->GetInteger("Select", "SelectAltHandR", s_ItemDataHandR[SelectHandRData].AltSelect);
-	SelectSnMaterial = (SelectSnMaterialType)reader->GetInteger("Select", "SelectSnSonMat", int(SelectSnMaterial));
+	SelectSnQuill = (SelectSnQuillType)reader->GetInteger("Select", "SelectSnQuill", int(SelectSnQuill));
+	SelectSsnQuill = (SelectSsnQuillType)reader->GetInteger("Select", "SelectSsnQuill", int(SelectSsnQuill));
 	SelectEyelid = (SelectEyelidType)reader->GetInteger("Select", "SelectEyelid", int(SelectEyelid));
-	SelectSsnHead = (SelectSsnHeadType)reader->GetInteger("Select", "SelectSsnHead", int(SelectSsnHead));
-	SelectSsnMaterial = (SelectSsnMaterialType)reader->GetInteger("Select", "SelectSsnForm", int(SelectSsnMaterial));
+	SelectSnMaterial = (SelectSnMaterialType)reader->GetInteger("Select", "SelectSnMaterial", int(SelectSnMaterial));
+	SelectSsnMaterial = (SelectSsnMaterialType)reader->GetInteger("Select", "SelectSsnMaterial", int(SelectSsnMaterial));
 	SelectJumpBall = (SelectJumpBallType)reader->GetInteger("Select", "SelectJumpBall", int(SelectJumpBall));
 	SelectBounceBall = (SelectBounceBallType)reader->GetInteger("Select", "SelectBounceBall", int(SelectBounceBall));
 	IsPreviewOpen = reader->GetBoolean("Select", "IsPreviewOpen", IsPreviewOpen);

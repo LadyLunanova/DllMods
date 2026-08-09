@@ -121,14 +121,28 @@ EXPORT void ProcessMessage(size_t id, void* data)
 			auto pMsg = (CustomSonicAPI::MsgGetCustomSonicSelection*)data;
 
 			pMsg->HeadName = s_ItemDataHead[SelectHeadData].Name.c_str();
+			pMsg->HeadAlt = s_ItemDataHead[SelectHeadData].AltSelect;
+			pMsg->HeadHide = s_ItemDataHead[SelectHeadData].HideHead;
+
 			pMsg->BodyName = s_ItemDataBody[SelectBodyData].Name.c_str();
+			pMsg->BodyAlt = s_ItemDataBody[SelectBodyData].AltSelect;
+			pMsg->BodyHideShoes = s_ItemDataBody[SelectBodyData].HideShoes;
+			pMsg->BodyHideHandR = s_ItemDataBody[SelectBodyData].HideHandR;
+			pMsg->BodyHideHandL = s_ItemDataBody[SelectBodyData].HideHandL;
+
 			pMsg->ShoesName = s_ItemDataShoes[SelectShoesData].Name.c_str();
+			pMsg->ShoesAlt = s_ItemDataShoes[SelectShoesData].AltSelect;
+
 			pMsg->HandRName = s_ItemDataHandR[SelectHandRData].Name.c_str();
+			pMsg->HandRAlt = s_ItemDataHandR[SelectHandRData].AltSelect;
+
 			pMsg->HandLName = s_ItemDataHandL[SelectHandLData].Name.c_str();
+			pMsg->HandLAlt = s_ItemDataHandL[SelectHandLData].AltSelect;
 			
-			pMsg->SelectSnMaterial = SelectSnMaterial;
+			pMsg->SelectSnQuill = SelectSnQuill;
+			pMsg->SelectSsnQuill = SelectSsnQuill;
 			pMsg->SelectEyelid = SelectEyelid;
-			pMsg->SelectSsnHead = SelectSsnHead;
+			pMsg->SelectSnMaterial = SelectSnMaterial;
 			pMsg->SelectSsnMaterial = SelectSsnMaterial;
 			pMsg->SelectJumpBall = SelectJumpBall;
 			pMsg->SelectBounceBall = SelectBounceBall;

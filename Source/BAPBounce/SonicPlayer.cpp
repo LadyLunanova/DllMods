@@ -57,6 +57,29 @@ HOOK(void, __fastcall, EnterStompBounce, 0x01254CA0, hh::fnd::CStateMachineBase:
 		CustomSonicAPI::MsgGetCustomSonicSelection msg{};
 		GetModLoaderAPI()->SendMessageImm(g_pCustomSonic, CustomSonicAPI::MsgGetCustomSonicSelection::ID, &msg);
 		SelectBounceBall = (SelectBounceBallType)msg.SelectBounceBall;
+
+		printf("\nPRINTED FROM BOUNCE ATTACK+\n\n");
+		printf("Selected Head Option: %s\n", msg.HeadName);
+		printf("Selected Head Alt: %d\n", msg.HeadAlt);
+		printf("Selected Head Hide: %s\n\n", msg.HeadHide ? "True" : "False");
+		printf("Selected Body Option: %s\n", msg.BodyName);
+		printf("Selected Body Alt: %d\n", msg.BodyAlt);
+		printf("Selected Body Hide Shoes: %s\n", msg.BodyHideShoes ? "True" : "False");
+		printf("Selected Body Hide Hand Right: %s\n", msg.BodyHideHandR ? "True" : "False");
+		printf("Selected Body Hide Hand Left: %s\n\n", msg.BodyHideHandL ? "True" : "False");
+		printf("Selected Shoes Option: %s\n", msg.ShoesName);
+		printf("Selected Shoes Alt: %d\n\n", msg.ShoesAlt);
+		printf("Selected Hand Right Option: %s\n", msg.HandRName);
+		printf("Selected Hand Right Alt: %d\n\n", msg.HandRAlt);
+		printf("Selected Hand Left Option: %s\n", msg.HandLName);
+		printf("Selected Hand Left Alt: %d\n\n", msg.HandLAlt);
+		printf("Selected Sonic Quills: %d\n", msg.SelectSnQuill);
+		printf("Selected Super Sonic Quills: %d\n", msg.SelectSsnQuill);
+		printf("Selected Eyelids: %d\n", msg.SelectEyelid);
+		printf("Selected Sonic Material: %d\n", msg.SelectSnMaterial);
+		printf("Selected Super Sonic Material: %d\n", msg.SelectSsnMaterial);
+		printf("Selected JumpBall: %d\n", msg.SelectJumpBall);
+		printf("Selected BounceBall: %d\n\n", msg.SelectBounceBall);
 	}
 
 	if (!ModernBounceEnable)

@@ -2,6 +2,29 @@
 
 namespace CustomSonicAPI
 {
+    enum class SelectSnQuillType
+    {
+        Default,
+        Short,
+        Shadow
+    };
+
+    enum class SelectSsnQuillType
+    {
+        Default,
+        Shadow,
+        Upward,
+        Darkspine,
+        Downward
+    };
+
+    enum class SelectEyelidType
+    {
+        Default,
+        Lashes,
+        Skin
+    };
+
     enum class SelectSnMaterialType
     {
         Default,
@@ -18,26 +41,13 @@ namespace CustomSonicAPI
         Custom
     };
 
-    enum class SelectEyelidType
-    {
-        Default,
-        Lashes,
-        Skin
-    };
-
-    enum class SelectSsnHeadType
-    {
-        Default,
-        Shadow,
-        Upward
-    };
-
     enum class SelectSsnMaterialType
     {
         Default,
         Super2,
         Hyper,
-        Dark
+        Dark,
+        Darkspine
     };
 
     enum class SelectJumpBallType
@@ -70,16 +80,30 @@ namespace CustomSonicAPI
     struct MsgGetCustomSonicSelection
     {
         static constexpr size_t ID = 1;
-        
+
         const char* HeadName{};
+        int HeadAlt{};
+        bool HeadHide{};
+
         const char* BodyName{};
+        int BodyAlt{};
+        bool BodyHideShoes{};
+        bool BodyHideHandR{};
+        bool BodyHideHandL{};
+
         const char* ShoesName{};
+        int ShoesAlt{};
+
         const char* HandRName{};
+        int HandRAlt{};
+
         const char* HandLName{};
-        
-        SelectSnMaterialType SelectSnMaterial{};
+        int HandLAlt{};
+
+        SelectSnQuillType SelectSnQuill{};
+        SelectSsnQuillType SelectSsnQuill{};
         SelectEyelidType SelectEyelid{};
-        SelectSsnHeadType SelectSsnHead{};
+        SelectSnMaterialType SelectSnMaterial{};
         SelectSsnMaterialType SelectSsnMaterial{};
         SelectJumpBallType SelectJumpBall{};
         SelectBounceBallType SelectBounceBall{};

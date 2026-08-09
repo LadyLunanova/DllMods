@@ -210,22 +210,22 @@ public:
 		//////Start Animation
 		switch (CHudTabSel)
 		{
-		case UIPartShoes:
+		case MenuOptionType::ItemShoes:
 			m_spNPCAnimation->m_spAnimationStateMachine->ChangeState("CAT_SHOES");
 			break;
-		case UIPartBody:
+		case MenuOptionType::ItemBody:
 			m_spNPCAnimation->m_spAnimationStateMachine->ChangeState("CAT_BODY");
 			break;
-		case UIPartHead:
+		case MenuOptionType::ItemHead:
 			m_spNPCAnimation->m_spAnimationStateMachine->ChangeState("CAT_HEAD");
 			break;
-		case UIPartHandL:
+		case MenuOptionType::ItemHandL:
 			m_spNPCAnimation->m_spAnimationStateMachine->ChangeState("CAT_HANDL");
 			break;
-		case UIPartHandR:
+		case MenuOptionType::ItemHandR:
 			m_spNPCAnimation->m_spAnimationStateMachine->ChangeState("CAT_HANDR");
 			break;
-		case UIMiscOption:
+		case MenuOptionType::MiscOption:
 			m_spNPCAnimation->m_spAnimationStateMachine->ChangeState("CAT_MISC");
 			break;
 		}
@@ -258,6 +258,12 @@ public:
 			m_spSnEyelid->m_Enabled = true;
 		if (m_spSnBaseHead != nullptr)
 			m_spSnBaseHead->m_Enabled = true;
+
+		if (m_spSnMouthR != nullptr)
+			m_spSnMouthR->m_Enabled = !PrevMouthLeft;
+		if (m_spSnMouthL != nullptr)
+			m_spSnMouthL->m_Enabled = PrevMouthLeft;
+
 		
 		UpdateRenderables(this, "HUD_AfterModel");
 		
@@ -301,6 +307,8 @@ public:
 		transformElement(m_spSnEyes);
 		transformElement(m_spSnHead);
 		transformElement(m_spSnBaseHead);
+		transformElement(m_spSnMouthR);
+		transformElement(m_spSnMouthL);
 		transformElement(m_spSnBody);
 		transformElement(m_spSnShoes);
 		transformElement(m_spSnHandR);
@@ -511,7 +519,7 @@ void CHudUIOpen(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo&
 	*ENABLE_BLUR = false;
 	if (MemoryOpenTimer <= 0)
 	{
-		CHudTabSel = UIPartShoes;
+		CHudTabSel = MenuOptionType::ItemShoes;
 		CHudVarVisSel = 0;
 		CHudVarScroll = 0;
 		CHudVarTrueSel = 0;
@@ -567,22 +575,22 @@ void CHudUIOpen(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo&
 	scBBScroll->SetMotion("scroll_Anim");
 	switch (CHudTabSel)
 	{
-	case UIPartShoes:
+	case MenuOptionType::ItemShoes:
 		scBBScroll->SetMotionFrame(Sh);
 		break;
-	case UIPartBody:
+	case MenuOptionType::ItemBody:
 		scBBScroll->SetMotionFrame(Bd);
 		break;
-	case UIPartHead:
+	case MenuOptionType::ItemHead:
 		scBBScroll->SetMotionFrame(He);
 		break;
-	case UIPartHandL:
+	case MenuOptionType::ItemHandL:
 		scBBScroll->SetMotionFrame(HL);
 		break;
-	case UIPartHandR:
+	case MenuOptionType::ItemHandR:
 		scBBScroll->SetMotionFrame(HR);
 		break;
-	case UIMiscOption:
+	case MenuOptionType::MiscOption:
 		scBBScroll->SetMotionFrame(SB);
 		break;
 	}
@@ -686,23 +694,23 @@ void CHudUIOpen(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdateInfo&
 		scSWAScroll->SetMotion("Size_Anim");
 		switch (CHudTabSel)
 		{
-		case UIPartShoes:
+		case MenuOptionType::ItemShoes:
 			scSWAScroll->SetPosition(0, (0.107 + (Sh * (0.001 * (CHudVarShMaxScroll * 0.47)))) * arY);
 			scSWAScroll->SetMotionFrame(100.f / CHudVarShMaxScroll);
 			break;
-		case UIPartBody:
+		case MenuOptionType::ItemBody:
 			scSWAScroll->SetPosition(0, (0.107 + (Bd * (0.001 * (CHudVarBdMaxScroll * 0.95)))) * arY);
 			scSWAScroll->SetMotionFrame(100.f / CHudVarBdMaxScroll);
 			break;
-		case UIPartHead:
+		case MenuOptionType::ItemHead:
 			scSWAScroll->SetPosition(0, (0.107 + (He * (0.001 * (CHudVarHeMaxScroll * 1.06)))) * arY);
 			scSWAScroll->SetMotionFrame(100.f / CHudVarHeMaxScroll);
 			break;
-		case UIPartHandL:
+		case MenuOptionType::ItemHandL:
 			scSWAScroll->SetPosition(0, (0.107 + (HL * (0.001 * (CHudVarHLMaxScroll * 0.8)))) * arY);
 			scSWAScroll->SetMotionFrame(100.f / CHudVarHLMaxScroll);
 			break;
-		case UIPartHandR:
+		case MenuOptionType::ItemHandR:
 			scSWAScroll->SetPosition(0, (0.107 + (HR * (0.001 * (CHudVarHRMaxScroll * 0.685)))) * arY);
 			scSWAScroll->SetMotionFrame(100.f / CHudVarHRMaxScroll);
 			break;
@@ -753,7 +761,7 @@ void CHudUISelect()
 {
 	switch (CHudTabSel)
 	{
-	case UIPartShoes:
+	case MenuOptionType::ItemShoes:
 		if (CHudVarTrueSel >= s_ItemDataShoes.size())
 			CHudUISFXSelect(false);
 		else
@@ -765,7 +773,7 @@ void CHudUISelect()
 		}
 		return;
 		break;
-	case UIPartBody:
+	case MenuOptionType::ItemBody:
 		if (CHudVarTrueSel >= s_ItemDataBody.size())
 			CHudUISFXSelect(false);
 		else
@@ -777,7 +785,7 @@ void CHudUISelect()
 		}
 		return;
 		break;
-	case UIPartHead:
+	case MenuOptionType::ItemHead:
 		if (CHudVarTrueSel >= s_ItemDataHead.size())
 			CHudUISFXSelect(false);
 		else
@@ -789,7 +797,7 @@ void CHudUISelect()
 		}
 		return;
 		break;
-	case UIPartHandL:
+	case MenuOptionType::ItemHandL:
 		if (CHudVarTrueSel >= s_ItemDataHandL.size())
 			CHudUISFXSelect(false);
 		else
@@ -801,7 +809,7 @@ void CHudUISelect()
 		}
 		return;
 		break;
-	case UIPartHandR:
+	case MenuOptionType::ItemHandR:
 		if (CHudVarTrueSel >= s_ItemDataHandR.size())
 			CHudUISFXSelect(false);
 		else
@@ -813,7 +821,7 @@ void CHudUISelect()
 		}
 		return;
 		break;
-	case UIMiscOption:
+	case MenuOptionType::MiscOption:
 		if (CHudVarTrueSel >= int(SelectOptionType::Overflow01))
 		{
 			CHudUISFXSelect(false);
@@ -824,92 +832,99 @@ void CHudUISelect()
 
 			switch ((SelectOptionType)CHudVarTrueSel)
 			{
-				case SelectOptionType::SnMaterial:
+			case SelectOptionType::SnQuill:
+			{
+				if (SelectSnQuill != SelectSnQuillType::Shadow)
+					SelectSnQuill = SelectSnQuillType(int(SelectSnQuill) + 1);
+				else
+					SelectSnQuill = SelectSnQuillType::Default;
+
+				CHudUISFXSelect(true);
+				RefreshCustomizeSonic(SelectCategory::Head);
+
+				return;
+			}
+			case SelectOptionType::SsnQuill:
+			{
+				if (SelectSsnQuill != SelectSsnQuillType::Downward)
+					SelectSsnQuill = SelectSsnQuillType(int(SelectSsnQuill) + 1);
+				else
+					SelectSsnQuill = SelectSsnQuillType::Default;
+
+				CHudUISFXSelect(true);
+				RefreshCustomizeSonic(SelectCategory::Head);
+
+				return;
+			}
+			case SelectOptionType::Eyelids:
+			{
+				if (SelectEyelid != SelectEyelidType::Skin)
+					SelectEyelid = SelectEyelidType(int(SelectEyelid) + 1);
+				else
+					SelectEyelid = SelectEyelidType::Default;
+
+				CHudUISFXSelect(true);
+				RefreshCustomizeSonic(SelectCategory::Head);
+
+				return;
+			}
+			case SelectOptionType::SnMaterial:
+			{
+				if (SelectSnMaterial != SelectSnMaterialType::Custom)
+					SelectSnMaterial = SelectSnMaterialType(int(SelectSnMaterial) + 1);
+				else
+					SelectSnMaterial = SelectSnMaterialType::Default;
+
+				CHudUISFXSelect(true);
+				RefreshCustomizeSonic(SelectCategory::All);
+
+				return;
+			}
+			case SelectOptionType::SsnMaterial:
+			{
+				if (SelectSsnMaterial != SelectSsnMaterialType::Darkspine)
+					SelectSsnMaterial = SelectSsnMaterialType(int(SelectSsnMaterial) + 1);
+				else
+					SelectSsnMaterial = SelectSsnMaterialType::Default;
+
+				CHudUISFXSelect(true);
+				RefreshCustomizeSonic(SelectCategory::All);
+
+				return;
+			}
+			case SelectOptionType::JumpBall:
+			{
+				if (SelectJumpBall != SelectJumpBallType::NoBall)
+					SelectJumpBall = SelectJumpBallType(int(SelectJumpBall) + 1);
+				else
+					SelectJumpBall = SelectJumpBallType::Default;
+
+				CHudUISFXSelect(true);
+
+				return;
+			}
+			case SelectOptionType::BounceBall:
+			{
+				if (IsBounceEnabled == true)
 				{
-					if (SelectSnMaterial != SelectSnMaterialType::Custom)
-						SelectSnMaterial = SelectSnMaterialType(int(SelectSnMaterial) + 1);
-					else
-						SelectSnMaterial = SelectSnMaterialType::Default;
-
-					CHudUISFXSelect(true);
-					RefreshCustomizeSonic(SelectCategory::All);
-
-					return;
-				}
-					
-				case SelectOptionType::Eyelids:
-				{
-					if (SelectEyelid != SelectEyelidType::Skin)
-						SelectEyelid = SelectEyelidType(int(SelectEyelid) + 1);
-					else
-						SelectEyelid = SelectEyelidType::Default;
-
-					CHudUISFXSelect(true);
-					RefreshCustomizeSonic(SelectCategory::All);
-
-					return;
-				}
-					
-				case SelectOptionType::SuperHead:
-				{
-					if (SelectSsnHead != SelectSsnHeadType::Upward)
-						SelectSsnHead = SelectSsnHeadType(int(SelectSsnHead) + 1);
-					else
-						SelectSsnHead = SelectSsnHeadType::Default;
-
-					CHudUISFXSelect(true);
-					RefreshCustomizeSonic(SelectCategory::Head);
-
-					return;
-				}
-
-				case SelectOptionType::SsnMaterial:
-				{
-					if (SelectSsnMaterial != SelectSsnMaterialType::Dark)
-						SelectSsnMaterial = SelectSsnMaterialType(int(SelectSsnMaterial) + 1);
-					else
-						SelectSsnMaterial = SelectSsnMaterialType::Default;
-
-					CHudUISFXSelect(true);
-					RefreshCustomizeSonic(SelectCategory::All);
-
-					return;
-				}
-					
-				case SelectOptionType::JumpBall:
-				{
-					if (SelectJumpBall != SelectJumpBallType::NoBall)
-						SelectJumpBall = SelectJumpBallType(int(SelectJumpBall) + 1);
-					else
-						SelectJumpBall = SelectJumpBallType::Default;
-
-					CHudUISFXSelect(true);
-
-					return;
-				}
-					
-				case SelectOptionType::BounceBall:
-				{
-					if (IsBounceEnabled == true)
+					if (SelectBounceBall != SelectBounceBallType::NoVFX)
 					{
-						if (SelectBounceBall != SelectBounceBallType::NoVFX)
-						{
-							SelectBounceBall = SelectBounceBallType(int(SelectBounceBall) + 1);
-						}
-						else
-						{
-							SelectBounceBall = SelectBounceBallType::BAP;
-						}
-						
-						CHudUISFXSelect(true);
+						SelectBounceBall = SelectBounceBallType(int(SelectBounceBall) + 1);
 					}
 					else
 					{
-						CHudUISFXSelect(false);
+						SelectBounceBall = SelectBounceBallType::BAP;
 					}
 
-					return;
+					CHudUISFXSelect(true);
 				}
+				else
+				{
+					CHudUISFXSelect(false);
+				}
+
+				return;
+			}
 			}
 		}
 	}
@@ -921,7 +936,7 @@ void CHudUIMove(int Type)
 	CHudUIPlayAnim(scBBIcon, "ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 	switch (CHudTabSel)
 	{
-	case UIPartShoes:
+	case MenuOptionType::ItemShoes:
 		switch (Type)
 		{
 		case 0: //Up
@@ -985,7 +1000,7 @@ void CHudUIMove(int Type)
 		}
 		return;
 		break;
-	case UIPartBody:
+	case MenuOptionType::ItemBody:
 		switch (Type)
 		{
 		case 0: //Up
@@ -1049,7 +1064,7 @@ void CHudUIMove(int Type)
 		}
 		return;
 		break;
-	case UIPartHead:
+	case MenuOptionType::ItemHead:
 		switch (Type)
 		{
 		case 0: //Up
@@ -1113,7 +1128,7 @@ void CHudUIMove(int Type)
 		}
 		return;
 		break;
-	case UIPartHandL:
+	case MenuOptionType::ItemHandL:
 		switch (Type)
 		{
 		case 0: //Up
@@ -1177,7 +1192,7 @@ void CHudUIMove(int Type)
 		}
 		return;
 		break;
-	case UIPartHandR:
+	case MenuOptionType::ItemHandR:
 		switch (Type)
 		{
 		case 0: //Up
@@ -1241,7 +1256,7 @@ void CHudUIMove(int Type)
 		}
 		return;
 		break;
-	case UIMiscOption:
+	case MenuOptionType::MiscOption:
 		switch (Type)
 		{
 		case 0: //Up
@@ -1326,7 +1341,7 @@ void CHudUIAlt()
 {
 	switch (CHudTabSel)
 	{
-	case UIPartShoes:
+	case MenuOptionType::ItemShoes:
 		if (!(CHudVarTrueSel >= s_ItemDataShoes.size()) && (s_ItemDataShoes[CHudVarTrueSel].AltCount >= 1))
 		{
 			if (!(s_ItemDataShoes[CHudVarTrueSel].AltSelect >= s_ItemDataShoes[CHudVarTrueSel].AltCount))
@@ -1340,7 +1355,7 @@ void CHudUIAlt()
 		}
 		return;
 		break;
-	case UIPartBody:
+	case MenuOptionType::ItemBody:
 		if (!(CHudVarTrueSel >= s_ItemDataBody.size()) && (s_ItemDataBody[CHudVarTrueSel].AltCount >= 1))
 		{
 			if (!(s_ItemDataBody[CHudVarTrueSel].AltSelect >= s_ItemDataBody[CHudVarTrueSel].AltCount))
@@ -1354,7 +1369,7 @@ void CHudUIAlt()
 		}
 		return;
 		break;
-	case UIPartHead:
+	case MenuOptionType::ItemHead:
 		if (!(CHudVarTrueSel >= s_ItemDataHead.size()) && (s_ItemDataHead[CHudVarTrueSel].AltCount >= 1))
 		{
 			if (!(s_ItemDataHead[CHudVarTrueSel].AltSelect >= s_ItemDataHead[CHudVarTrueSel].AltCount))
@@ -1368,7 +1383,7 @@ void CHudUIAlt()
 		}
 		return;
 		break;
-	case UIPartHandR:
+	case MenuOptionType::ItemHandR:
 		if (!(CHudVarTrueSel >= s_ItemDataHandR.size()) && (s_ItemDataHandR[CHudVarTrueSel].AltCount >= 1))
 		{
 			if (!(s_ItemDataHandR[CHudVarTrueSel].AltSelect >= s_ItemDataHandR[CHudVarTrueSel].AltCount))
@@ -1382,7 +1397,7 @@ void CHudUIAlt()
 		}
 		return;
 		break;
-	case UIPartHandL:
+	case MenuOptionType::ItemHandL:
 		if (!(CHudVarTrueSel >= s_ItemDataHandL.size()) && (s_ItemDataHandL[CHudVarTrueSel].AltCount >= 1))
 		{
 			if (!(s_ItemDataHandL[CHudVarTrueSel].AltSelect >= s_ItemDataHandL[CHudVarTrueSel].AltCount))
@@ -1407,9 +1422,9 @@ void CHedUIPreview()
 		CHudUIPlayAnim(scBBPrevBtmTxt, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 0.5f);
 		CHudUIPlayAnim(scBBPrevBtmBtn, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 2.0f);
 		PrevOpenTimer = 5;
-		PrevAnim = 0;
+		PrevAnim = PrevAnimType::CATEGORY;
 		PrevCatAnim = true;
-		PrevRotation = 0.0f;
+		PrevRotation = 1.0f;
 		IsPreviewOpen = true;
 		CHudUISFXOpen();
 
@@ -1422,9 +1437,9 @@ void CHedUIPreview()
 		CHudUIPlayAnim(scBBPrevBtmTxt, "Intro_Anim", 17.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -0.5f);
 		CHudUIPlayAnim(scBBPrevBtmBtn, "Intro_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -1.0f);
 		PrevOpenTimer = 5;
-		PrevAnim = 0;
+		PrevAnim = PrevAnimType::CATEGORY;
 		PrevCatAnim = true;
-		PrevRotation = 0.0f;
+		PrevRotation = 1.0f;
 		IsPreviewOpen = false;
 		CHudUISFXExit();
 
@@ -1479,86 +1494,86 @@ void CHudUISwitch(int Type)
 		CHudVarTrueSel = 0;
 		switch (CHudTabSel)
 		{
-		case UIPartShoes:
+		case MenuOptionType::ItemShoes:
 			if (IsInMenuChangeR)
 			{
-				CHudTabSel = UIPartBody;
+				CHudTabSel = MenuOptionType::ItemBody;
 				if (PrevCatAnim && obj_CObjCustomSonicPreview)
 					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_BODY");
 			}
 			if (IsInMenuChangeL)
 			{
-				CHudTabSel = UIMiscOption;
+				CHudTabSel = MenuOptionType::MiscOption;
 				if (PrevCatAnim && obj_CObjCustomSonicPreview)
 					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_MISC");
 			}
 			break;
-		case UIPartBody:
+		case MenuOptionType::ItemBody:
 			if (IsInMenuChangeR)
 			{
-				CHudTabSel = UIPartHead;
+				CHudTabSel = MenuOptionType::ItemHead;
 				if (PrevCatAnim && obj_CObjCustomSonicPreview)
 					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_HEAD");
 			}
 			if (IsInMenuChangeL)
 			{
-				CHudTabSel = UIPartShoes;
+				CHudTabSel = MenuOptionType::ItemShoes;
 				if (PrevCatAnim && obj_CObjCustomSonicPreview)
 					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_SHOES");
 			}
 			break;
-		case UIPartHead:
+		case MenuOptionType::ItemHead:
 			if (IsInMenuChangeR)
 			{
-				CHudTabSel = UIPartHandL;
+				CHudTabSel = MenuOptionType::ItemHandL;
 				if (PrevCatAnim && obj_CObjCustomSonicPreview)
 					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_HANDL");
 			}
 			if (IsInMenuChangeL)
 			{
-				CHudTabSel = UIPartBody;
+				CHudTabSel = MenuOptionType::ItemBody;
 				if (PrevCatAnim && obj_CObjCustomSonicPreview)
 					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_BODY");
 			}
 			break;
-		case UIPartHandL:
+		case MenuOptionType::ItemHandL:
 			if (IsInMenuChangeR)
 			{
-				CHudTabSel = UIPartHandR;
+				CHudTabSel = MenuOptionType::ItemHandR;
 				if (PrevCatAnim && obj_CObjCustomSonicPreview)
 					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_HANDR");
 			}
 			if (IsInMenuChangeL)
 			{
-				CHudTabSel = UIPartHead;
+				CHudTabSel = MenuOptionType::ItemHead;
 				if (PrevCatAnim && obj_CObjCustomSonicPreview)
 					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_HEAD");
 			}
 			break;
-		case UIPartHandR:
+		case MenuOptionType::ItemHandR:
 			if (IsInMenuChangeR)
 			{
-				CHudTabSel = UIMiscOption;
+				CHudTabSel = MenuOptionType::MiscOption;
 				if (PrevCatAnim && obj_CObjCustomSonicPreview)
 					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_MISC");
 			}
 			if (IsInMenuChangeL)
 			{
-				CHudTabSel = UIPartHandL;
+				CHudTabSel = MenuOptionType::ItemHandL;
 				if (PrevCatAnim && obj_CObjCustomSonicPreview)
 					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_HANDL");
 			}
 			break;
-		case UIMiscOption:
+		case MenuOptionType::MiscOption:
 			if (IsInMenuChangeR)
 			{
-				CHudTabSel = UIPartShoes;
+				CHudTabSel = MenuOptionType::ItemShoes;
 				if (PrevCatAnim && obj_CObjCustomSonicPreview)
 					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_SHOES");
 			}
 			if (IsInMenuChangeL)
 			{
-				CHudTabSel = UIPartHandR;
+				CHudTabSel = MenuOptionType::ItemHandR;
 				if (PrevCatAnim && obj_CObjCustomSonicPreview)
 					obj_CObjCustomSonicPreview->ChangeAnimation("CAT_HANDR");
 			}
@@ -1590,9 +1605,9 @@ void CHudUIExit(int Type)
 		IsInMenuExit = true;
 		SWAOpenTimer = 15;
 		PrevOpenTimer = 5;
-		PrevAnim = 0;
+		PrevAnim = PrevAnimType::CATEGORY;
 		PrevCatAnim = true;
-		PrevRotation = 0.0f;
+		PrevRotation = 1.0f;
 
 		CHudUIPlayAnim(scBBGui, "Intro_Anim", 22.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, -1.0f);
 		CHudUIPlayAnim(scBBIcon, "OFF_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
@@ -1689,7 +1704,10 @@ void CHudUITexsetData(Sonic::CGameObject* This, int texSetID, const char* texStr
 	ui_cat_item_alt_sel->m_spPictureData = hh::mr::CMirageDatabaseWrapper(This->m_pMember->m_pGameDocument->m_pMember->m_spDatabase.get()).GetPictureData(texString);
 
 	if (ui_cat_item_alt_sel->m_spPictureData == nullptr)
+	{
 		ui_cat_item_alt_sel->m_spPictureData = hh::mr::CMirageDatabaseWrapper(This->m_pMember->m_pGameDocument->m_pMember->m_spDatabase.get()).GetPictureData("ui_NotFound");
+		printf("Thumbnail file %s not found\n", texString);
+	}
 	
 	texList->m_spTexsetData->m_TextureList[texSetID] = ui_cat_item_alt_sel;
 }
@@ -1792,22 +1810,24 @@ const char* CHudUIThumbHandLString(int id, char* result)
 
 const char* CHudUIThumbOptionsString(int id, char* result)
 {
-	if (((CHudVarScroll * 3) + id) >= 6)
+	if (((CHudVarScroll * 3) + id) >= 7)
 	{
 		sprintf(result, "ui_Null");
 		return result;
 	}
 
-	auto mapChar = SelectOptionNameMap[SelectOptionType(int(SelectOptionType::SnMaterial) + (CHudVarScroll * 3) + id)];
-	auto mapInt = (int(SelectOptionType::SnMaterial) + (CHudVarScroll * 3) + id);
+	auto mapChar = SelectOptionNameMap[SelectOptionType(int(SelectOptionType::SnQuill) + (CHudVarScroll * 3) + id)];
+	auto mapInt = (int(SelectOptionType::SnQuill) + (CHudVarScroll * 3) + id);
 	const char* texExtUI = "ui_";
 
-	if (mapChar == SelectOptionNameMap[SelectOptionType(int(SelectOptionType::SnMaterial) + (CHudVarScroll * 3))])
-		sprintf(result, "%s%s_%02d", texExtUI, mapChar, SelectSnMaterial);
+	if (mapChar == SelectOptionNameMap[SelectOptionType(int(SelectOptionType::SnQuill) + (CHudVarScroll * 3))])
+		sprintf(result, "%s%s_%02d", texExtUI, mapChar, SelectSnQuill);
+	else if (mapChar == SelectOptionNameMap[SelectOptionType(int(SelectOptionType::SsnQuill) + (CHudVarScroll * 3))])
+		sprintf(result, "%s%s_%02d", texExtUI, mapChar, SelectSsnQuill);
 	else if (mapChar == SelectOptionNameMap[SelectOptionType(int(SelectOptionType::Eyelids) + (CHudVarScroll * 3))])
 		sprintf(result, "%s%s_%02d", texExtUI, mapChar, SelectEyelid);
-	else if (mapChar == SelectOptionNameMap[SelectOptionType(int(SelectOptionType::SuperHead) + (CHudVarScroll * 3))])
-		sprintf(result, "%s%s_%02d", texExtUI, mapChar, SelectSsnHead);
+	else if (mapChar == SelectOptionNameMap[SelectOptionType(int(SelectOptionType::SnMaterial) + (CHudVarScroll * 3))])
+		sprintf(result, "%s%s_%02d", texExtUI, mapChar, SelectSnMaterial);
 	else if (mapChar == SelectOptionNameMap[SelectOptionType(int(SelectOptionType::SsnMaterial) + (CHudVarScroll * 3))])
 		sprintf(result, "%s%s_%02d", texExtUI, mapChar, SelectSsnMaterial);
 	else if (mapChar == SelectOptionNameMap[SelectOptionType(int(SelectOptionType::JumpBall) + (CHudVarScroll * 3))])
@@ -1838,52 +1858,52 @@ void CHudUIThumbManager(Sonic::CGameObject* This)
 
 	switch (CHudTabSel)
 	{
-	case UIPartShoes:
+	case MenuOptionType::ItemShoes:
 		for (int i = 0; i <= 8; i++)
 			CHudUITexsetData(This, i + 6, CHudUIThumbShoeString(i, ShBuffer));
-		scBBTextArea->GetNode("textarea_textbox")->SetPatternIndex(UIPartShoes);
+		scBBTextArea->GetNode("textarea_textbox")->SetPatternIndex((int)MenuOptionType::ItemShoes);
 		if (IsUnleashedHUD)
-			scSWATagTxt->GetNode("img")->SetPatternIndex(UIPartShoes);
+			scSWATagTxt->GetNode("img")->SetPatternIndex((int)MenuOptionType::ItemShoes);
 		return;
 		break;
-	case UIPartBody:
+	case MenuOptionType::ItemBody:
 		for (int i = 0; i <= 8; i++)
 			CHudUITexsetData(This, i + 6, CHudUIThumbBodyString(i, BdBuffer));
-		scBBTextArea->GetNode("textarea_textbox")->SetPatternIndex(UIPartBody);
+		scBBTextArea->GetNode("textarea_textbox")->SetPatternIndex((int)MenuOptionType::ItemBody);
 		if (IsUnleashedHUD)
-			scSWATagTxt->GetNode("img")->SetPatternIndex(UIPartBody);
+			scSWATagTxt->GetNode("img")->SetPatternIndex((int)MenuOptionType::ItemBody);
 		return;
 		break;
-	case UIPartHead:
+	case MenuOptionType::ItemHead:
 		for (int i = 0; i <= 8; i++)
 			CHudUITexsetData(This, i + 6, CHudUIThumbHeadString(i, HeBuffer));
-		scBBTextArea->GetNode("textarea_textbox")->SetPatternIndex(UIPartHead);
+		scBBTextArea->GetNode("textarea_textbox")->SetPatternIndex((int)MenuOptionType::ItemHead);
 		if (IsUnleashedHUD)
-			scSWATagTxt->GetNode("img")->SetPatternIndex(UIPartHead);
+			scSWATagTxt->GetNode("img")->SetPatternIndex((int)MenuOptionType::ItemHead);
 		return;
 		break;
-	case UIPartHandL:
+	case MenuOptionType::ItemHandL:
 		for (int i = 0; i <= 8; i++)
 			CHudUITexsetData(This, i + 6, CHudUIThumbHandLString(i, HLBuffer));
-		scBBTextArea->GetNode("textarea_textbox")->SetPatternIndex(UIPartHandL);
+		scBBTextArea->GetNode("textarea_textbox")->SetPatternIndex((int)MenuOptionType::ItemHandL);
 		if (IsUnleashedHUD)
-			scSWATagTxt->GetNode("img")->SetPatternIndex(UIPartHandL);
+			scSWATagTxt->GetNode("img")->SetPatternIndex((int)MenuOptionType::ItemHandL);
 		return;
 		break;
-	case UIPartHandR:
+	case MenuOptionType::ItemHandR:
 		for (int i = 0; i <= 8; i++)
 			CHudUITexsetData(This, i + 6, CHudUIThumbHandRString(i, HRBuffer));
-		scBBTextArea->GetNode("textarea_textbox")->SetPatternIndex(UIPartHandR);
+		scBBTextArea->GetNode("textarea_textbox")->SetPatternIndex((int)MenuOptionType::ItemHandR);
 		if (IsUnleashedHUD)
-			scSWATagTxt->GetNode("img")->SetPatternIndex(UIPartHandR);
+			scSWATagTxt->GetNode("img")->SetPatternIndex((int)MenuOptionType::ItemHandR);
 		return;
 		break;
-	case UIMiscOption:
+	case MenuOptionType::MiscOption:
 		for (int i = 0; i <= 8; i++)
 			CHudUITexsetData(This, i + 6, CHudUIThumbOptionsString(i, SBBuffer));
-		scBBTextArea->GetNode("textarea_textbox")->SetPatternIndex(UIMiscOption);
+		scBBTextArea->GetNode("textarea_textbox")->SetPatternIndex((int)MenuOptionType::MiscOption);
 		if (IsUnleashedHUD)
-			scSWATagTxt->GetNode("img")->SetPatternIndex(UIMiscOption);
+			scSWATagTxt->GetNode("img")->SetPatternIndex((int)MenuOptionType::MiscOption);
 		return;
 		break;
 	}
@@ -1897,22 +1917,22 @@ void CHudUIScrollManager(Sonic::CGameObject* This, float Sh, float Bd, float He,
 	scBBScroll->SetMotion("scroll_Anim");
 	switch (CHudTabSel)
 	{
-	case UIPartShoes:
+	case MenuOptionType::ItemShoes:
 		scBBScroll->SetMotionFrame(Sh);
 		break;
-	case UIPartBody:
+	case MenuOptionType::ItemBody:
 		scBBScroll->SetMotionFrame(Bd);
 		break;
-	case UIPartHead:
+	case MenuOptionType::ItemHead:
 		scBBScroll->SetMotionFrame(He);
 		break;
-	case UIPartHandL:
+	case MenuOptionType::ItemHandL:
 		scBBScroll->SetMotionFrame(HL);
 		break;
-	case UIPartHandR:
+	case MenuOptionType::ItemHandR:
 		scBBScroll->SetMotionFrame(HR);
 		break;
-	case UIMiscOption:
+	case MenuOptionType::MiscOption:
 		scBBScroll->SetMotionFrame(SB);
 		break;
 	}
@@ -1922,27 +1942,27 @@ void CHudUIScrollManager(Sonic::CGameObject* This, float Sh, float Bd, float He,
 	{
 		switch (CHudTabSel)
 		{
-		case UIPartShoes:
+		case MenuOptionType::ItemShoes:
 			scSWAScroll->SetPosition(0, (0.107 + (Sh * (0.001 * (CHudVarShMaxScroll * 0.47)))) * arY);
 			scSWAScroll->SetMotionFrame(100.f / CHudVarShMaxScroll);
 			break;
-		case UIPartBody:
+		case MenuOptionType::ItemBody:
 			scSWAScroll->SetPosition(0, (0.107 + (Bd * (0.001 * (CHudVarBdMaxScroll * 0.95)))) * arY);
 			scSWAScroll->SetMotionFrame(100.f / CHudVarBdMaxScroll);
 			break;
-		case UIPartHead:
+		case MenuOptionType::ItemHead:
 			scSWAScroll->SetPosition(0, (0.107 + (He * (0.001 * (CHudVarHeMaxScroll * 1.06)))) * arY);
 			scSWAScroll->SetMotionFrame(100.f / CHudVarHeMaxScroll);
 			break;
-		case UIPartHandL:
+		case MenuOptionType::ItemHandL:
 			scSWAScroll->SetPosition(0, (0.107 + (HL * (0.001 * (CHudVarHLMaxScroll * 0.8)))) * arY);
 			scSWAScroll->SetMotionFrame(100.f / CHudVarHLMaxScroll);
 			break;
-		case UIPartHandR:
+		case MenuOptionType::ItemHandR:
 			scSWAScroll->SetPosition(0, (0.107 + (HR * (0.001 * (CHudVarHRMaxScroll * 0.685)))) * arY);
 			scSWAScroll->SetMotionFrame(100.f / CHudVarHRMaxScroll);
 			break;
-		case UIMiscOption:
+		case MenuOptionType::MiscOption:
 			scSWAScroll->SetPosition(0, 0.107 * arY);
 			scSWAScroll->SetMotionFrame(0);
 			break;
@@ -2023,6 +2043,14 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 	float CHudVarHLScrollBar = (CHudVarScroll * (100.f / CHudVarHLMaxScroll));
 	float CHudVarHRScrollBar = (CHudVarScroll * (100.f / CHudVarHRMaxScroll));
 	float CHudVarSBScrollBar = (CHudVarScroll * (100.f / CHudVarSBMaxScroll));
+	float PrevAngleFITTING = 36.9f;
+	float PrevAngleIDLERUN = 5.0f;
+	float PrevAngleSHOES = 5.0f;
+	float PrevAngleBODY = 5.0f;
+	float PrevAngleHEAD = 5.0f;
+	float PrevAngleHANDR = 5.0f;
+	float PrevAngleHANDL = 5.0f;
+	float PrevAngleOPTION = 5.0f;
 
 
 	////------Open Fitting Menu------////
@@ -2187,6 +2215,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 			////------Preview Handler
 			if (scBBPrev)
 			{
+
 				if (scBBPrev->m_MotionFrame <= 0 && IsPreviewOpen == false)
 				{
 					CHudUIPlayAnim(scBBPrev, "Intro_Anim", 0.0f, true, Chao::CSD::eMotionRepeatType_PlayOnce, 0.0f);
@@ -2199,58 +2228,130 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 
 				////-----Right Stick Handle
 				PrevRotation += (RSHor * 2.0f);
+				if (PrevRotation >= 360.0f)
+					PrevRotation = 0.0f;
+				if (PrevRotation < 0.0f)
+					PrevRotation = 360.0f;
+
+				switch (PrevAnim)
+				{
+				case PrevAnimType::CATEGORY:
+					switch (CHudTabSel)
+					{
+					case MenuOptionType::ItemShoes:
+						if (PrevRotation > PrevAngleSHOES && PrevRotation < (PrevAngleSHOES + 180.0f))
+							PrevMouthLeft = false;
+						else
+							PrevMouthLeft = true;
+						break;
+					case MenuOptionType::ItemBody:
+						if (PrevRotation > PrevAngleBODY && PrevRotation < (PrevAngleBODY + 180.0f))
+							PrevMouthLeft = false;
+						else
+							PrevMouthLeft = true;
+						break;
+					case MenuOptionType::ItemHead:
+						if (PrevRotation > PrevAngleHEAD && PrevRotation < (PrevAngleHEAD + 180.0f))
+							PrevMouthLeft = false;
+						else
+							PrevMouthLeft = true;
+						break;
+					case MenuOptionType::ItemHandR:
+						if (PrevRotation > PrevAngleHANDR && PrevRotation < (PrevAngleHANDR + 180.0f))
+							PrevMouthLeft = false;
+						else
+							PrevMouthLeft = true;
+						break;
+					case MenuOptionType::ItemHandL:
+						if (PrevRotation > PrevAngleHANDL && PrevRotation < (PrevAngleHANDL + 180.0f))
+							PrevMouthLeft = false;
+						else
+							PrevMouthLeft = true;
+						break;
+					case MenuOptionType::MiscOption:
+						if (PrevRotation > PrevAngleOPTION && PrevRotation < (PrevAngleOPTION + 180.0f))
+							PrevMouthLeft = false;
+						else
+							PrevMouthLeft = true;
+						break;
+					}
+					break;
+				case PrevAnimType::FITTING:
+					if (PrevRotation > PrevAngleFITTING && PrevRotation < (PrevAngleFITTING + 180.0f))
+						PrevMouthLeft = false;
+					else
+						PrevMouthLeft = true;
+					break;
+				case PrevAnimType::IDLE:
+				case PrevAnimType::RUN:
+					if (PrevRotation > PrevAngleIDLERUN && PrevRotation < (PrevAngleIDLERUN + 180.0f))
+						PrevMouthLeft = false;
+					else
+						PrevMouthLeft = true;
+					break;
+				default:
+					if (PrevRotation > 5.0f && PrevRotation < 185.0f)
+						PrevMouthLeft = true;
+					else
+						PrevMouthLeft = false;
+					break;
+				}
+
+
+				printf("%f\n", PrevRotation);
 
 				if (PressedRST && IsPreviewOpen && PrevOpenTimer == 0)
 				{
-					PrevRotation = 0.0f;
+					PrevRotation = 1.0f;
 					CHudUIPlayAnim(scBBPrevBtmBtn, "Right_ON_Anim", 0.0f, false, Chao::CSD::eMotionRepeatType_PlayOnce, 1.0f);
 				}
 				if (IsPreviewOpen == false)
-					PrevRotation = 0.0f;
+					PrevRotation = 1.0f;
 
-				if (PressedLST && IsPreviewOpen)
+				if (PressedLST && IsPreviewOpen && scBBPrevBtmBtn->m_MotionFrame >= 3)
 				{
+					printf("%d\n", PrevAnim);
 					switch (PrevAnim)
 					{
-					case 0:
+					case PrevAnimType::CATEGORY:
 						obj_CObjCustomSonicPreview->ChangeAnimation("FITTING");
 						PrevCatAnim = false;
-						PrevAnim = 1;
+						PrevAnim = PrevAnimType::FITTING;
 						break;
-					case 1:
+					case PrevAnimType::FITTING:
 						obj_CObjCustomSonicPreview->ChangeAnimation("IDLE");
 						PrevCatAnim = false;
-						PrevAnim = 2;
+						PrevAnim = PrevAnimType::IDLE;
 						break;
-					case 2:
+					case PrevAnimType::IDLE:
 						obj_CObjCustomSonicPreview->ChangeAnimation("RUN");
 						PrevCatAnim = false;
-						PrevAnim = 3;
+						PrevAnim = PrevAnimType::RUN;
 						break;
-					case 3:
+					case PrevAnimType::RUN:
 						switch (CHudTabSel)
 						{
-						case UIPartShoes:
+						case MenuOptionType::ItemShoes:
 							obj_CObjCustomSonicPreview->ChangeAnimation("CAT_SHOES");
 							break;
-						case UIPartBody:
+						case MenuOptionType::ItemBody:
 							obj_CObjCustomSonicPreview->ChangeAnimation("CAT_BODY");
 							break;
-						case UIPartHead:
+						case MenuOptionType::ItemHead:
 							obj_CObjCustomSonicPreview->ChangeAnimation("CAT_HEAD");
 							break;
-						case UIPartHandL:
+						case MenuOptionType::ItemHandL:
 							obj_CObjCustomSonicPreview->ChangeAnimation("CAT_HANDL");
 							break;
-						case UIPartHandR:
+						case MenuOptionType::ItemHandR:
 							obj_CObjCustomSonicPreview->ChangeAnimation("CAT_HANDR");
 							break;
-						case UIMiscOption:
+						case MenuOptionType::MiscOption:
 							obj_CObjCustomSonicPreview->ChangeAnimation("CAT_MISC");
 							break;
 						}
 						PrevCatAnim = true;
-						PrevAnim = 0;
+						PrevAnim = PrevAnimType::CATEGORY;
 						break;
 					}
 					CHudUISFXSwitch();
@@ -2261,7 +2362,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 			////------Handle Alt Prompt
 			switch (CHudTabSel)
 			{
-			case UIPartShoes:
+			case MenuOptionType::ItemShoes:
 				if (!(CHudVarTrueSel >= s_ItemDataShoes.size()) && (s_ItemDataShoes[CHudVarTrueSel].AltCount >= 1))
 				{
 					scBBIcon->GetNode("star")->SetPatternIndex(1);
@@ -2281,7 +2382,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 						scSWAAlt->SetHideFlag(true);
 				}
 				break;
-			case UIPartBody:
+			case MenuOptionType::ItemBody:
 				if (!(CHudVarTrueSel >= s_ItemDataBody.size()) && (s_ItemDataBody[CHudVarTrueSel].AltCount >= 1))
 				{
 					scBBIcon->GetNode("star")->SetPatternIndex(1);
@@ -2301,7 +2402,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 						scSWAAlt->SetHideFlag(true);
 				}
 				break;
-			case UIPartHandR:
+			case MenuOptionType::ItemHandR:
 				if (!(CHudVarTrueSel >= s_ItemDataHandR.size()) && (s_ItemDataHandR[CHudVarTrueSel].AltCount >= 1))
 				{
 					scBBIcon->GetNode("star")->SetPatternIndex(1);
@@ -2321,7 +2422,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 						scSWAAlt->SetHideFlag(true);
 				}
 				break;
-			case UIPartHandL:
+			case MenuOptionType::ItemHandL:
 				if (!(CHudVarTrueSel >= s_ItemDataHandL.size()) && (s_ItemDataHandL[CHudVarTrueSel].AltCount >= 1))
 				{
 					scBBIcon->GetNode("star")->SetPatternIndex(1);
@@ -2341,7 +2442,7 @@ void CHudFittingMenu(Sonic::CGameObject* This, void* Edx, const hh::fnd::SUpdate
 						scSWAAlt->SetHideFlag(true);
 				}
 				break;
-			case UIPartHead:
+			case MenuOptionType::ItemHead:
 				if (!(CHudVarTrueSel >= s_ItemDataHead.size()) && (s_ItemDataHead[CHudVarTrueSel].AltCount >= 1))
 				{
 					scBBIcon->GetNode("star")->SetPatternIndex(1);
@@ -2597,8 +2698,9 @@ HOOK(void, __fastcall, CHUDPauseUpdate, 0x0042A520, hh::fnd::CStateMachineBase::
 	KillScreen();
 	IsInMenuExit = false;
 	IsInMenu = false;
-	CHudTabSel = UIPartShoes;
+	CHudTabSel = MenuOptionType::ItemShoes;
 	CHudVarVisSel = 0;
+	PrevRotation = 1.0f;
 	MemoryOpenTimer = 0;
 	CHudUISceneDestroy();
 	originalCHUDPauseUpdate(This);
@@ -2608,8 +2710,9 @@ void __fastcall CHudSonicStageRemoveCallback(Sonic::CGameObject* This, void*, So
 	KillScreen();
 	IsInMenuExit = false;
 	IsInMenu = false;
-	CHudTabSel = UIPartShoes;
+	CHudTabSel = MenuOptionType::ItemShoes;
 	CHudVarVisSel = 0;
+	PrevRotation = 1.0f;
 	MemoryOpenTimer = 0;
 	CHudUISceneDestroy();
 }
@@ -2618,8 +2721,9 @@ HOOK(void, __fastcall, CHudResultStart, 0x010B6840, hh::fnd::CStateMachineBase::
 	KillScreen();
 	IsInMenuExit = false;
 	IsInMenu = false;
-	CHudTabSel = UIPartShoes;
+	CHudTabSel = MenuOptionType::ItemShoes;
 	CHudVarVisSel = 0;
+	PrevRotation = 1.0f;
 	MemoryOpenTimer = 0;
 	CHudUISceneDestroy();
 	originalCHudResultStart(This);

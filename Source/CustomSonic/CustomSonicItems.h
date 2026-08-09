@@ -15,6 +15,7 @@ struct ItemDataHead
 	int AltCount;
 	int AltSelect;
 	bool HideHead;
+	bool HideMouth;
 };
 extern std::vector<ItemDataHead> s_ItemDataHead;
 
@@ -64,9 +65,10 @@ extern int SelectHandLData;
 
 enum class SelectOptionType
 {
-	SnMaterial,
+	SnQuill,
+	SsnQuill,
 	Eyelids,
-	SuperHead,
+	SnMaterial,
 	SsnMaterial,
 	JumpBall,
 	BounceBall,
@@ -91,9 +93,10 @@ enum class SelectCategory : uint32_t
 	All = Head | Body | Shoes | HandR | HandL
 };
 
-extern SelectSnMaterialType SelectSnMaterial;
+extern SelectSnQuillType SelectSnQuill;
+extern SelectSsnQuillType SelectSsnQuill;
 extern SelectEyelidType SelectEyelid;
-extern SelectSsnHeadType SelectSsnHead;
+extern SelectSnMaterialType SelectSnMaterial;
 extern SelectSsnMaterialType SelectSsnMaterial;
 extern SelectJumpBallType SelectJumpBall;
 extern SelectBounceBallType SelectBounceBall;
@@ -105,21 +108,23 @@ extern bool isJumpBallHide;
 void MsgJumpModelHide(bool Enabled);
 
 Hedgehog::Base::CSharedString CModelHeadString(bool in_isSuper);
+Hedgehog::Base::CSharedString CModelBaseHeadString(bool in_isSuper);
+Hedgehog::Base::CSharedString CModelMouthString(bool in_isLeft);
+Hedgehog::Base::CSharedString CModelEyelidString();
 Hedgehog::Base::CSharedString CModelBodyString();
+Hedgehog::Base::CSharedString CModelShoeString();
 Hedgehog::Base::CSharedString CModelHandLString();
 Hedgehog::Base::CSharedString CModelHandRString();
-Hedgehog::Base::CSharedString CModelShoeString();
-Hedgehog::Base::CSharedString CModelEyelidString();
-Hedgehog::Base::CSharedString CModelBaseHeadString(bool in_isSuper);
 Hedgehog::Base::CSharedString CMaterialBodyString(bool in_isSuper);
 
 Hedgehog::Base::CSharedString ArchiveHeadString();
+Hedgehog::Base::CSharedString ArchiveBaseHeadString();
+Hedgehog::Base::CSharedString ArchiveMouthString();
+Hedgehog::Base::CSharedString ArchiveEyelidString();
 Hedgehog::Base::CSharedString ArchiveBodyString();
 Hedgehog::Base::CSharedString ArchiveShoeString();
 Hedgehog::Base::CSharedString ArchiveHandRString();
 Hedgehog::Base::CSharedString ArchiveHandLString();
-Hedgehog::Base::CSharedString ArchiveEyelidString();
-Hedgehog::Base::CSharedString ArchiveBaseHeadString();
 
 class MsgRefreshCustomizeSonic : public Hedgehog::Universe::MessageTypeSet
 {
@@ -149,11 +154,13 @@ public:
 
 	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spHeadMdlData{};
 	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spBaseHeadMdlData{};
+	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spMouthRMdlData{};
+	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spMouthLMdlData{};
+	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spEyelidMdlData{};
 	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spBodyMdlData{};
 	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spShoesMdlData{};
 	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spHandRMdlData{};
 	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spHandLMdlData{};
-	boost::shared_ptr<Hedgehog::Mirage::CModelData> m_spEyelidMdlData{};
 
 	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spHeadMatData{};
 	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spHeadReplaceMatData{};
@@ -163,14 +170,22 @@ public:
 	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spBodyReplaceMatData{};
 	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spEyelidMatData{};
 	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spEyelidReplaceMatData{};
+	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spShoesMatData{};
+	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spShoesReplaceMatData{};
+	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spHandRMatData{};
+	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spHandRReplaceMatData{};
+	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spHandLMatData{};
+	boost::shared_ptr<Hedgehog::Mirage::CMaterialData> m_spHandLReplaceMatData{};
 
 	boost::shared_ptr<Hedgehog::Mirage::CSingleElement> m_spSnHead{};
 	boost::shared_ptr<Hedgehog::Mirage::CSingleElement> m_spSnBaseHead{};
+	boost::shared_ptr<Hedgehog::Mirage::CSingleElement> m_spSnMouthR{};
+	boost::shared_ptr<Hedgehog::Mirage::CSingleElement> m_spSnMouthL{};
+	boost::shared_ptr<Hedgehog::Mirage::CSingleElement> m_spSnEyelid{};
 	boost::shared_ptr<Hedgehog::Mirage::CSingleElement> m_spSnBody{};
 	boost::shared_ptr<Hedgehog::Mirage::CSingleElement> m_spSnShoes{};
 	boost::shared_ptr<Hedgehog::Mirage::CSingleElement> m_spSnHandR{};
 	boost::shared_ptr<Hedgehog::Mirage::CSingleElement> m_spSnHandL{};
-	boost::shared_ptr<Hedgehog::Mirage::CSingleElement> m_spSnEyelid{};
 
 	boost::shared_ptr<Hedgehog::Mirage::CMatrixNode> m_spMatrixNode{};
 	boost::shared_ptr<Hedgehog::Mirage::CPose> m_spPose{};
@@ -255,6 +270,8 @@ public:
 			arHeadData = LoadArchiveDatabase(ArchiveHeadString(), CModelHeadString(m_isSuper), "chr_sn_body_original", CMaterialBodyString(m_isSuper));
 			arBaseHeadData = LoadArchiveDatabase(ArchiveBaseHeadString(), CModelBaseHeadString(m_isSuper), "chr_sn_body_original", CMaterialBodyString(m_isSuper));
 			arEyelidData = LoadArchiveDatabase(ArchiveEyelidString(), CModelEyelidString(), "chr_sn_body_original", CMaterialBodyString(m_isSuper));
+			m_spMouthRMdlData = LoadArchiveDatabase(ArchiveMouthString(), CModelMouthString(false), "", "").m_spModelData;
+			m_spMouthLMdlData = LoadArchiveDatabase(ArchiveMouthString(), CModelMouthString(true), "", "").m_spModelData;
 
 			m_spHeadMdlData = arHeadData.m_spModelData;
 			m_spHeadMatData = arHeadData.m_spMaterialData;
@@ -269,6 +286,8 @@ public:
 			RemoveCustomRenderModel(in_pGameObject, in_pRenderCategory, m_spSnHead);
 			RemoveCustomRenderModel(in_pGameObject, in_pRenderCategory, m_spSnBaseHead);
 			RemoveCustomRenderModel(in_pGameObject, in_pRenderCategory, m_spSnEyelid);
+			RemoveCustomRenderModel(in_pGameObject, in_pRenderCategory, m_spSnMouthR);
+			RemoveCustomRenderModel(in_pGameObject, in_pRenderCategory, m_spSnMouthL);
 		}
 
 		if (isUpdateAll || (uint32_t(in_selectCategory) & uint32_t(SelectCategory::Body)) != 0)
@@ -286,20 +305,41 @@ public:
 
 		if (isUpdateAll || (uint32_t(in_selectCategory) & uint32_t(SelectCategory::Shoes)) != 0)
 		{
-			m_spShoesMdlData = LoadArchiveDatabase(ArchiveShoeString(), CModelShoeString(), "", "").m_spModelData;
-			RemoveCustomRenderModel(in_pGameObject, in_pRenderCategory, m_spSnShoes);
-		}
+			ArDataStruct arShoesData{};
 
-		if (isUpdateAll || (uint32_t(in_selectCategory) & uint32_t(SelectCategory::HandL)) != 0)
-		{
-			m_spHandLMdlData = LoadArchiveDatabase(ArchiveHandLString(), CModelHandLString(), "", "").m_spModelData;
-			RemoveCustomRenderModel(in_pGameObject, in_pRenderCategory, m_spSnHandL);
+			arShoesData = LoadArchiveDatabase(ArchiveShoeString(), CModelShoeString(), "chr_sn_body_original", CMaterialBodyString(m_isSuper));
+
+			m_spShoesMdlData = arShoesData.m_spModelData;
+			m_spShoesMatData = arShoesData.m_spMaterialData;
+			m_spShoesReplaceMatData = arShoesData.m_spReplaceMaterialData;
+
+			RemoveCustomRenderModel(in_pGameObject, in_pRenderCategory, m_spSnShoes);
 		}
 
 		if (isUpdateAll || (uint32_t(in_selectCategory) & uint32_t(SelectCategory::HandR)) != 0)
 		{
-			m_spHandRMdlData = LoadArchiveDatabase(ArchiveHandRString(), CModelHandRString(), "", "").m_spModelData;
+			ArDataStruct arHandRData{};
+
+			arHandRData = LoadArchiveDatabase(ArchiveHandRString(), CModelHandRString(), "chr_sn_body_original", CMaterialBodyString(m_isSuper));
+
+			m_spHandRMdlData = arHandRData.m_spModelData;
+			m_spHandRMatData = arHandRData.m_spMaterialData;
+			m_spHandRReplaceMatData = arHandRData.m_spReplaceMaterialData;
+
 			RemoveCustomRenderModel(in_pGameObject, in_pRenderCategory, m_spSnHandR);
+		}
+
+		if (isUpdateAll || (uint32_t(in_selectCategory) & uint32_t(SelectCategory::HandL)) != 0)
+		{
+			ArDataStruct arHandLData{};
+
+			arHandLData = LoadArchiveDatabase(ArchiveHandLString(), CModelHandLString(), "chr_sn_body_original", CMaterialBodyString(m_isSuper));
+
+			m_spHandLMdlData = arHandLData.m_spModelData;
+			m_spHandLMatData = arHandLData.m_spMaterialData;
+			m_spHandLReplaceMatData = arHandLData.m_spReplaceMaterialData;
+
+			RemoveCustomRenderModel(in_pGameObject, in_pRenderCategory, m_spSnHandL);
 		}
 	}
 
@@ -317,6 +357,16 @@ public:
 			AddCustomRenderModel(in_pGameObject, in_pRenderCategory, m_spSnBaseHead, m_spBaseHeadMdlData);
 			m_spBaseHeadMdlData = nullptr;
 			m_isHeadLoaded = true;
+		}
+		if (m_spMouthRMdlData != nullptr && m_spMouthRMdlData->IsMadeAll())
+		{
+			AddCustomRenderModel(in_pGameObject, in_pRenderCategory, m_spSnMouthR, m_spMouthRMdlData);
+			m_spMouthRMdlData = nullptr;
+		}
+		if (m_spMouthLMdlData != nullptr && m_spMouthLMdlData->IsMadeAll())
+		{
+			AddCustomRenderModel(in_pGameObject, in_pRenderCategory, m_spSnMouthL, m_spMouthLMdlData);
+			m_spMouthLMdlData = nullptr;
 		}
 		if (m_spEyelidMdlData != nullptr && m_spEyelidMdlData->IsMadeAll())
 		{
@@ -368,6 +418,24 @@ public:
 			AddCustomRenderMaterial(m_spSnBody, m_spBodyMatData, m_spBodyReplaceMatData);
 			m_spBodyMatData = nullptr;
 			m_spBodyReplaceMatData = nullptr;
+		}
+		if (m_spShoesMatData != nullptr && m_spShoesMatData->IsMadeAll() && m_spShoesReplaceMatData != nullptr && m_spShoesReplaceMatData->IsMadeAll())
+		{
+			AddCustomRenderMaterial(m_spSnShoes, m_spShoesMatData, m_spShoesReplaceMatData);
+			m_spShoesMatData = nullptr;
+			m_spShoesReplaceMatData = nullptr;
+		}
+		if (m_spHandRMatData != nullptr && m_spHandRMatData->IsMadeAll() && m_spHandRReplaceMatData != nullptr && m_spHandRReplaceMatData->IsMadeAll())
+		{
+			AddCustomRenderMaterial(m_spSnHandR, m_spHandRMatData, m_spHandRReplaceMatData);
+			m_spHandRMatData = nullptr;
+			m_spHandRReplaceMatData = nullptr;
+		}
+		if (m_spHandLMatData != nullptr && m_spHandLMatData->IsMadeAll() && m_spHandLReplaceMatData != nullptr && m_spHandLReplaceMatData->IsMadeAll())
+		{
+			AddCustomRenderMaterial(m_spSnHandL, m_spHandLMatData, m_spHandLReplaceMatData);
+			m_spHandLMatData = nullptr;
+			m_spHandLReplaceMatData = nullptr;
 		}
 	}
 };
@@ -433,6 +501,10 @@ public:
 			m_spSnEyelid->m_Enabled = isModelEnabled;
 		if (m_spSnBaseHead)
 			m_spSnBaseHead->m_Enabled = isModelEnabled;
+		if (m_spSnMouthR)
+			m_spSnMouthR->m_Enabled = isModelEnabled;
+		if (m_spSnMouthL)
+			m_spSnMouthL->m_Enabled = isModelEnabled;
 		
 		// printf("%s\n", isModelEnabled ? "SHOW MODEL" : "HIDE MODEL");
 		// printf("%s\n", m_isSuper ? "SUPER SONIC TRUE" : "SUPER SONIC FALSE");
